@@ -9,7 +9,6 @@ async def on_ready():
 
 @bot.command()
 async def on(ctx):
-    print(ctx.channel.type.name)
     await ctx.send(':nyan:')
 
 @bot.command()

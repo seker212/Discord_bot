@@ -30,7 +30,9 @@ async def on_voice_state_update(member, before, after):
 
 @bot.command()
 async def on(ctx):
-    await ctx.send(':nyan:')
+    emoji = discord.utils.get(ctx.guild.emojis, name='nyan')
+    if emoji:
+        await ctx.send(emoji)
 
 @bot.command()
 async def cls(ctx):
@@ -48,6 +50,7 @@ async def join(ctx, channelName):
 
 @bot.command()
 async def play(ctx, *filename):
+    global voiceBot
     global audiofile
     if ctx.channel.type.name == 'text' and ctx.channel.name == 'bot-mod':
         if len(filename) == 1:
@@ -64,23 +67,25 @@ async def play(ctx, *filename):
 @bot.command()
 async def leave(ctx):
     global audiofile
-    if voiceBot.is_connected():
-        if voiceBot.is_playing():
-            voiceBot.stop()
-            audiofile.close()
-    await voiceBot.disconnect()
+    if ctx.channel.type.name == 'text' and ctx.channel.name == 'bot-mod':
+        if voiceBot.is_connected():
+            if voiceBot.is_playing():
+                voiceBot.stop()
+        await voiceBot.disconnect()
 
 @bot.command()
 async def stop(ctx):
     global audiofile
-    if voiceBot.is_connected() and voiceBot.is_playing():
-        voiceBot.stop()
-    audiofile.close()
+    if ctx.channel.type.name == 'text' and ctx.channel.name == 'bot-mod':
+        if voiceBot.is_connected() and voiceBot.is_playing():
+            voiceBot.stop()
+        audiofile.close()
 
 @bot.command()
 async def pause(ctx):
-    if voiceBot.is_connected() and voiceBot.is_playing():
-        voiceBot.pause()
+    if ctx.channel.type.name == 'text' and ctx.channel.name == 'bot-mod':
+        if voiceBot.is_connected() and voiceBot.is_playing():
+            voiceBot.pause()
 
 @bot.command()
 async def saytts(ctx, channelName, message):

@@ -8,22 +8,6 @@ bot = commands.Bot(command_prefix= '?')
 async def on_ready():
     print('Logged in as {0.user}'.format(bot))
 
-@bot.command()
-async def on(ctx):
-    await ctx.send(':nyan:')
-
-@bot.command()
-async def cls(ctx):
-    if ctx.channel.type.name == 'text' and ctx.channel.name == 'bot-mod':
-        await ctx.channel.purge()
-
-@bot.command()
-async def join(ctx, channelName):
-    for channel in ctx.guild.channels:
-        if channel.name == channelName:
-            await channel.connect()
-            break
-
 @bot.event
 async def on_voice_state_update(member, before, after):
     if not member.bot:
@@ -36,8 +20,56 @@ async def on_voice_state_update(member, before, after):
                         voiceBot.play(discord.PCMAudio(file), after = voiceBot.stop())
                         while voiceBot.is_playing():
                             await asyncio.sleep(1)
+                        file.close()
                         await voiceBot.disconnect()
 
+@bot.command()
+async def on(ctx):
+    await ctx.send(':nyan:')
+    print(ctx.author)
 
+@bot.command()
+async def cls(ctx):
+    if ctx.channel.type.name == 'text' and ctx.channel.name == 'bot-mod':
+        await ctx.channel.purge()
+
+@bot.command()
+async def join(ctx, channelName):
+    if ctx.channel.type.name == 'text' and ctx.channel.name == 'bot-mod':
+        for channel in ctx.guild.channels:
+            if channel.name == channelName:
+                await channel.connect()
+                break
+
+@bot.command()
+async def saytts(ctx, channelName, message):
+    if ctx.channel.type.name == 'text' and ctx.channel.name == 'bot-mod':
+        for channel in ctx.guild.channels:
+            if channel.name == channelName:
+                await channel.send(content = message, tts = True)
+                break
+
+@bot.command()
+async def say(ctx, channelName, message):
+    if ctx.channel.type.name == 'text' and ctx.channel.name == 'bot-mod':
+        for channel in ctx.guild.channels:
+            if channel.name == channelName:
+                await channel.send(content = message)
+                break
+
+@bot.command()
+async def fprop(ctx, *args):
+    file = open(r'function_propositions.txt', 'a')
+    file.write(str(ctx.author) + ':\t' + ' '.join(args) + '\n')
+    file.close()
+
+'''
+@bot.event
+async def on_message(message):
+    if message.channel.type.name == 'text' and message.channel.type.name != 'bot-mod':
+        file = open('{}_history.txt'.format(message.channel.name), 'a')
+        file.write(message.created_at.strftime('%d/%m %H:%M:%S ') + str(message.author) + ':\t' + message.content + '\n')
+        file.close()
+'''
 
 bot.run('NTk4MjA2MjE5NzY4OTU0OTQw.XkbsZw.R9tjPAwKThMPMhzdTMpJQ79yyQw')

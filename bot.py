@@ -3,13 +3,17 @@ import discord
 from discord.ext import commands
 
 bot = commands.Bot(command_prefix= '?')
+voiceBot = None
+audiofile = None
 
 @bot.event
 async def on_ready():
     print('Logged in as {0.user}'.format(bot))
+    await bot.change_presence(activity=discord.Game(name='on your nerves'))
 
 @bot.event
 async def on_voice_state_update(member, before, after):
+    global voiceBot
     if not member.bot:
         if after.channel != before.channel: #only channel change
             if after.channel != None:       #someone on a channel
@@ -35,11 +39,48 @@ async def cls(ctx):
 
 @bot.command()
 async def join(ctx, channelName):
+    global voiceBot
     if ctx.channel.type.name == 'text' and ctx.channel.name == 'bot-mod':
         for channel in ctx.guild.channels:
             if channel.name == channelName:
-                await channel.connect()
+                voiceBot = await channel.connect()
                 break
+
+@bot.command()
+async def play(ctx, *filename):
+    global audiofile
+    if ctx.channel.type.name == 'text' and ctx.channel.name == 'bot-mod':
+        if len(filename) == 1:
+            x = 'raw audio/{}.raw'.format("".join(filename))
+            audiofile = open(x, 'rb')
+            voiceBot.play(discord.PCMAudio(audiofile), after = voiceBot.stop())
+            while voiceBot.is_playing():
+                await asyncio.sleep(1)
+        elif len(filename) == 0:
+            voiceBot.play(discord.PCMAudio(audiofile), after = voiceBot.stop())
+            while voiceBot.is_playing():
+                await asyncio.sleep(1)
+
+@bot.command()
+async def leave(ctx):
+    global audiofile
+    if voiceBot.is_connected():
+        if voiceBot.is_playing():
+            voiceBot.stop()
+            audiofile.close()
+    await voiceBot.disconnect()
+
+@bot.command()
+async def stop(ctx):
+    global audiofile
+    if voiceBot.is_connected() and voiceBot.is_playing():
+        voiceBot.stop()
+    audiofile.close()
+
+@bot.command()
+async def pause(ctx):
+    if voiceBot.is_connected() and voiceBot.is_playing():
+        voiceBot.pause()
 
 @bot.command()
 async def saytts(ctx, channelName, message):

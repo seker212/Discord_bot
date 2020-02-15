@@ -127,3 +127,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+raw\ audio/
+close
+fullredo
+getbot
+restart
+run

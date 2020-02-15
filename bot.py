@@ -16,7 +16,8 @@ async def on_voice_state_update(member, before, after):
                 if after.channel.name == 'Klocki' and len(after.channel.members) == 1:
                     if len(bot.voice_clients) == 0:
                         voiceBot = await after.channel.connect()
-                        file = open('Get_out_minecraft.raw', 'rb')
+                        await asyncio.sleep(0.5)
+                        file = open('raw audio/Get_out_minecraft.raw', 'rb')
                         voiceBot.play(discord.PCMAudio(file), after = voiceBot.stop())
                         while voiceBot.is_playing():
                             await asyncio.sleep(1)
@@ -26,7 +27,6 @@ async def on_voice_state_update(member, before, after):
 @bot.command()
 async def on(ctx):
     await ctx.send(':nyan:')
-    print(ctx.author)
 
 @bot.command()
 async def cls(ctx):
@@ -63,13 +63,12 @@ async def fprop(ctx, *args):
     file.write(str(ctx.author) + ':\t' + ' '.join(args) + '\n')
     file.close()
 
-'''
 @bot.event
 async def on_message(message):
     if message.channel.type.name == 'text' and message.channel.type.name != 'bot-mod':
-        file = open('{}_history.txt'.format(message.channel.name), 'a')
-        file.write(message.created_at.strftime('%d/%m %H:%M:%S ') + str(message.author) + ':\t' + message.content + '\n')
+        file = open('message logs/{}_history.log'.format(message.channel.name), 'a')
+        file.write(message.created_at.strftime('%d/%m %H:%M:%S\t') + str(message.author) + ':\t' + message.content + '\n')
         file.close()
-'''
+    await bot.process_commands(message)
 
 bot.run('NTk4MjA2MjE5NzY4OTU0OTQw.XkbsZw.R9tjPAwKThMPMhzdTMpJQ79yyQw')

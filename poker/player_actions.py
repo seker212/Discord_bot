@@ -58,8 +58,12 @@ def all_in(table):
 
 def check(table):
     if table.table_ammount == 0:
+        table.turn.check = True
         return ActionEffect.OK
     else:
+        if table.turn.blind.name == 'big' and table.table_ammount == 2 * table.smallBlind:
+            table.turn.check = True
+            return ActionEffect.OK
         return ActionEffect.Pot_already_open
 
 def Raise(table, ammount):
@@ -71,7 +75,7 @@ def Raise(table, ammount):
         if table.turn.money < ammount:
             return ActionEffect.Not_enought_money
         else:
-            if ammount < 2*table.table_ammount:
+            if raise_amm < table.table_ammount:
                 return ActionEffect.Too_little_ammount
             else:
                 table.table_ammount += raise_amm

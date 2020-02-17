@@ -8,6 +8,7 @@ class ActionEffect(enum.Enum):
     Check_required = 4
     Arg_out_of_range = 5
     Too_little_ammount = 6
+    Input_error = 7
 
 
 def fold(table): 
@@ -18,7 +19,7 @@ def bet(table, ammount):
     if ammount <= 0:
         return ActionEffect.Arg_out_of_range
     else:
-        if ammount < table.bigBlind:
+        if ammount < 2*table.smallBlind:
             return ActionEffect.Too_little_ammount
         else:
             if table.turn.money < ammount:

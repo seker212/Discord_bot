@@ -33,3 +33,27 @@ def deckFill():
         for r in Ranks:
             L.append(Card(s,r))
     return L
+
+def countCards(card, cardList):
+    count = 0
+    if card.suit != None:
+        for c in cardList:
+            if card.suit == c.suit:
+                count += 1
+    elif card.rank != None:
+        for c in cardList:
+            if card.rank == c.rank:
+                count += 1
+    return count
+
+def findCard(card, cardList):
+    if card.suit != None:
+        for c in cardList:
+            if card.suit == c.suit:
+                return c
+    elif card.rank != None:
+        for c in cardList:
+            if card.rank == c.rank:
+                return c
+    else:
+        return None

@@ -31,25 +31,42 @@ def info(t1):
 
 t1 = Table(['A', 'B', 'C', 'D'])
 
-for x in range(4):
-    info(t1)
-    while not t1.finished_stage():
-        c = cmd(t1)
-        print(c.name)
-        print()
-        if c.name == 'OK':
-            t1.nextTurn()
-            info(t1)
-    print('-------------------------')
-    if t1.stage == 3:
-        print('SHOWDOWN:')
-        winners, decisive = t1.showdown()
-        if len(winners) == 1:
-            print('Winner: ' + winners.first.user + ' with ' + winners.second.HandType.name, end='')
-            if decisive != None:
-                if decisive == 'hight' or decisive == 'kicker':
-                    print(' by a ' + decisive)
-    else:
-        t1.nextStage()
+
+for deal in range(3):
+
+    for x in range(4):
+        info(t1)
+        while not t1.finished_stage():
+            c = cmd(t1)
+            print(c.name)
+            print()
+            if c.name == 'OK':
+                if t1.finished_stage():
+                    print('but why')
+                    break
+                else:
+                    print('shit')
+
+                t1.nextTurn()
+                info(t1)
+        print('-------------------------')
+        if t1.stage == 3:
+            print('SHOWDOWN:')
+            winners, decisive = t1.showdown()
+            if len(winners) == 1:
+                print('Winner: ' + winners[0].first.user + ' with ' + winners[0].second.HandType.name, end='')
+                if decisive != None:
+                    if decisive == 'hight' or decisive == 'kicker':
+                        print(' by a ' + decisive, end ='')
+            else:
+                print('We have a tie between players: ', end='')
+                for x in winners:
+                    print(x.first.user + ' ', end='')
+                print('and the pot is split')
+            print('.\n', end='')
+            t1.grab_pot(winners)
+        else:
+            t1.nextStage()
+    t1.nextDeal()
     
 

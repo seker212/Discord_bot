@@ -106,20 +106,30 @@ class Table:
                         x += 1
                 else:
                     return False
-            
+            print('finished_stahe() - x = ', x)
             if x == len(self.playerList):
                 return True
         else:
+            count = 0
             for p in self.playerList.List:
                 if p.fold == False and p.all_in == False and p.check == False:
-                    return False
-                else:
-                    return True
+                    count += 1
+                    if count > 1:
+                        return False
+            return True
 
-    def nextTurn(self):
+    def nextTurn(self, recursive = None):
+        if recursive == None:
+            recursive = len(self.playerList)-1
+        else:
+            recursive -= 1
         self.turn = next(self.playerIt)
         if self.turn.fold == True or self.turn.all_in == True:
-            self.nextTurn()
+            if recursive == 0:
+                return False
+            else:
+                return self.nextTurn(recursive)
+        return True
 
     def nextStage(self):                    #czy kolejność zmienia się co *rozdanie* czy co staga?
         if self.stage == 0:
@@ -139,8 +149,10 @@ class Table:
         self.playerList.setIterSB()
         next(self.playerIt) #small blind
         next(self.playerIt) #big blind
-        self.turn = next(self.playerIt)
+        self.playerList.setIterSB()
         self.table_ammount = 0
+        self.nextTurn()
+            
 
     def nextDeal(self):
         self.deck = deckFill()
@@ -149,9 +161,12 @@ class Table:
         self.tableCards = []
         
         for p in self.playerList.List:
-            p.fold = False
-            p.all_in = False
-            p.table_money = 0
+            if p.money == 0:
+                self.playerList.List.remove(p)
+            else:
+                p.fold = False
+                p.all_in = False
+                p.table_money = 0
 
         if self.number_of_deals == BLIND_INC_STEP-1:
             self.number_of_deals = 0
@@ -190,10 +205,10 @@ class Table:
             for x in same:
                 if len(sameh) == 0:
                     sameh.append(x)
-                elif x.second.hight < winning.second.hight:
+                elif x.second.hight < sameh[0].second.hight:
                     sameh.clear()
                     sameh.append(x)
-                elif x.second.hight == winning.second.hight:
+                elif x.second.hight == sameh[0].second.hight:
                     sameh.append(x)
             if len(sameh) == 1:
                 decisive = 'hight'
@@ -286,3 +301,8 @@ class Table:
                 high = x
                 break
         return Hand(HandType.high_hand, high, firstNo0(4, cR))
+
+    def grab_pot(self, winners):
+        price = int(self.pot/len(winners))
+        for p in winners:
+            p.first.money += price

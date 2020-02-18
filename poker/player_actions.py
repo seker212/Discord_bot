@@ -8,7 +8,8 @@ class ActionEffect(enum.Enum):
     Check_required = 4
     Arg_out_of_range = 5
     Too_little_ammount = 6
-    Input_error = 7
+    Pot_is_close = 7
+    Input_error = 8
 
 
 def fold(table): 
@@ -70,7 +71,9 @@ def check(table):
 def Raise(table, ammount):
     to_call = table.table_ammount - table.turn.table_money
     raise_amm = ammount - to_call
-    if ammount < 0:
+    if table.table_ammount == 0:
+        return ActionEffect.Pot_is_close
+    elif ammount < 0:
         return ActionEffect.Arg_out_of_range
     else:
         if table.turn.money < ammount:

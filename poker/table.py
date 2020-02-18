@@ -1,69 +1,11 @@
 from random import randint
 from variables import *
 from deck import *
-
-class Blind(enum.Enum):
-    none = 0
-    small = 1
-    big = 2
-
-class Player:
-    def __init__(self, player):
-        self.user = player
-        self.hand = []
-        self.money = STARTING_MONEY
-        self.table_money = 0
-        self.blind = Blind.none
-        self.fold = False
-        self.all_in = False
-        self.check = False
-    
-    def __str__(self):
-       return self.user + ': ' + str(self.hand[0]) + ' ' + str(self.hand[1]) + ' ' + str(self.money) + ' ' + str(self.table_money) + ' ' + self.blind.name + ' ' + str(self.fold) + ' ' + str(self.all_in) + ' ' + str(self.check)
-
-class TablePlayers:
-    def __init__(self):
-        self.List = []
-
-    def __iter__(self):
-        self.index = 0
-        return self
-    
-    def __next__(self):
-        player = self.List[self.index]
-        if (self.index == len(self.List)-1):
-            self.index = 0
-        else:
-            self.index += 1
-        return player
-    
-    def __getitem__(self, key):
-        return self.List[key]
-
-    def __len__(self):
-        return len(self.List)
-
-    def __str__(self):
-        end = '[ '
-        for p in self.List:
-            end += p.user + ' '
-        end += ']'
-        return end
-    
-    def append(self, element):
-        return self.List.append(element)
-
-    def setIterSB(self):
-        i = 0
-        for p in self.List:
-            if p.blind.name == 'small':
-                break
-            i += 1
-        if i > 0:
-            self.index = i-1
-        else:
-            self.index = 0
-                
+from search_func import *
+from Player import *
+from Hand import *
+from TablePlayers import *
+from pair import *
 
 class Table:
     def __init__(self, playerList): #TODO Exception: Check if len(playerList) > 1
@@ -226,95 +168,121 @@ class Table:
         self.turn = next(self.playerIt)
         self.giveHand()
 
+    #returns < a list of pair(first = player, second = Hand()) of winner(s), string on final arg> 
     def showdown(self):
+        decisive = None
+        same = []
         for p in self.playerList.List:
             if p.fold == False:
-                res = self.check_hand(p)
-                
-
+                current = pair(p, self.check_hand(p))
+                if len(same) == 0:
+                    same.append(current)
+                elif current.second.HandType.value < same[0].second.HandType.value:
+                    same.clear()
+                    same.append(current)
+                elif current.second.HandType.value == same[0].second.HandType.value:
+                    same.append(current)
+        if len(same) == 1:
+            decisive = 'type'
+            return same, decisive
+        else:
+            sameh = []
+            for x in same:
+                if len(sameh) == 0:
+                    sameh.append(x)
+                elif x.second.hight < winning.second.hight:
+                    sameh.clear()
+                    sameh.append(x)
+                elif x.second.hight == winning.second.hight:
+                    sameh.append(x)
+            if len(sameh) == 1:
+                decisive = 'hight'
+                return sameh, decisive
+            else:
+                samek = []
+                for i in range(len(sameh[0].second.Kickers)):
+                    for p in sameh:
+                        if len(samek) == 0:
+                            samek.append(p) 
+                        elif p.second.Kickers[i] < samek[0].second.Kickers[i]:
+                            samek.clear()
+                            samek.append(p)
+                        elif p.second.Kickers[i] == samek[0].second.Kickers[i]:
+                            samek.append(p)
+                    if len(samek) == 1:
+                        decisive = 'kicker'
+                        return samek, decisive
+                    else:
+                        sameh = samek
+                        samek.clear()
+                return sameh, decisive
 
     def check_hand(self, player):
-        # [2, 3, 4, 5, 6, 7, 8, 9, 10, J, Q, K, A]
-        # [A, K, Q, J, 10, 9, 8, 7, 6, 5, 4, 3, 2]
-        #  0  1  2  3  4   5  6  7  8  9 10 11 12
-        # [♦️, ♥️, ♣️, ♠️]
+        # Ranks [2, 3, 4, 5, 6, 7, 8, 9, 10, J, Q, K, A]
+        # cR [A, K, Q, J, 10, 9, 8, 7, 6, 5, 4, 3, 2]
+        #     0  1  2  3  4   5  6  7  8  9 10 11 12
+        # cS [♦️, ♥️, ♣️, ♠️]
         cR = []
         cS = []
         for x in Ranks:
-            cR.appent(countCards(Card(None, x), self.tableCards + player.hand))
+            cR.append(countCards(Card(None, x), self.tableCards + player.hand))
         cR.reverse()
         maxRN = max(cR)
+
+
         if maxRN == 4:
             return Hand(HandType.four_of_a_kind, cR.index(4), firstNo0(1, cR, cR.index(4)))
+
         if maxRN == 3 and 2 in cR:
             return Hand(HandType.full_house, cR.index(3), [cR.index(2)]*2)
-        #DO TĄD OGAR
-        straight = has_straight(cR)
 
+
+        straight = has_straight(cR)
         for x in Suites:
             cS.append(countCards(Card(x, None),self.tableCards + player.hand))
-        maxSuitNum = max(cS)
-        if maxSuitNum >= 5:
-            pass #flush, straight flush, royal straight 
-        else:
-            if straight != None: #straight, high card
-                return Hand(HandType.straight, straight, [])
-        
+        maxSN = max(cS)
+
+        if maxSN >= 5:
+            fSN = flushSuit(cS)
+            if straight != None:
+                if s == 0:
+                    if sameSuitStr(s, Suites[fSN], self.tableCards + player.hand):
+                        return Hand(HandType.royal_flash, s, None)
+                else:
+                    if sameSuitStr(s, Suites[fSN], self.tableCards + player.hand):
+                        return Hand(HandType.straight_flash, s, None)
+
+            hand = flush(Suites[fSN], cR, self.tableCards + player.hand)
+            kickers = []
+            for x in range(1,5):
+                kickers.append(revRankIndex(hand[x].rank))
+            return Hand(HandType.flush, revRankIndex(hand[0].rank), kickers)
+
+        if straight != None:
+            return Hand(HandType.straight, straight, None)
+
         if maxRN == 3:
-            return Hand(HandType.three_of_a_kind, cR.index(3), firstNo0(2, cR, cR.index(3))) # also possible straight and flush FUCK
+            return Hand(HandType.three_of_a_kind, cR.index(3), firstNo0(2, cR, cR.index(3)))
         if maxRN == 2:
-            if maxRN.count(2) >= 2:
-                return Hand(HandType.two_pair,cR.index(2),firstNo0(3, cR, cR.index(2)))
+            if cR.count(2) >= 2:
+                kickers = []
+                save = None
+                for x in range(cR.index(2)+1, 13):
+                    if cR[x] == 2:
+                        kickers.append([x]*2)
+                        save = x
+                        break
+                for x in range(13):
+                    if x != cR.index(2) and x != save and cR[x] > 0:
+                        kickers.append([x])
+                        break
+                return Hand(HandType.two_pair,cR.index(2),kickers)
             else:
-                return HandType.pair
-
-def has_straight(cR):
-    i = 0
-    s = None
-    t = False
-    for x in cR:
-        if x != 0:
-            i += 1
-        else:
-            i = 0
-        if i == 1:
-            s = x
-        if i == 0 and t == False:
-            s = None
-        if x == 5:
-            t = True
-            return s
-    return None
-
-def firstNo0(n, lista, avoid = None):
-    out = []
-    i = 0
-    for x in lista:
-        if x != 0 and i != avoid:
-            out += [i]*x
-        i += 1
-        if len(out) == n:
-            return out
-        elif len(out) > n:
-            while len(out) > n:
-                out.pop()
-            return out
-
-class Hand:
-    def __init__(self, HandType, hight, Kickers):
-        self.HandType = HandType
-        self.hight = hight #the lower the better [A, K, Q, J, 10, 9, 8, 7, 6, 5, 4, 3, 2]
-        self.Kickers = []
-        self.Kickers += Kickers
-
-class HandType(enum.Enum):
-    royal_flash = 1
-    straight_flash = 2
-    four_of_a_kind = 3
-    full_house = 4
-    flush = 5
-    straight = 6
-    three_of_a_kind = 7
-    two_pair = 8
-    pair = 9
-    high_hand = 10
+                return Hand(HandType.pair, cR.index(2), firstNo0(3, cR, cR.index(2)))
+        
+        high = []
+        for x in range(13):
+            if cR[x] > 0:
+                high = x
+                break
+        return Hand(HandType.high_hand, high, firstNo0(4, cR))

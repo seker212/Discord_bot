@@ -1,4 +1,4 @@
-from table import *
+from Table import *
 
 class ActionEffect(enum.Enum):
     OK = 0

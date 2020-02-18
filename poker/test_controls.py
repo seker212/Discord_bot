@@ -29,7 +29,7 @@ def info(t1):
     print(t1)
     print('\n')
 
-t1 = Table(['A', 'B', 'C', 'D', 'E'])
+t1 = Table(['A', 'B', 'C', 'D'])
 
 for x in range(4):
     info(t1)
@@ -41,6 +41,15 @@ for x in range(4):
             t1.nextTurn()
             info(t1)
     print('-------------------------')
-    t1.nextStage()
+    if t1.stage == 3:
+        print('SHOWDOWN:')
+        winners, decisive = t1.showdown()
+        if len(winners) == 1:
+            print('Winner: ' + winners.first.user + ' with ' + winners.second.HandType.name, end='')
+            if decisive != None:
+                if decisive == 'hight' or decisive == 'kicker':
+                    print(' by a ' + decisive)
+    else:
+        t1.nextStage()
     
 

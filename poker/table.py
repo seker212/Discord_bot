@@ -1,11 +1,11 @@
 from random import randint
-from variables import *
-from deck import *
-from search_func import *
-from Player import *
-from Hand import *
-from TablePlayers import *
-from pair import *
+from poker.variables import *
+from poker.deck import *
+from poker.search_func import *
+from poker.Player import *
+from poker.Hand import *
+from poker.TablePlayers import *
+from poker.pair import *
 
 class Table:
     def __init__(self, playerList): #TODO Exception: Check if len(playerList) > 1
@@ -43,7 +43,7 @@ class Table:
         end += 'Small blind ammount: ' + str(self.smallBlind) + '\n'
         end += 'Pot: '+ str(self.pot) + '\n'
         end += 'Table ammount: ' + str(self.table_ammount) + '\n'
-        end += 'Turn: ' + self.turn.user
+        end += 'Turn: ' + self.turn.user                                    #FIXME USER
         return end
 
     def giveHand(self):
@@ -90,7 +90,7 @@ class Table:
             self.tableCards.append(card)
             self.deck.remove(card)
 
-    def finished_stage(self):
+    def finished_stage(self, new_stage = False):        #FIXME FUCK YOU
         if self.table_ammount != 0:
             x = 0
             for p in self.playerList.List:
@@ -109,14 +109,18 @@ class Table:
             print('finished_stahe() - x = ', x)
             if x == len(self.playerList):
                 return True
-        else:
-            count = 0
-            for p in self.playerList.List:
-                if p.fold == False and p.all_in == False and p.check == False:
-                    count += 1
-                    if count > 1:
-                        return False
-            return True
+        else:                               #FIXME find_err.txt
+            if new_stage:
+                folds = 0
+                for p in self.playerList.List:
+                    if p.fold:
+                        folds += 1
+                if folds == len(self.playerList)-1:
+                    return True
+            else:
+                count = 0
+                for p in self.playerList.List:
+                    pass
 
     def nextTurn(self, recursive = None):
         if recursive == None:
@@ -163,10 +167,13 @@ class Table:
         for p in self.playerList.List:
             if p.money == 0:
                 self.playerList.List.remove(p)
-            else:
-                p.fold = False
-                p.all_in = False
-                p.table_money = 0
+                print('Player has been eliminated')
+        
+        for p in self.playerList.List:
+            p.fold = False
+            p.all_in = False
+            p.table_money = 0
+            p.hand.clear()
 
         if self.number_of_deals == BLIND_INC_STEP-1:
             self.number_of_deals = 0
@@ -260,12 +267,12 @@ class Table:
         if maxSN >= 5:
             fSN = flushSuit(cS)
             if straight != None:
-                if s == 0:
-                    if sameSuitStr(s, Suites[fSN], self.tableCards + player.hand):
-                        return Hand(HandType.royal_flash, s, None)
+                if straight == 0:
+                    if sameSuitStr(straight, Suites[fSN], self.tableCards + player.hand):
+                        return Hand(HandType.royal_flash, straight, None)
                 else:
-                    if sameSuitStr(s, Suites[fSN], self.tableCards + player.hand):
-                        return Hand(HandType.straight_flash, s, None)
+                    if sameSuitStr(straight, Suites[fSN], self.tableCards + player.hand):
+                        return Hand(HandType.straight_flash, straight, None)
 
             hand = flush(Suites[fSN], cR, self.tableCards + player.hand)
             kickers = []

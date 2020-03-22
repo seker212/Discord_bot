@@ -1,4 +1,4 @@
-from Table import *
+from poker.Table import *
 
 class ActionEffect(enum.Enum):
     OK = 0

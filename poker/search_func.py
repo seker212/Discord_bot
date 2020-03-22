@@ -1,4 +1,4 @@
-from deck import *
+from poker.deck import *
 
 def countCards(card, cardList):
     count = 0

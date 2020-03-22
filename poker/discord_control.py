@@ -29,29 +29,23 @@ def info(t1):
     print(t1)
     print('\n')
 
-def play(t1):
-    while len(t1.playerList) > 1:
+def play(table):
+    while len(table.playerList) > 1:
         for x in range(4):
-            info(t1)
-            new_stage = True
-            while not t1.finished_stage(new_stage):
-                new_stage = False
-                c = cmd(t1)
+            info(table)
+            while not table.finished_stage():
+                c = cmd(table)
                 print(c.name)
                 print()
                 if c.name == 'OK':
-                    if t1.finished_stage():
-                        print('but why')
+                    if table.finished_stage():
                         break
-                    else:
-                        print('shit')
-
-                    t1.nextTurn()
-                    info(t1)
+                    table.nextTurn()
+                    info(table)
             print('-------------------------')
-            if t1.stage == 3:
+            if table.stage == 3:
                 print('SHOWDOWN:')
-                winners, decisive = t1.showdown()
+                winners, decisive = table.showdown()
                 if len(winners) == 1:
                     print('Winner: ' + winners[0].first.user + ' with ' + winners[0].second.HandType.name, end='')
                     if decisive != None:
@@ -63,9 +57,7 @@ def play(t1):
                         print(x.first.user + ' ', end='')
                     print('and the pot is split')
                 print('.\n', end='')
-                t1.grab_pot(winners)
+                table.grab_pot(winners)
             else:
-                t1.nextStage()
-        t1.nextDeal()
-    
-
+                table.nextStage()
+        table.nextDeal()

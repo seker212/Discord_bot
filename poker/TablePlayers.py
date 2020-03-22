@@ -1,6 +1,7 @@
 class TablePlayers:
     def __init__(self):
         self.List = []
+        self.saveIndex = None
 
     def __iter__(self):
         self.index = 0
@@ -23,7 +24,7 @@ class TablePlayers:
     def __str__(self):
         end = '[ '
         for p in self.List:
-            end += p.user + ' '
+            end += p.user + ' '                 #FIXME USER
         end += ']'
         return end
     
@@ -36,7 +37,8 @@ class TablePlayers:
             if p.blind.name == 'small':
                 break
             i += 1
-        if i > 0:
-            self.index = i-1
+        if i == len(self.List):
+            self.index = self.saveIndex
         else:
-            self.index = 0
+            self.index = i
+            self.saveIndex = i

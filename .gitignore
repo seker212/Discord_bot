@@ -134,3 +134,5 @@ fullredo
 getbot
 restart
 run
+
+start_bot.py

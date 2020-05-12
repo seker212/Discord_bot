@@ -217,3 +217,12 @@ async def on_message(message):
                         await message.add_reaction(x)
     except IndexError:
         pass
+
+@bot.event
+async def on_reaction_add(reaction,user):
+    for react in reaction.message.reactions:
+        async for users in react.users (limit=None,after=None):
+            if react != reaction and users == user and user != bot.user:
+                await reaction.remove(user)
+                
+

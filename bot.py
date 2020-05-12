@@ -206,3 +206,14 @@ async def on_message(message):
         elif re.search('dobranoc .*', msg) != None:
             await message.channel.send('Dobranoc! '+message.author.mention)
     await bot.process_commands(message)
+
+    try:
+        for attachments in message.attachments:
+            att = attachments.url
+            for ext in ['.jpg','.png','.jpeg']:
+                if att.endswith(ext):
+                    for x in ['🇦', '🇧' , '🇨', '🇩', '🇪', '🇫']:
+                        emoji = bot.get_emoji(x)
+                        await message.add_reaction(x)
+    except IndexError:
+        pass

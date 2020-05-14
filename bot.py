@@ -183,13 +183,12 @@ async def game(ctx, oper, arg):
     with open('games.pkl', 'wb') as output:
         pickle.dump(games, output)
 
-#@bot.event
-#async def on_message(message):
-#    if message.channel.type.name == 'text' and message.channel.type.name != 'bot-mod':
-#        file = open('message logs/{}_history.log'.format(message.channel.name), 'a')
-#        file.write(message.created_at.strftime('%d/%m %H:%M:%S\t') + str(message.author) + ':\t' + message.content + '\n')
-#        file.close()
-#    await bot.process_commands(message)
+@bot.command()
+async def todo(ctx):
+    embed = discord.Embed(title="Todo",description="japierdole",color=0x00ff00)
+    embed.add_field(name="Krzysia pojebauo",value="bardzo",inline=False)
+    embed.add_field(name="Krzysia pojebauo",value="bardzo mocno",inline=False)
+    await ctx.message.channel.send(embed=embed)
 
 @bot.event
 async def on_message(message):
@@ -210,7 +209,7 @@ async def on_message(message):
     try:
         for attachments in message.attachments:
             att = attachments.url
-            for ext in ['.jpg','.png','.jpeg']:
+            for ext in ['.jpg','.png','.jpeg','.PNG','.JPEG','.JPG']:
                 if att.endswith(ext):
                     for x in ['🇦', '🇧' , '🇨', '🇩', '🇪', '🇫']:
                         emoji = bot.get_emoji(x)
@@ -223,6 +222,4 @@ async def on_reaction_add(reaction,user):
     for react in reaction.message.reactions:
         async for users in react.users (limit=None,after=None):
             if react != reaction and users == user and user != bot.user:
-                await reaction.remove(user)
-                
-
+                await reaction.remove(user)        

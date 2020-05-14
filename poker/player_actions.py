@@ -1,4 +1,5 @@
 from poker.Table import *
+from itertools import tee
 
 class ActionEffect(enum.Enum):
     OK = 0
@@ -31,6 +32,9 @@ def bet(table, ammount):
                     table.pot += ammount
                     table.turn.money -= ammount
                     table.turn.table_money += ammount
+
+                    table.new_ender()
+                    
                     return ActionEffect.OK
                 else:
                     return ActionEffect.Pot_already_open

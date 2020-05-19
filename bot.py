@@ -1,6 +1,7 @@
 import asyncio
 import discord
 import pickle
+import re
 from discord.ext import commands
 #from poker.discord_control import *
 from poker.pair import *
@@ -23,7 +24,7 @@ def load():
 async def on_ready():
     global games
     print('Logged in as {0.user}'.format(bot))
-    await bot.change_presence(activity=discord.Game(name='on your nerves'))
+    await bot.change_presence(activity=discord.Game(name='WEEEEEEEEEEEEEEEEEEEEEEEEEEE'))
     load()
 
 @bot.event
@@ -182,10 +183,43 @@ async def game(ctx, oper, arg):
     with open('games.pkl', 'wb') as output:
         pickle.dump(games, output)
 
+@bot.command()
+async def todo(ctx):
+    embed = discord.Embed(title="Todo",description="japierdole",color=0x00ff00)
+    embed.add_field(name="Krzysia pojebauo",value="bardzo",inline=False)
+    embed.add_field(name="Krzysia pojebauo",value="bardzo mocno",inline=False)
+    await ctx.message.channel.send(embed=embed)
+
 @bot.event
 async def on_message(message):
-    if message.channel.type.name == 'text' and message.channel.type.name != 'bot-mod':
-        file = open('message logs/{}_history.log'.format(message.channel.name), 'a')
-        file.write(message.created_at.strftime('%d/%m %H:%M:%S\t') + str(message.author) + ':\t' + message.content + '\n')
-        file.close()
+    emoji = discord.utils.get(message.guild.emojis, name='OOF')
+    msg = message.content.lower()
+    x = re.search("^[^a-zA-Z0-9]*[o]+of[^a-zA-Z0-9]*$",msg)
+    if x != None:
+        await message.add_reaction(emoji)
+    x = re.search('dzień dobry .*', msg)
+
+    if bot.user.mentioned_in(message):
+        if re.search('dzień dobry .*', msg) != None:
+            await message.channel.send('Dzień dobry! '+message.author.mention)
+        elif re.search('dobranoc .*', msg) != None:
+            await message.channel.send('Dobranoc! '+message.author.mention)
     await bot.process_commands(message)
+
+    try:
+        for attachments in message.attachments:
+            att = attachments.url
+            for ext in ['.jpg','.png','.jpeg','.PNG','.JPEG','.JPG']:
+                if att.endswith(ext):
+                    for x in ['🇦', '🇧' , '🇨', '🇩', '🇪', '🇫']:
+                        emoji = bot.get_emoji(x)
+                        await message.add_reaction(x)
+    except IndexError:
+        pass
+
+@bot.event
+async def on_reaction_add(reaction,user):
+    for react in reaction.message.reactions:
+        async for users in react.users (limit=None,after=None):
+            if react != reaction and users == user and user != bot.user:
+                await reaction.remove(user)        

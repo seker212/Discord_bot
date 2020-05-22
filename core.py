@@ -1,11 +1,9 @@
 import asyncio
 import discord
 import pickle
-import re
 from discord.ext import commands
 #from poker.discord_control import *
 from poker.pair import *
-from funny import *
 
 bot = commands.Bot(command_prefix= '.')
 voiceBot = None
@@ -27,6 +25,7 @@ async def on_ready():
     print('Logged in as {0.user}'.format(bot))
     await bot.change_presence(activity=discord.Game(name='WEEEEEEEEEEEEEEEEEEEEEEEEEEE'))
     load()
+    
 
 @bot.event
 async def on_voice_state_update(member, before, after):
@@ -183,3 +182,5 @@ async def game(ctx, oper, arg):
     
     with open('games.pkl', 'wb') as output:
         pickle.dump(games, output)
+
+import funny

@@ -25,7 +25,7 @@ async def on_voice_state_update(member, before, after):
             user = member.name
             ts = '[ '+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+' ]  '
             if after.channel == None:
-                await channel.send+(ts+'***'+user+'*** left voice channel ***'+before.channel.mention+'***')
+                await channel.send(ts+'***'+user+'*** left voice channel ***'+before.channel.mention+'***')
             elif before.channel == None:
                 await channel.send(ts+'***'+user+'*** joined voice channel ***'+after.channel.mention+'***')
             elif after.channel != before.channel:

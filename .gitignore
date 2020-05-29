@@ -136,3 +136,4 @@ restart
 run
 
 start_bot.py
+/.vscode

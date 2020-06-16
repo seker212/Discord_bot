@@ -2,6 +2,7 @@ import asyncio
 import discord
 import re
 import time
+import random
 from discord.ext import commands
 from core import bot
 
@@ -84,6 +85,7 @@ async def setabcd(ctx):
 
 @bot.event
 async def on_message(message):
+    
     #:OOF: reaction to and OOF message
     emoji = discord.utils.get(message.guild.emojis, name='OOF')
     msg = message.content.lower()
@@ -93,10 +95,21 @@ async def on_message(message):
 
     #Hello and goodbye
     if bot.user.mentioned_in(message):
-        if re.search('dzień dobry .*', msg) != None:
-            await message.channel.send('Dzień dobry! '+message.author.mention)
-        elif re.search('dobranoc .*', msg) != None:
-            await message.channel.send('Dobranoc! '+message.author.mention)
+        async with message.channel.typing():
+            if re.search('((dzie([ń|n]) dobry)|(cze([s|ś][c|ć]))) .*', msg) != None:
+                await message.channel.send('Dzień dobry! '+message.author.mention)
+            elif re.search('dobranoc .*', msg) != None:
+                await message.channel.send('Dobranoc! '+message.author.mention)
+            elif re.search('wypierdalaj .*', msg) != None:
+                await message.channel.send('Sam wypierdalaj '+message.author.mention)
+            elif re.search('[\?] .*', msg) != None or re.search('.* [\?]',msg):
+                emoji = discord.utils.get(message.guild.emojis, name='kannahm')
+                await message.add_reaction(emoji)
+            else:
+                #Tak tutaj napewnie nie dzieją sie dziwne rzeczy
+                response = ['No i co ty chcesz?','Nudzi ci się?','Zadania byś robił','Prace byś se znalazł','A gdyby tak w minecraft grać','Może pójdziesz spać?','Czy ty wiesz która to jest godzina?','Znowu?','No i co to ma znaczyć?','Pozaczepiaj kogo innego','Masz nice on cottage','Oj tak tak byczq +1','Mi też się nudzi może porobimy to razem?','To że co Ola studiuje?','Napewno nie oglądam anime','Kiedy minecraft?','Nudno jest tak pisać odpowiedzi','Kiedyś to było teraz to nie ma','A co gdyby tak...','No i fajnie','Takie nastawienie do życie to ja lubie']
+                await message.channel.send(str(random.choice(response))+' '+message.author.mention)
+
     await bot.process_commands(message)
 
     #Check if the send attachment is an image

@@ -97,12 +97,11 @@ async def on_message(message):
 
     #@anyone losowanko magicznej liczby hehe xd
     if not message.author.bot:
-        async with message.channel.typing():
-            if re.search('@anyone',msg) != None:
-                user = random.choice(message.guild.members)
-                await message.channel.send(user.mention+' '+str(random.choice(facts)))
-            elif re.search('@self',msg) != None:
-                await message.channel.send(message.author.mention+' ( ͡° ͜ʖ ͡°)')
+        if re.search('@anyone',msg) != None:
+            user = random.choice(message.guild.members)
+            await message.channel.send(user.mention+' '+str(random.choice(facts)))
+        elif re.search('@self',msg) != None:
+            await message.channel.send(message.author.mention+' ( ͡° ͜ʖ ͡°)')
 
     #Hello and goodbye and other stuff
     if bot.user.mentioned_in(message) and not message.author.bot:

@@ -96,14 +96,16 @@ async def on_message(message):
         await message.add_reaction(emoji)
 
     #@anyone losowanko magicznej liczby hehe xd
-    if re.search('@anyone',msg) != None and not message.author.bot :
-        user = random.choice(message.guild.members)
-        await message.channel.send(user.mention+' '+str(random.choice(facts)))
-    elif re.search('@self',msg) != None and not message.author.bot :
-        await message.channel.send(message.author.mention+' ( ͡° ͜ʖ ͡°)')
+    if not message.author.bot:
+        async with message.channel.typing():
+            if re.search('@anyone',msg) != None:
+                user = random.choice(message.guild.members)
+                await message.channel.send(user.mention+' '+str(random.choice(facts)))
+            elif re.search('@self',msg) != None:
+                await message.channel.send(message.author.mention+' ( ͡° ͜ʖ ͡°)')
 
     #Hello and goodbye and other stuff
-    if bot.user.mentioned_in(message):
+    if bot.user.mentioned_in(message) and not message.author.bot:
         async with message.channel.typing():
             if re.search('((dzie([ń|n]) dobry)|(cze([s|ś][c|ć]))) .*', msg) != None:
                 await message.channel.send('Dzień dobry! '+message.author.mention)

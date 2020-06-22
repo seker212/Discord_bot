@@ -6,6 +6,9 @@ import random
 from discord.ext import commands
 from core import bot
 
+from tables import response
+from tables import facts
+
 channel = None
 abcd = False
 
@@ -85,7 +88,6 @@ async def setabcd(ctx):
 
 @bot.event
 async def on_message(message):
-    
     #:OOF: reaction to and OOF message
     emoji = discord.utils.get(message.guild.emojis, name='OOF')
     msg = message.content.lower()
@@ -93,8 +95,17 @@ async def on_message(message):
     if x != None:
         await message.add_reaction(emoji)
 
-    #Hello and goodbye
-    if bot.user.mentioned_in(message):
+    #@anyone losowanko magicznej liczby hehe xd
+    if not message.author.bot:
+        async with message.channel.typing():
+            if re.search('@anyone',msg) != None:
+                user = random.choice(message.guild.members)
+                await message.channel.send(user.mention+' '+str(random.choice(facts)))
+            elif re.search('@self',msg) != None:
+                await message.channel.send(message.author.mention+' ( ͡° ͜ʖ ͡°)')
+
+    #Hello and goodbye and other stuff
+    if bot.user.mentioned_in(message) and not message.author.bot:
         async with message.channel.typing():
             if re.search('((dzie([ń|n]) dobry)|(cze([s|ś][c|ć]))) .*', msg) != None:
                 await message.channel.send('Dzień dobry! '+message.author.mention)
@@ -106,8 +117,7 @@ async def on_message(message):
                 emoji = discord.utils.get(message.guild.emojis, name='kannahm')
                 await message.add_reaction(emoji)
             else:
-                #Tak tutaj napewnie nie dzieją sie dziwne rzeczy
-                response = ['No i co ty chcesz?','Nudzi ci się?','Zadania byś robił','Prace byś se znalazł','A gdyby tak w minecraft grać','Może pójdziesz spać?','Czy ty wiesz która to jest godzina?','Znowu?','No i co to ma znaczyć?','Pozaczepiaj kogo innego','Masz nice on cottage','Oj tak tak byczq +1','Mi też się nudzi może porobimy to razem?','To że co Ola studiuje?','Napewno nie oglądam anime','Kiedy minecraft?','Nudno jest tak pisać odpowiedzi','Kiedyś to było teraz to nie ma','A co gdyby tak...','No i fajnie','Takie nastawienie do życie to ja lubie']
+                #Tak tutaj napewnie nie dzieją sie dziwne rzeczy 
                 await message.channel.send(str(random.choice(response))+' '+message.author.mention)
 
     await bot.process_commands(message)

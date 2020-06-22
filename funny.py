@@ -7,6 +7,7 @@ from discord.ext import commands
 from core import bot
 
 from tables import response
+from tables import facts
 
 channel = None
 abcd = False
@@ -95,9 +96,11 @@ async def on_message(message):
         await message.add_reaction(emoji)
 
     #@anyone losowanko magicznej liczby hehe xd
-    if re.search('@anyone',msg) != None:
+    if re.search('@anyone',msg) != None and not message.author.bot :
         user = random.choice(message.guild.members)
-        await message.channel.send(user.mention+' heh')
+        await message.channel.send(user.mention+' '+str(random.choice(facts)))
+    elif re.search('@self',msg) != None and not message.author.bot :
+        await message.channel.send(message.author.mention+' ( ͡° ͜ʖ ͡°)')
 
     #Hello and goodbye and other stuff
     if bot.user.mentioned_in(message):

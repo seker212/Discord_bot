@@ -12,12 +12,23 @@ from tables import facts
 channel = None
 abcd = False
 
+@bot.command()
+async def shutdown(ctx):
+    if ctx.channel.name == 'bot-mod':
+        await ctx.channel.send("I'm about to end my life")
+        await bot.close()
+        print('Bot ended his life')
+
 #help
 @bot.command()
 async def halp(ctx):
     embed = discord.Embed(title="Help",description="this displays the help commands",color=0x00ff00)
     embed.add_field(name=".setchannel <channel>",value="set the channel to log stuff",inline=False)
     embed.add_field(name=".setabcd",value="switch between true/false to adding abcd under every image",inline=False)
+    embed.add_field(name=".shutdown",value="shutdowns the bot",inline=False)
+    embed.add_field(name="@anyone",value="pokes a random person",inline=False)
+    embed.add_field(name="@self",value="( ͡° ͜ʖ ͡°)",inline=False)
+    embed.add_field(name="@Chi-chan",value="Try and find out many options",inline=False)
     await ctx.send(embed=embed)
 
 #voice channel stalking
@@ -141,4 +152,4 @@ async def on_reaction_add(reaction,user):
         for react in reaction.message.reactions:
             async for users in react.users (limit=None,after=None):
                 if react != reaction and users == user and user != bot.user:
-                    await reaction.remove(user)        
+                    await reaction.remove(user)

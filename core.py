@@ -5,12 +5,15 @@ from discord.ext import commands
 #from poker.discord_control import *
 from poker.pair import *
 
+from music import Music
+
 bot = commands.Bot(command_prefix= '.')
+bot.add_cog(Music(bot))
 voiceBot = None
 audiofile = None
 games = []
 
-def save():
+""" def save():
     global games
     with open('games.pkl', 'wb') as output:
         pickle.dump(games, output)
@@ -18,15 +21,16 @@ def save():
 def load():
     with open('games.pkl', 'rb') as input:
         games = pickle.load(input)
+ """
 
 @bot.event
 async def on_ready():
     global games
     print('Logged in as {0.user}'.format(bot))
     await bot.change_presence(activity=discord.Game(name='WEEEEEEEEEEEEEEEEEEEEEEEEEEE'))
-    load()
+    #load()
     
-
+""" 
 @bot.event
 async def on_voice_state_update(member, before, after):
     global voiceBot
@@ -42,7 +46,7 @@ async def on_voice_state_update(member, before, after):
                         while voiceBot.is_playing():
                             await asyncio.sleep(1)
                         file.close()
-                        await voiceBot.disconnect()
+                        await voiceBot.disconnect() """
 
 @bot.command()
 async def on(ctx):
@@ -56,7 +60,7 @@ async def cls(ctx):
     if ctx.channel.type.name == 'text' and ctx.channel.name == 'bot-mod':
         await ctx.channel.purge()
 
-@bot.command()
+"""@bot.command()
 async def join(ctx, channelName):
     global voiceBot
     if ctx.channel.type.name == 'text' and ctx.channel.name == 'bot-mod':
@@ -65,7 +69,7 @@ async def join(ctx, channelName):
                 voiceBot = await channel.connect()
                 break
 
-@bot.command()
+ @bot.command()
 async def play(ctx, *filename):
     global voiceBot
     global audiofile
@@ -102,7 +106,7 @@ async def stop(ctx):
 async def pause(ctx):
     if ctx.channel.type.name == 'text' and ctx.channel.name == 'bot-mod':
         if voiceBot.is_connected() and voiceBot.is_playing():
-            voiceBot.pause()
+            voiceBot.pause() """
 
 @bot.command()
 async def saytts(ctx, channelName, message):

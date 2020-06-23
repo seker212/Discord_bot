@@ -5,10 +5,7 @@ from discord.ext import commands
 #from poker.discord_control import *
 from poker.pair import *
 
-from music import Music
-
 bot = commands.Bot(command_prefix= '.')
-bot.add_cog(Music(bot))
 voiceBot = None
 audiofile = None
 games = []

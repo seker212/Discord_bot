@@ -32,6 +32,20 @@ async def gobrrr(ctx):
             await ctx.channel.send("Music enabled")
         else:
             bot.remove_cog(Music(bot))
+            bot.remove_command('join')
+            bot.remove_command('summon')
+            bot.remove_command('leave')
+            bot.remove_command('volume')
+            bot.remove_command('now')
+            bot.remove_command('pause')
+            bot.remove_command('resume')
+            bot.remove_command('stop')
+            bot.remove_command('skip')
+            bot.remove_command('queue')
+            bot.remove_command('shuffle')
+            bot.remove_command('remove')
+            bot.remove_command('loop')
+            bot.remove_command('play')
             status = False
             await ctx.channel.send("Music Disabled")
 

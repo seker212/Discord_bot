@@ -14,6 +14,7 @@ from music import Music
 channel = None
 abcd = False
 status = False
+mus = None
 
 @bot.command()
 async def shutdown(ctx):
@@ -24,14 +25,16 @@ async def shutdown(ctx):
 
 @bot.command()
 async def gobrrr(ctx):
-    global status
+    global status,mus
     if ctx.channel.name == 'bot-mod':
         if status == False:
-            bot.add_cog(Music(bot))
+            if mus == None:
+                mus = Music(bot)
+            bot.add_cog(mus)
             status = True
             await ctx.channel.send("Music enabled")
         else:
-            bot.remove_cog(Music(bot))
+            bot.remove_cog(mus)
             bot.remove_command('join')
             bot.remove_command('summon')
             bot.remove_command('leave')

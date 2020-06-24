@@ -22,9 +22,11 @@ class Funny(commands.Cog):
     def cog_check(self, ctx: commands.Context):
         if not ctx.guild:
             raise commands.NoPrivateMessage('This command can\'t be used in DM channels.')
+
+        return True
     
     async def cog_command_error(self, ctx: commands.Context, error: commands.CommandError):
-        await ctx.send('An error occurred: {}'.format(str(error)))
+        await ctx.send(ctx.author.mention+" Jeb sie "+ str(error))
 
     @commands.command(name='shutdown',  aliases=['off'])
     @commands.has_permissions(manage_guild=True)
@@ -32,9 +34,8 @@ class Funny(commands.Cog):
         """Shut down the bot"""
 
         await ctx.channel.send("I'm about to end my life")
-        await bot.close()
+        await self.bot.close()
         print('Bot ended his life')
-        pass
 
     @commands.command(name='gobrrr')
     @commands.has_permissions(manage_guild=True)
@@ -181,7 +182,7 @@ class Funny(commands.Cog):
                     for ext in ['.jpg','.png','.jpeg','.PNG','.JPEG','.JPG']:
                         if att.endswith(ext):
                             for x in ['🇦', '🇧' , '🇨', '🇩', '🇪', '🇫']:
-                                emoji = bot.get_emoji(x)
+                                emoji = self.bot.get_emoji(x)
                                 await message.add_reaction(x)
             except IndexError:
                 pass

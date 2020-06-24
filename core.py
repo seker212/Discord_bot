@@ -7,20 +7,25 @@ from poker.pair import *
 
 from funny import Funny
 
-bot = commands.Bot(command_prefix= '.')
-core = Core(bot)
-bot.add_cog(Core)
-
 class Core(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.voiceBot = None
         self.audiofile = None
         self.games = []
-        self.fun = Funny(self.bot)
     
     def cog_unload(self):
         pass
+
+    def cog_check(self, ctx: commands.Context):
+        if not ctx.guild:
+            raise commands.NoPrivateMessage('This command can\'t be used in DM channels.')
+            #return False
+
+        return True
+    
+    async def cog_command_error(self, ctx: commands.Context, error: commands.CommandError):
+        await ctx.send('Drukarka się psuje'+ str(error))
     
     @commands.Cog.listener()
     async def on_ready(self):
@@ -28,7 +33,6 @@ class Core(commands.Cog):
 
         print('Logged in as {0.user}'.format(self.bot))
         await self.bot.change_presence(activity=discord.Game(name='WEEEEEEEEEEEEEEEEEEEEEEEEEEE'))
-        self.bot.add_cog(fun)
         #load()
 
     @commands.command(name='on')
@@ -37,7 +41,7 @@ class Core(commands.Cog):
 
         emoji = discord.utils.get(ctx.guild.emojis, name='nyan')
         if emoji:
-            await ctx.send(ctx.author.mention+" I'm alive "+emoji)
+            await ctx.send(ctx.author.mention+" I'm alive "+str(emoji))
 
     @commands.command(name='cls')
     @commands.has_permissions(manage_guild=True)
@@ -210,3 +214,9 @@ async def game(ctx, oper, arg):
     
     with open('games.pkl', 'wb') as output:
         pickle.dump(games, output)"""
+
+def run(token: str):
+    bot = commands.Bot(command_prefix= '.')
+    bot.add_cog(Core(bot))
+    bot.add_cog(Funny(bot))
+    bot.run(token)

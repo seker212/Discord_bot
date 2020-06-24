@@ -4,11 +4,8 @@ import re
 import time
 import random
 from discord.ext import commands
-from core import bot
 
-from tables import response
-from tables import facts
-
+from tables import response,facts
 from music import Music
 
 class Funny(commands.Cog):

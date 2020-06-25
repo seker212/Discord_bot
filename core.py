@@ -10,7 +10,7 @@ voiceBot = None
 audiofile = None
 games = []
 
-def save():
+""" def save():
     global games
     with open('games.pkl', 'wb') as output:
         pickle.dump(games, output)
@@ -18,14 +18,16 @@ def save():
 def load():
     with open('games.pkl', 'rb') as input:
         games = pickle.load(input)
+ """
 
 @bot.event
 async def on_ready():
     global games
     print('Logged in as {0.user}'.format(bot))
-    await bot.change_presence(activity=discord.Game(name='on your nerves'))
-    load()
-
+    await bot.change_presence(activity=discord.Game(name='WEEEEEEEEEEEEEEEEEEEEEEEEEEE'))
+    #load()
+    
+""" 
 @bot.event
 async def on_voice_state_update(member, before, after):
     global voiceBot
@@ -41,7 +43,7 @@ async def on_voice_state_update(member, before, after):
                         while voiceBot.is_playing():
                             await asyncio.sleep(1)
                         file.close()
-                        await voiceBot.disconnect()
+                        await voiceBot.disconnect() """
 
 @bot.command()
 async def on(ctx):
@@ -55,7 +57,7 @@ async def cls(ctx):
     if ctx.channel.type.name == 'text' and ctx.channel.name == 'bot-mod':
         await ctx.channel.purge()
 
-@bot.command()
+"""@bot.command()
 async def join(ctx, channelName):
     global voiceBot
     if ctx.channel.type.name == 'text' and ctx.channel.name == 'bot-mod':
@@ -64,7 +66,7 @@ async def join(ctx, channelName):
                 voiceBot = await channel.connect()
                 break
 
-@bot.command()
+ @bot.command()
 async def play(ctx, *filename):
     global voiceBot
     global audiofile
@@ -101,7 +103,7 @@ async def stop(ctx):
 async def pause(ctx):
     if ctx.channel.type.name == 'text' and ctx.channel.name == 'bot-mod':
         if voiceBot.is_connected() and voiceBot.is_playing():
-            voiceBot.pause()
+            voiceBot.pause() """
 
 @bot.command()
 async def saytts(ctx, channelName, message):
@@ -182,10 +184,4 @@ async def game(ctx, oper, arg):
     with open('games.pkl', 'wb') as output:
         pickle.dump(games, output)
 
-@bot.event
-async def on_message(message):
-    if message.channel.type.name == 'text' and message.channel.type.name != 'bot-mod':
-        file = open('message logs/{}_history.log'.format(message.channel.name), 'a')
-        file.write(message.created_at.strftime('%d/%m %H:%M:%S\t') + str(message.author) + ':\t' + message.content + '\n')
-        file.close()
-    await bot.process_commands(message)
+import funny

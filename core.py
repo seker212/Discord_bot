@@ -23,7 +23,7 @@ class Core(commands.Cog, name='Core'):
         return True
     
     async def cog_command_error(self, ctx: commands.Context, error: commands.CommandError):
-        await ctx.send('Drukarka się psuje'+ str(error))
+        await ctx.send('Drukarka się psuje? '+ str(error))
 
     @commands.command(name='on')
     async def _on(self,ctx):
@@ -46,22 +46,24 @@ class Core(commands.Cog, name='Core'):
     async def _saytts(self,ctx, channelName, message):
         """It should say it in tts"""
 
-        if ctx.channel.type.name == 'text':
-            for channel in ctx.guild.channels:
-                if channel.name == channelName:
-                    await channel.send(content = message, tts = True)
-                    break
+        try:
+            channel = ctx.message.channel_mentions[0]
+            await channel.send(content = message, tts = True)
+        except IndexError:
+            await ctx.send('Something went wrong')
+            pass
 
     @commands.command(name='say')
     @commands.has_permissions(manage_guild=True)
     async def _say(self,ctx, channelName, message):
         """It should say just it"""
 
-        if ctx.channel.type.name == 'text':
-            for channel in ctx.guild.channels:
-                if channel.name == channelName:
-                    await channel.send(content = message)
-                    break
+        try:
+            channel = ctx.message.channel_mentions[0]
+            await channel.send(content = message)
+        except IndexError:
+            await ctx.send('Something went wrong')
+            pass
 
 
 """ def save():

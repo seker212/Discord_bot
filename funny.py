@@ -6,15 +6,12 @@ import random
 from discord.ext import commands
 
 from tables import response,facts
-from music import Music
 
 class Funny(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.channel = None
         self.abcd = False
-        self.status = False
-        self.mus = None
     
     def cog_unload(self):
         pass
@@ -37,24 +34,6 @@ class Funny(commands.Cog):
         await self.bot.close()
         print('Bot ended his life')
 
-    @commands.command(name='gobrrr')
-    @commands.has_permissions(manage_guild=True)
-    async def _gobrrr(self, ctx: commands.Context):
-        """Removes music class from working bot"""
-
-        if self.status == False:
-            if self.mus == None:
-                self.mus = Music(self.bot)
-            self.bot.add_cog(self.mus)
-            self.status = True
-            await ctx.channel.send("Music enabled")
-        else:
-            for x in self.mus.get_commands():
-                self.bot.remove_command(x)
-            self.bot.remove_cog(self.mus)
-            self.status = False
-            await ctx.channel.send("Music Disabled")
-
     @commands.command(name='halp')
     async def _halp(self, ctx: commands.Context):
         """Halp command lel"""
@@ -74,7 +53,7 @@ class Funny(commands.Cog):
         """Voice states logger """
 
         if self.channel != None and not member.bot:
-            async with channel.typing():
+            async with self.channel.typing():
                 user = member.name
                 ts = '[ '+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+' ]  '
                 if after.channel == None:
@@ -141,51 +120,53 @@ class Funny(commands.Cog):
     async def on_message(self, message):
         """On message event listener """
 
-        #:OOF: reaction to and OOF message
-        emoji = discord.utils.get(message.guild.emojis, name='OOF')
-        msg = message.content.lower()
-        x = re.search("^[^a-zA-Z0-9]*[o]+of[^a-zA-Z0-9]*$",msg)
-        if x != None:
-            await message.add_reaction(emoji)
-
-        #@anyone losowanko magicznej liczby hehe xd
         if not message.author.bot:
+            #:OOF: reaction to and OOF message
+            emoji = discord.utils.get(message.guild.emojis, name='OOF')
+            msg = message.content.lower()
+            x = re.search("^[^a-zA-Z0-9]*[o]+of[^a-zA-Z0-9]*$",msg)
+            if x != None and emoji != None:
+                await message.add_reaction(emoji)
+
+            #@anyone losowanko magicznej liczby hehe xd
             if re.search('@anyone',msg) != None:
                 user = random.choice(message.guild.members)
                 await message.channel.send(user.mention+' '+str(random.choice(facts)))
             elif re.search('@self',msg) != None:
                 await message.channel.send(message.author.mention+' ( ͡° ͜ʖ ͡°)')
 
-        #Hello and goodbye and other stuff
-        if self.bot.user.mentioned_in(message) and not message.author.bot:
-            async with message.channel.typing():
-                if re.search('((dzie([ń|n]) dobry)|(cze([s|ś][c|ć]))) .*', msg) != None:
-                    await message.channel.send('Dzień dobry! '+message.author.mention)
-                elif re.search('dobranoc .*', msg) != None:
-                    await message.channel.send('Dobranoc! '+message.author.mention)
-                elif re.search('wypierdalaj .*', msg) != None:
-                    await message.channel.send('Sam wypierdalaj '+message.author.mention)
-                elif re.search('[\?] .*', msg) != None or re.search('.* [\?]',msg):
-                    emoji = discord.utils.get(message.guild.emojis, name='kannahm')
-                    await message.add_reaction(emoji)
-                else:
-                    #Tak tutaj napewnie nie dzieją sie dziwne rzeczy 
-                    await message.channel.send(str(random.choice(response))+' '+message.author.mention)
+            #Hello and goodbye and other stuff
+            if self.bot.user.mentioned_in(message):
+                async with message.channel.typing():
+                    if re.search('((dzie([ń|n]) dobry)|(cze([s|ś][c|ć]))) .*', msg) != None:
+                        await message.channel.send('Dzień dobry! '+message.author.mention)
+                    elif re.search('dobranoc .*', msg) != None:
+                        await message.channel.send('Dobranoc! '+message.author.mention)
+                    elif re.search('wypierdalaj .*', msg) != None:
+                        await message.channel.send('Sam wypierdalaj '+message.author.mention)
+                    elif re.search('[\?] .*', msg) != None or re.search('.* [\?]',msg):
+                        emoji = discord.utils.get(message.guild.emojis, name='kannahm')
+                        await message.add_reaction(emoji)
+                    else:
+                        #Tak tutaj napewnie nie dzieją sie dziwne rzeczy 
+                        await message.channel.send(str(random.choice(response))+' '+message.author.mention)
 
-        await self.bot.process_commands(message)
+            #Check if the send attachment is an image
+            if self.abcd:
+                try:
+                    for attachments in message.attachments:
+                        att = attachments.url
+                        for ext in ['.jpg','.png','.jpeg','.PNG','.JPEG','.JPG']:
+                            if att.endswith(ext):
+                                for x in ['🇦', '🇧' , '🇨', '🇩', '🇪', '🇫']:
+                                    emoji = self.bot.get_emoji(x)
+                                    await message.add_reaction(x)
+                except IndexError:
+                    pass
+        else:
+            await self.bot.process_commands(message)
 
-        #Check if the send attachment is an image
-        if self.abcd:
-            try:
-                for attachments in message.attachments:
-                    att = attachments.url
-                    for ext in ['.jpg','.png','.jpeg','.PNG','.JPEG','.JPG']:
-                        if att.endswith(ext):
-                            for x in ['🇦', '🇧' , '🇨', '🇩', '🇪', '🇫']:
-                                emoji = self.bot.get_emoji(x)
-                                await message.add_reaction(x)
-            except IndexError:
-                pass
+
     
     @commands.Cog.listener() 
     async def on_reaction_add(self,reaction,user):
@@ -196,3 +177,8 @@ class Funny(commands.Cog):
                 async for users in react.users (limit=None,after=None):
                     if react != reaction and users == user and user != bot.user:
                         await reaction.remove(user)
+
+def setup(bot):
+    """Add component"""
+
+    bot.add_cog(Funny(bot))

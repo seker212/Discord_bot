@@ -3,11 +3,9 @@ import discord
 import pickle
 from discord.ext import commands
 #from poker.discord_control import *
-from poker.pair import *
+#from poker.pair import *
 
-from funny import Funny
-
-class Core(commands.Cog):
+class Core(commands.Cog, name='Core'):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.voiceBot = None
@@ -26,14 +24,6 @@ class Core(commands.Cog):
     
     async def cog_command_error(self, ctx: commands.Context, error: commands.CommandError):
         await ctx.send('Drukarka się psuje'+ str(error))
-    
-    @commands.Cog.listener()
-    async def on_ready(self):
-        """On ready command list"""
-
-        print('Logged in as {0.user}'.format(self.bot))
-        await self.bot.change_presence(activity=discord.Game(name='WEEEEEEEEEEEEEEEEEEEEEEEEEEE'))
-        #load()
 
     @commands.command(name='on')
     async def _on(self,ctx):
@@ -215,8 +205,19 @@ async def game(ctx, oper, arg):
     with open('games.pkl', 'wb') as output:
         pickle.dump(games, output)"""
 
-def run(token: str):
-    bot = commands.Bot(command_prefix= '.')
-    bot.add_cog(Core(bot))
-    bot.add_cog(Funny(bot))
-    bot.run(token)
+
+bot = commands.Bot(command_prefix= '.')
+bot.load_extension('funny')
+bot.load_extension('music')
+bot.add_cog(Core(bot))
+
+
+@bot.event
+async def on_ready():
+    """On ready command list"""
+
+    print('Logged in as {0.user}'.format(bot))
+    await bot.change_presence(activity=discord.Game(name='WEEEEEEEEEEEEEEEEEEEEEEEEEEE'))
+    #load()
+
+

@@ -323,6 +323,7 @@ class Music(commands.Cog):
         del self.voice_states[ctx.guild.id]
 
     @commands.command(name='volume')
+    @commands.has_permissions(manage_guild=True)
     async def _volume(self, ctx: commands.Context, *, volume: int):
         """Sets the volume of the player."""
 
@@ -486,3 +487,7 @@ class Music(commands.Cog):
             if ctx.voice_client.channel != ctx.author.voice.channel:
                 raise commands.CommandError('Bot is already in a voice channel.')
 
+def setup(bot):
+    """Add component"""
+
+    bot.add_cog(Music(bot))

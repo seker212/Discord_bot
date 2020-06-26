@@ -2,6 +2,7 @@ import asyncio
 import discord
 import re
 import time
+import datetime
 import random
 from discord.ext import commands
 
@@ -42,7 +43,6 @@ class Funny(commands.Cog):
         embed.add_field(name=".setchannel <channel>",value="set the channel to log stuff",inline=False)
         embed.add_field(name=".setabcd",value="switch between true/false to adding abcd under every image",inline=False)
         embed.add_field(name=".shutdown",value="shutdowns the bot",inline=False)
-        embed.add_field(name=".gobrrr",value="hehe dx",inline=False)
         embed.add_field(name="@anyone",value="pokes a random person",inline=False)
         embed.add_field(name="@self",value="( ͡° ͜ʖ ͡°)",inline=False)
         embed.add_field(name="@Chi-chan",value="Try and find out many options",inline=False)
@@ -177,6 +177,24 @@ class Funny(commands.Cog):
                 async for users in react.users (limit=None,after=None):
                     if react != reaction and users == user and user != bot.user:
                         await reaction.remove(user)
+
+    @commands.Cog.listener()
+    async def on_member_update(self,before, after):
+        """Supreme status stalking"""
+
+        if not before.bot and self.channel != None:
+            user = before.name
+            stamp = '[ '+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+' ]  '
+            if before.activity != after.activity:
+                if before.activity == None:
+                    await channel.send(stamp+'***'+user +'*** Started playing: '+str(after.activity.name))
+                elif after.activity == None:
+                    played = datetime.datetime.utcnow() - before.activity.start
+                    await channel.send(stamp+'***'+user +'*** Stopped playing: '+str(before.activity.name)+' for '+str(played))
+                else:
+                    if before.activity.name != 'Spotify' or before.activity.name != 'Spotify':
+                        played = after.activity.start - before.activity.start
+                        await channel.send(stamp+'***'+user +'*** Changed status: '+str(before.activity.name)+' to '+str(after.activity.name)+' for '+str(played))
 
 def setup(bot):
     """Add component"""

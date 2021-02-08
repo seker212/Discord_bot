@@ -4,15 +4,21 @@ import re
 import time
 import datetime
 import random
+import os.path
 from discord.ext import commands
 
 from tables import response,facts
+
+FFMPEG_OPTIONS = {
+        'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+        'options': '-vn',
+    }
 
 class Funny(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.channel = None
-        self.abcd = False
+        self.voice = None
     
     def cog_unload(self):
         pass
@@ -24,8 +30,9 @@ class Funny(commands.Cog):
         return True
     
     async def cog_command_error(self, ctx: commands.Context, error: commands.CommandError):
-        await ctx.send(ctx.author.mention+" Jeb sie "+ str(error))
+        await ctx.send(ctx.author.mention+" Jeb sie |"+ str(error))
 
+    #---Commands definitions---
     @commands.command(name='shutdown',  aliases=['off'])
     @commands.has_permissions(manage_guild=True)
     async def _shutdown(self, ctx: commands.Context):
@@ -48,6 +55,41 @@ class Funny(commands.Cog):
         embed.add_field(name="@Chi-chan",value="Try and find out many options",inline=False)
         await ctx.send(embed=embed)
 
+    @commands.command(name='setchannel')
+    @commands.has_permissions(manage_guild=True)
+    async def _setchannel(self, ctx: commands.Context):
+        """Set channel to log on messages"""
+
+        try:
+            self.channel = ctx.message.channel_mentions[0]
+            await ctx.send('Log channel set to: '+self.channel.mention)
+        except IndexError:
+            await ctx.send('Bruh you forget the channel lel')
+            pass
+
+    @commands.command(name='sound')
+    @commands.has_permissions(manage_guild=True)
+    async def _sound(self,ctx: commands.Context,soundType):
+        """Arrives to you and plays your favourite sound"""
+
+        if len(self.bot.voice_clients) == 0 and soundType != None:
+            member = ctx.message.author
+            await ctx.send("Playing now Darude-Sandstorm")
+            for channel in member.guild.channels:
+                if channel.type == discord.ChannelType.voice:
+                    for m in channel.voice_states:
+                        if m == member.id:
+                            if os.path.isfile('audio/'+soundType):
+                                self.voice = await channel.connect()
+                                await asyncio.sleep(0.5)
+                                file = open('audio/'+soundType, 'rb')
+                                self.voice.play(discord.PCMAudio(file), after = self.voice.stop())
+                                while(self.voice.is_playing()):
+                                    await asyncio.sleep(1)
+                                file.close()
+                                await self.voice.disconnect()
+
+    #---Listener section---
     @commands.Cog.listener()
     async def on_voice_state_update(self ,member, before, after):
         """Voice states logger """
@@ -92,29 +134,11 @@ class Funny(commands.Cog):
                         await self.channel.send(ts+'***'+user+'*** shows himself in video call')
                     else:
                         await self.channel.send(ts+'***'+user+'*** hides himself in video call')
-
-    @commands.command(name='setchannel')
-    @commands.has_permissions(manage_guild=True)
-    async def _setchannel(self, ctx: commands.Context):
-        """Set channel to log on messages"""
-
-        try:
-            self.channel = ctx.message.channel_mentions[0]
-            await ctx.send('Log channel set to: '+self.channel.mention)
-        except IndexError:
-            await ctx.send('Bruh you forget the channel lel')
-            pass
-
-    @commands.command(name='setabcd')
-    @commands.has_permissions(manage_guild=True)
-    async def _setabcd(self, ctx: commands.Context):
-        """Set channel to log on messages"""
-
-        if self.abcd != None:
-            self.abcd = not self.abcd
-        else:
-            self.abcd = False
-        await ctx.send('ABCD set to '+str(self.abcd))
+                
+                #No afk channel policy
+                if after.channel != None:
+                    if after.channel.name == 'Pod mostem':
+                        await member.move_to(None,reason="OOF")
     
     @commands.Cog.listener() 
     async def on_message(self, message):
@@ -151,37 +175,14 @@ class Funny(commands.Cog):
                         #Tak tutaj napewnie nie dzieją sie dziwne rzeczy 
                         await message.channel.send(str(random.choice(response))+' '+message.author.mention)
 
-            #Check if the send attachment is an image
-            if self.abcd:
-                try:
-                    for attachments in message.attachments:
-                        att = attachments.url
-                        for ext in ['.jpg','.png','.jpeg','.PNG','.JPEG','.JPG']:
-                            if att.endswith(ext):
-                                for x in ['🇦', '🇧' , '🇨', '🇩', '🇪', '🇫']:
-                                    emoji = self.bot.get_emoji(x)
-                                    await message.add_reaction(x)
-                except IndexError:
-                    pass
         else:
             await self.bot.process_commands(message)
-
-
-    
-    @commands.Cog.listener() 
-    async def on_reaction_add(self,reaction,user):
-        """Supreme reaction reaction for abcd"""
-
-        if self.abcd:
-            for react in reaction.message.reactions:
-                async for users in react.users (limit=None,after=None):
-                    if react != reaction and users == user and user != bot.user:
-                        await reaction.remove(user)
 
     @commands.Cog.listener()
     async def on_member_update(self,before, after):
         """Supreme status stalking"""
-
+        #TODO: Fix me when you add SQLite or some other DB
+        """
         if not before.bot and self.channel != None:
             user = before.name
             stamp = '[ '+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+' ]  '
@@ -195,6 +196,7 @@ class Funny(commands.Cog):
                     if before.activity.name != 'Spotify' or before.activity.name != 'Spotify':
                         played = after.activity.start - before.activity.start
                         await channel.send(stamp+'***'+user +'*** Changed status: '+str(before.activity.name)+' to '+str(after.activity.name)+' for '+str(played))
+        """
 
 def setup(bot):
     """Add component"""

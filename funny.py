@@ -9,11 +9,6 @@ from discord.ext import commands
 
 from tables import response,facts
 
-FFMPEG_OPTIONS = {
-        'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
-        'options': '-vn',
-    }
-
 class Funny(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot

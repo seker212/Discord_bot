@@ -6,9 +6,10 @@ from poker.Player import *
 from poker.Hand import *
 from poker.TablePlayers import *
 from poker.pair import *
+from itertools import tee
 
 class Table:
-    def __init__(self, playerList): #TODO Exception: Check if len(playerList) > 1
+    def __init__(self, playerList): #TODO: Exception: Check if len(playerList) > 1
         self.stage = 0
 
         self.playerList = TablePlayers()
@@ -24,11 +25,14 @@ class Table:
         self.table_ammount = 0
 
         self.playerIt = iter(self.playerList)
+        self.playerIt, self.ender = tee(self.playerIt)
         next(self.playerIt).blind = Blind.small
         next(self.playerIt).blind = Blind.big
         self.getBlinds()
    
         self.turn = next(self.playerIt)
+        next(self.ender)
+        next(self.ender)
         self.giveHand()
     
     def __str__(self):
@@ -43,7 +47,8 @@ class Table:
         end += 'Small blind ammount: ' + str(self.smallBlind) + '\n'
         end += 'Pot: '+ str(self.pot) + '\n'
         end += 'Table ammount: ' + str(self.table_ammount) + '\n'
-        end += 'Turn: ' + self.turn.user                                    #FIXME USER
+        end += 'Turn: ' + self.turn.user + '\n'                                    #FIXME: USER
+        end += 'Ender: ' + self.ender.user
         return end
 
     def giveHand(self):
@@ -54,7 +59,7 @@ class Table:
                 p.hand.append(card)
                 self.deck.remove(card)
 
-    def getBlinds(self): #side pot?
+    def getBlinds(self): #TODO: side pot?
         self.playerList.setIterSB()
         
         sp = next(self.playerIt)
@@ -90,8 +95,13 @@ class Table:
             self.tableCards.append(card)
             self.deck.remove(card)
 
-    def finished_stage(self, new_stage = False):        #FIXME FUCK YOU
-        if self.table_ammount != 0:
+    def finished_stage(self, new_stage = False):        #FIXME: FUCK YOU
+        if self.ender == self.turn:
+            return True
+        else:
+            return False
+        
+        """if self.table_ammount != 0:
             x = 0
             for p in self.playerList.List:
                 if p.fold == True or p.all_in == True:
@@ -109,7 +119,7 @@ class Table:
             print('finished_stahe() - x = ', x)
             if x == len(self.playerList):
                 return True
-        else:                               #FIXME find_err.txt
+        else:                               #FIXME: find_err.txt
             if new_stage:
                 folds = 0
                 for p in self.playerList.List:
@@ -120,7 +130,8 @@ class Table:
             else:
                 count = 0
                 for p in self.playerList.List:
-                    pass
+                    pass"""
+
 
     def nextTurn(self, recursive = None):
         if recursive == None:
@@ -313,3 +324,11 @@ class Table:
         price = int(self.pot/len(winners))
         for p in winners:
             p.first.money += price
+
+    def new_ender(self):
+        self.playerIt, self.ender = tee(self.playerIt)
+        tmp_player = next(self.ender)
+        for i in range(len(self.playerList)-2):
+            tmp_player = next(self.ender)
+            
+        if tmp_player.

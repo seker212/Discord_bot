@@ -24,7 +24,7 @@ class TablePlayers:
     def __str__(self):
         end = '[ '
         for p in self.List:
-            end += p.user + ' '                 #FIXME USER
+            end += p.user + ' '                 #FIXME: USER
         end += ']'
         return end
     

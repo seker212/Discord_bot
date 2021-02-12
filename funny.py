@@ -68,7 +68,6 @@ class Funny(commands.Cog):
             pass
 
     @commands.command(name='sound')
-    @commands.has_permissions(manage_guild=True)
     async def _sound(self,ctx: commands.Context,soundType):
         """Arrives to you and plays your favourite sound"""
 

@@ -9,11 +9,6 @@ from discord.ext import commands
 
 from tables import response,facts
 
-FFMPEG_OPTIONS = {
-        'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
-        'options': '-vn',
-    }
-
 class Funny(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -30,7 +25,7 @@ class Funny(commands.Cog):
         return True
     
     async def cog_command_error(self, ctx: commands.Context, error: commands.CommandError):
-        await ctx.send(ctx.author.mention+" Jeb sie |"+ str(error))
+        await ctx.send(ctx.author.mention+" Jeb sie | "+ str(error))
 
     #---Commands definitions---
     @commands.command(name='shutdown',  aliases=['off'])
@@ -78,15 +73,23 @@ class Funny(commands.Cog):
                 if channel.type == discord.ChannelType.voice:
                     for m in channel.voice_states:
                         if m == member.id:
-                            if os.path.isfile('audio/'+soundType):
+                            path = 'audio/'+soundType+'.mp3'
+                            if os.path.isfile(path):
                                 self.voice = await channel.connect()
-                                await asyncio.sleep(0.5)
-                                file = open('audio/'+soundType, 'rb')
-                                self.voice.play(discord.PCMAudio(file), after = self.voice.stop())
+                                await asyncio.sleep(0.5)      
+                                self.voice.play(discord.FFmpegPCMAudio(path), after = self.voice.stop())
                                 while(self.voice.is_playing()):
                                     await asyncio.sleep(1)
-                                file.close()
                                 await self.voice.disconnect()
+
+    @commands.command(name='us')
+    @commands.has_permissions(manage_guild=True)
+    async def _uploadSound(self, ctx: commands.Context):
+        if len(ctx.message.attachments) == 1:
+            file = ctx.message.attachments[0].filename
+            path = "audio/{}".format(file)
+            if file.endswith(".mp3") and not os.path.isfile(path):
+                await ctx.message.attachments[0].save(fp=path)
 
     #---Listener section---
     @commands.Cog.listener()

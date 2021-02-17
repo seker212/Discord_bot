@@ -20,7 +20,7 @@ class Timer(commands.Cog, name='Core'):
         return True
     
     async def cog_command_error(self, ctx: commands.Context, error: commands.CommandError):
-        await ctx.send('Timer sie wywalił '+ str(error))
+        await ctx.send('Timer sie wywalił '+str(error))
 
     @commands.command(name='timer')
     @commands.has_permissions(manage_guild=True)
@@ -43,7 +43,9 @@ class Timer(commands.Cog, name='Core'):
             page = requests.get('http://www.cat.put.poznan.pl/pl/dla-studentow/informatyka')
             value = html.fromstring(page.content).xpath('/html/body/div/div/div[3]/div[1]/div/article/div/div/div/table[1]/tbody/tr[6]/td[4]/em/span/span/text()')
             if value[0] != 'v25.09':
-                await self.channel.send("NEW PLAN ARRIVED")
+                embed = discord.Embed(title='NEW PLAN ARRIVED',description='Yes it is here',color=0xff0000)
+                await self.channel.send(self.channel.guild.default_role,embed=embed)
+                self.schedudle.stop()
 
 
 def setup(bot):

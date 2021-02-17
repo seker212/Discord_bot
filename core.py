@@ -66,6 +66,7 @@ class Core(commands.Cog, name='Core'):
 
 bot = commands.Bot(command_prefix= '.')
 bot.load_extension('funny')
+bot.load_extension('timer')
 bot.add_cog(Core(bot))
 
 @bot.event

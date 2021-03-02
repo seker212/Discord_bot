@@ -63,8 +63,28 @@ class Core(commands.Cog, name='Core'):
         except IndexError:
             await ctx.send('Something went wrong')
             pass
+    
+    @commands.command(name='archive-whitelist')
+    @commands.has_permissions(manage_guild=True)
+    async def _archive(self,ctx):
+        """ Function for archiving text channels with whitelist """
 
-bot = commands.Bot(command_prefix= '.')
+        roles = set()
+
+        for channel in ctx.message.channel_mentions:
+            if ctx.guild.default_role not in channel.overwrites or channel.overwrites[ctx.guild.default_role].read_messages != False:
+                print('Not a whitelist channel')
+                break
+            for overwrite in channel.overwrites:
+                if isinstance(overwrite, discord.Role):
+                    if not overwrite.is_default() and not overwrite.is_bot_managed():
+                        roles.add(overwrite)
+                if isinstance(overwrite, discord.Member):
+                    print('OK')
+        print(roles)
+
+intents = discord.Intents.all()
+bot = commands.Bot(command_prefix= '.', intents=intents)
 bot.load_extension('funny')
 bot.load_extension('timer')
 bot.add_cog(Core(bot))

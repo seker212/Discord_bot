@@ -75,7 +75,6 @@ class Core(commands.Cog, name='Core'):
         archive_category = next(x for x in ctx.guild.categories if x.name == 'Archiwum X')
 
         for channel in ctx.message.channel_mentions:
-            print(channel.overwrites)
             if ctx.guild.default_role not in channel.overwrites or channel.overwrites[ctx.guild.default_role].read_messages != False:
                 await ctx.send(channel.mention + 'is not a whitelist channel')
                 break

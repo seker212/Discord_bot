@@ -9,7 +9,10 @@ class Core(commands.Cog, name='Core'):
         self.bot = bot
         self.voiceBot = None
         self.audiofile = None
-        self.games = []
+        archive_po_allow = discord.Permissions(read_messages = True, read_message_history = True)
+        archive_po_deny = discord.Permissions.text()
+        archive_po_deny.update(read_messages = False, read_message_history = False, create_instant_invite = True)
+        self.ARCHIVE_PO = discord.PermissionOverwrite.from_pair(archive_po_allow, archive_po_deny)
     
     def cog_unload(self):
         pass
@@ -67,21 +70,26 @@ class Core(commands.Cog, name='Core'):
     @commands.command(name='archive-whitelist')
     @commands.has_permissions(manage_guild=True)
     async def _archive(self,ctx):
-        """ Function for archiving text channels with whitelist """
+        """Function for archiving text channels with whitelist"""
 
-        roles = set()
+        archive_category = next(x for x in ctx.guild.categories if x.name == 'Archiwum X')
 
         for channel in ctx.message.channel_mentions:
+            print(channel.overwrites)
             if ctx.guild.default_role not in channel.overwrites or channel.overwrites[ctx.guild.default_role].read_messages != False:
-                print('Not a whitelist channel')
+                await ctx.send(channel.mention + 'is not a whitelist channel')
                 break
             for overwrite in channel.overwrites:
                 if isinstance(overwrite, discord.Role):
-                    if not overwrite.is_default() and not overwrite.is_bot_managed():
-                        roles.add(overwrite)
+                    if (not overwrite.is_default() and not overwrite.is_bot_managed()):
+                        if channel.overwrites[overwrite].read_messages:
+                            for member in overwrite.members:
+                                await channel.set_permissions(member, overwrite = self.ARCHIVE_PO)
+                        await channel.set_permissions(overwrite, overwrite = None)
                 if isinstance(overwrite, discord.Member):
-                    print('OK')
-        print(roles)
+                    if channel.overwrites[overwrite].read_messages and not overwrite.bot:
+                        await channel.set_permissions(overwrite, overwrite = self.ARCHIVE_PO)
+            await channel.edit(category = archive_category)
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix= '.', intents=intents)

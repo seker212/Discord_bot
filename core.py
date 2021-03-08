@@ -88,6 +88,7 @@ class Core(commands.Cog, name='Core'):
                 if isinstance(overwrite, discord.Member):
                     if channel.overwrites[overwrite].read_messages and not overwrite.bot:
                         await channel.set_permissions(overwrite, overwrite = self.ARCHIVE_PO)
+            await channel.send("This channel has been archived. Accounts that had access to it at the time of archiving have read-only access.")
             await channel.edit(category = archive_category)
 
     @commands.command(name='here')

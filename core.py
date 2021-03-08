@@ -76,7 +76,7 @@ class Core(commands.Cog, name='Core'):
 
         for channel in ctx.message.channel_mentions:
             if ctx.guild.default_role not in channel.overwrites or channel.overwrites[ctx.guild.default_role].read_messages != False:
-                await ctx.send(channel.mention + 'is not a whitelist channel')
+                await ctx.send(channel.mention + ' is not a whitelist channel')
                 break
             for overwrite in channel.overwrites:
                 if isinstance(overwrite, discord.Role):
@@ -89,6 +89,27 @@ class Core(commands.Cog, name='Core'):
                     if channel.overwrites[overwrite].read_messages and not overwrite.bot:
                         await channel.set_permissions(overwrite, overwrite = self.ARCHIVE_PO)
             await channel.edit(category = archive_category)
+
+    @commands.command(name='here')
+    @commands.has_permissions(manage_guild=True)
+    async def _here(self,ctx):
+        """Mentions everyone form channel with whitelist omiting admins"""
+
+        outMessage = ''
+
+        if ctx.guild.default_role not in ctx.channel.overwrites or ctx.channel.overwrites[ctx.guild.default_role].read_messages != False:
+            await ctx.send(ctx.channel.mention + ' is not a whitelist channel')
+        else:
+            for overwrite in ctx.channel.overwrites:
+                if isinstance(overwrite, discord.Role):
+                    if (not overwrite.is_default() and not overwrite.is_bot_managed()):
+                        if ctx.channel.overwrites[overwrite].read_messages:
+                            outMessage += overwrite.mention + ' '
+                if isinstance(overwrite, discord.Member):
+                    if ctx.channel.overwrites[overwrite].read_messages and not overwrite.bot:
+                        outMessage += overwrite.mention + ' '
+            if outMessage:
+                await ctx.message.reply(outMessage)
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix= '.', intents=intents)

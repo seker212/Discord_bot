@@ -91,7 +91,6 @@ class Core(commands.Cog, name='Core'):
             await channel.edit(category = archive_category)
 
     @commands.command(name='here')
-    @commands.has_permissions(manage_guild=True)
     async def _here(self,ctx):
         """Mentions everyone form channel with whitelist omiting admins"""
 

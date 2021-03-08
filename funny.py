@@ -174,8 +174,9 @@ class Funny(commands.Cog):
                         emoji = discord.utils.get(message.guild.emojis, name='kannahm')
                         await message.add_reaction(emoji)
                     else:
-                        #Tak tutaj napewnie nie dzieją sie dziwne rzeczy 
-                        await message.channel.send(str(random.choice(response))+' '+message.author.mention)
+                        #Tak tutaj napewnie nie dzieją sie dziwne rzeczy
+                        if self.bot.user.id in message.raw_mentions:
+                            await message.channel.send(str(random.choice(response))+' '+message.author.mention)
 
         else:
             await self.bot.process_commands(message)

@@ -114,7 +114,7 @@ class Core(commands.Cog, name='Core'):
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix= '.', intents=intents)
 bot.load_extension('funny')
-bot.load_extension('timer')
+# bot.load_extension('timer')
 bot.add_cog(Core(bot))
 
 @bot.event

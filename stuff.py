@@ -1,19 +1,23 @@
 import asyncio
 import discord
 import re
+
 import time
 import datetime
+import pytz
+
 import random
 import os.path
 from discord.ext import commands
 
 from tables import response,facts
 
-class Funny(commands.Cog):
+class Stuff(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.channel = None
         self.voice = None
+        self.timezone = None
     
     def cog_unload(self):
         pass
@@ -62,6 +66,17 @@ class Funny(commands.Cog):
             await ctx.send('Bruh you forget the channel lel')
             pass
 
+    @commands.command(name='settimezone')
+    @commands.has_permissions(manage_guild=True)
+    async def _settimezone(self, ctx: commands.Context):
+        """Set the bot working timezone"""
+
+        try:
+            self.timezone = pytz.timezone(ctx)
+        except Exception:
+            await ctx.send('Something went wrong using this command')
+            pass
+
     @commands.command(name='sound')
     async def _sound(self,ctx: commands.Context,soundType):
         """Arrives to you and plays your favourite sound"""
@@ -99,7 +114,7 @@ class Funny(commands.Cog):
         if self.channel != None and not member.bot:
             async with self.channel.typing():
                 user = member.name
-                ts = '[ '+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+' ]  '
+                ts = '[ '+ datetime.datetime.now(self.timezone).strftime("%Y-%m-%d %H:%M:%S")+' ]  '
                 if after.channel == None:
                     await self.channel.send(ts+'***'+user+'*** left voice channel ***'+before.channel.mention+'***')
                 elif before.channel == None:
@@ -204,4 +219,4 @@ class Funny(commands.Cog):
 def setup(bot):
     """Add component"""
 
-    bot.add_cog(Funny(bot))
+    bot.add_cog(Stuff(bot))

@@ -28,17 +28,17 @@ class YTPlayer(commands.Cog):
 
     @commands.command(name='play')
     async def _jutub(self,ctx: commands.Context, *args):     
-        search = ""
-        for x in args:
-            search = search + str(x) + "+" 
-        html = urllib.request.urlopen("https://www.youtube.com/results?search_query=" + search)
-        video_ids = re.findall(r"watch\?v=(\S{11})", html.read().decode())
-        await ctx.send("https://www.youtube.com/watch?v=" + video_ids[0])
-        song = pafy.new(video_ids[0])
-        url = song.getbestaudio().url
-        
-        channel = ctx.message.author.voice.channel
         if(len(self.bot.voice_clients) == 0 and channel != None):                              
+            search = ""
+            for x in args:
+                search = search + str(x) + "+" 
+            html = urllib.request.urlopen("https://www.youtube.com/results?search_query=" + search)
+            video_ids = re.findall(r"watch\?v=(\S{11})", html.read().decode())
+            await ctx.send("https://www.youtube.com/watch?v=" + video_ids[0])
+            song = pafy.new(video_ids[0])
+            url = song.getbestaudio().url
+            
+            channel = ctx.message.author.voice.channel
             self.voice = await channel.connect()                      
             source = discord.FFmpegPCMAudio(url, **FFMPEG_OPTIONS)
             self.voice.play(source)

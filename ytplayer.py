@@ -28,6 +28,7 @@ class YTPlayer(commands.Cog):
 
     @commands.command(name='play')
     async def _jutub(self,ctx: commands.Context, *args):     
+        channel = ctx.message.author.voice.channel
         if(len(self.bot.voice_clients) == 0 and channel != None):                              
             search = ""
             for x in args:
@@ -38,7 +39,6 @@ class YTPlayer(commands.Cog):
             song = pafy.new(video_ids[0])
             url = song.getbestaudio().url
             
-            channel = ctx.message.author.voice.channel
             self.voice = await channel.connect()                      
             source = discord.FFmpegPCMAudio(url, **FFMPEG_OPTIONS)
             self.voice.play(source)

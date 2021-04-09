@@ -72,7 +72,7 @@ class Stuff(commands.Cog):
         """Set the bot working timezone"""
 
         try:
-            self.timezone = pytz.timezone(ctx)
+            self.timezone = pytz.timezone(ctx.message)
         except Exception:
             await ctx.send('Something went wrong using this command')
             pass

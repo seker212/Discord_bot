@@ -152,10 +152,10 @@ class Stuff(commands.Cog):
                     else:
                         await self.channel.send(ts+'***'+user+'*** hides himself in video call')
                 
-                #No afk channel policy
-                if after.channel != None:
-                    if after.channel.name == 'Pod mostem':
-                        await member.move_to(None,reason="OOF")
+        #No afk channel policy
+        if after.channel != None:
+            if after.channel.name == 'Pod mostem':
+                await member.move_to(None,reason="OOF")
     
     @commands.Cog.listener() 
     async def on_message(self, message):

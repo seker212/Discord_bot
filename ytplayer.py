@@ -11,9 +11,7 @@ FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconne
 class YTPlayer(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.channel = None
         self.voice = None
-        self.timezone = None
 
     def cog_unload(self):
         pass
@@ -28,6 +26,8 @@ class YTPlayer(commands.Cog):
 
     @commands.command(name='play')
     async def _jutub(self,ctx: commands.Context, *args):     
+        """Play audio form youtube. Uses first result of a youtube search."""
+        
         channel = ctx.message.author.voice.channel
         if(len(self.bot.voice_clients) == 0 and channel != None):                              
             search = ""
@@ -48,16 +48,23 @@ class YTPlayer(commands.Cog):
 
     @commands.command(name='pause')
     async def _pause(self,ctx: commands.Context):
+        """Pause currently played sound"""
+    
         self.voice.pause()
 
     @commands.command(name='resume')
     async def _resume(self,ctx: commands.Context):
+        """Resume audio playback"""  
+        
         self.voice.resume()
 
     @commands.command(name='stop')
     async def _stop(self,ctx: commands.Context):
+        """Stop audio playpack"""
+        
         self.voice.stop()
 
 def setup(bot):
     """Add component"""
+    
     bot.add_cog(YTPlayer(bot))

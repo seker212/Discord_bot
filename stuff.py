@@ -154,7 +154,7 @@ class Stuff(commands.Cog):
                 
         #No afk channel policy
         if after.channel != None:
-            if after.channel == after.channel.guild.afk:
+            if after.channel == after.channel.guild.afk_channel:
                 await member.move_to(None,reason="OOF")
     
     @commands.Cog.listener() 

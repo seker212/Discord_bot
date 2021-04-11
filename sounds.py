@@ -28,19 +28,22 @@ class Sounds(commands.Cog):
 
         if len(self.bot.voice_clients) == 0 and soundType != None:
             member = ctx.message.author
-            await ctx.send("Playing now Darude-Sandstorm")
             for channel in member.guild.channels:
                 if channel.type == discord.ChannelType.voice:
                     for m in channel.voice_states:
                         if m == member.id:
                             path = 'audio/'+soundType+'.mp3'
                             if os.path.isfile(path):
+                                await ctx.send("Playing now: "+soundType)
                                 self.voice = await channel.connect()
                                 await asyncio.sleep(0.5)      
                                 self.voice.play(discord.FFmpegPCMAudio(path), after = self.voice.stop())
                                 while(self.voice.is_playing()):
                                     await asyncio.sleep(1)
                                 await self.voice.disconnect()
+                            else: 
+                                await ctx.send("I can't find the: "+soundType)    
+
 
     @commands.command(name='soundlist')
     async def _soundList(self, ctx: commands.Context):

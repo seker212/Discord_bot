@@ -106,7 +106,7 @@ class Stuff(commands.Cog):
             if file.endswith(".mp3") and not os.path.isfile(path):
                 await ctx.message.attachments[0].save(fp=path)
 
-    #---Listener section---
+    #---Listener section---#
     @commands.Cog.listener()
     async def on_voice_state_update(self ,member, before, after):
         """Voice states logger """
@@ -152,10 +152,10 @@ class Stuff(commands.Cog):
                     else:
                         await self.channel.send(ts+'***'+user+'*** hides himself in video call')
                 
-                #No afk channel policy
-                if after.channel != None:
-                    if after.channel.name == 'Pod mostem':
-                        await member.move_to(None,reason="OOF")
+        #No afk channel policy
+        if after.channel != None:
+            if after.channel == after.channel.guild.afk_channel:
+                await member.move_to(None,reason="OOF")
     
     @commands.Cog.listener() 
     async def on_message(self, message):

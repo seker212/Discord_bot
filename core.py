@@ -47,28 +47,34 @@ class Core(commands.Cog, name='Core'):
     @commands.has_permissions(manage_guild=True)
     async def _saytts(self,ctx, channelName, *args):
         """It should say it in tts"""
-
-        if(len(args) > 0):
-            channel = ctx.message.channel_mentions[0]
-            string = " ".join(args)
-            await channel.send(content = string, tts = True)
-        else:
-            emoji = discord.utils.get(ctx.guild.emojis, name='kannakms')
-            await ctx.send("A może dałbyś mi coś do powiedzenia? " + str(emoji))
+        try:
+            if(len(args) > 0):
+                channel = ctx.message.channel_mentions[0]
+                string = " ".join(args)
+                await channel.send(content = string, tts = True)
+            else:
+                emoji = discord.utils.get(ctx.guild.emojis, name='kannakms')
+                await ctx.send("A może dałbyś mi coś do powiedzenia? " + str(emoji))
+        except IndexError:
+            await ctx.send('Something went wrong')
+            pass
 
     @commands.command(name='say')
     @commands.has_permissions(manage_guild=True)
     async def _say(self,ctx, channelName, *args):
         """It should say just it"""
+        try:
+            if(len(args) > 0):
+                channel = ctx.message.channel_mentions[0]
+                string = " ".join(args)
+                await channel.send(content = string)
+            else:
+                emoji = discord.utils.get(ctx.guild.emojis, name='kannakms')
+                await ctx.send("A może dałbyś mi coś do powiedzenia? " + str(emoji))
+        except IndexError:
+            await ctx.send('Something went wrong')
+            pass
 
-        if(len(args) > 0):
-            channel = ctx.message.channel_mentions[0]
-            string = " ".join(args)
-            await channel.send(content = string)
-        else:
-            emoji = discord.utils.get(ctx.guild.emojis, name='kannakms')
-            await ctx.send("A może dałbyś mi coś do powiedzenia? " + str(emoji))
-    
     @commands.command(name='archive-whitelist')
     @commands.has_permissions(manage_guild=True)
     async def _archive(self,ctx):

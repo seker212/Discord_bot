@@ -47,7 +47,6 @@ class Stuff(commands.Cog):
 
         embed = discord.Embed(title="Help",description="this displays the help commands",color=0x00ff00)
         embed.add_field(name=".setchannel <channel>",value="set the channel to log stuff",inline=False)
-        embed.add_field(name=".setabcd",value="switch between true/false to adding abcd under every image",inline=False)
         embed.add_field(name=".shutdown",value="shutdowns the bot",inline=False)
         embed.add_field(name="@anyone",value="pokes a random person",inline=False)
         embed.add_field(name="@self",value="( ͡° ͜ʖ ͡°)",inline=False)
@@ -68,14 +67,12 @@ class Stuff(commands.Cog):
 
     @commands.command(name='settimezone')
     @commands.has_permissions(manage_guild=True)
-    async def _settimezone(self, ctx: commands.Context):
+    async def _settimezone(self, ctx: commands.Context, zone):
         """Set the bot working timezone"""
 
-        try:
-            self.timezone = pytz.timezone(ctx.message)
-        except Exception:
-            await ctx.send('Something went wrong using this command')
-            pass
+        self.timezone = pytz.timezone(zone)
+        await ctx.send('Time zone set to:' + str(self.timezone))
+       
 
     @commands.command(name='sound')
     async def _sound(self,ctx: commands.Context,soundType):

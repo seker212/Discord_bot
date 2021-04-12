@@ -33,7 +33,7 @@ git clone https://github.com/seker212/Discord_bot.git
 ```bash
 python3 -m venv env
 #Linux version
-source rest/bin/activate
+source env/bin/activate
 #Windows version
 env\Scripts\activate
 ```
@@ -49,5 +49,5 @@ python start_bot.py
 ```
 Token can be also a enviroment variable or passed directly in command
 ```
-python start_bot.py <discord tohen here>
+python start_bot.py <discord token here>
 ```

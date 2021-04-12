@@ -7,6 +7,7 @@ class Sounds(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.voice = None
+        self.alphabet = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','V','W','Y','Z']
     
     def cog_unload(self):
         pass
@@ -51,11 +52,13 @@ class Sounds(commands.Cog):
 
         sounds = os.listdir('./audio')
 
-        i = 1
-        for sound in sounds:
-            val = sound[:-4]
-            embed.add_field(name=str(i) ,value=val,inline=True)
-            i+=1
+        for char in self.alphabet:
+            s = ''
+            for sound in sounds:
+                if sound[:1].upper() == char:
+                    s += sound[:-4] + '\n'
+            if s != '':
+                embed.add_field(name=char, value=s)
 
         await ctx.send(embed=embed)
 

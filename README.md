@@ -39,7 +39,7 @@ env\Scripts\activate
 ```
 3. Install neccesary packages
 ```
-pip install requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 ## How to run

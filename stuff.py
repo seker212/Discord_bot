@@ -47,7 +47,6 @@ class Stuff(commands.Cog):
 
         embed = discord.Embed(title="Help",description="this displays the help commands",color=0x00ff00)
         embed.add_field(name=".setchannel <channel>",value="set the channel to log stuff",inline=False)
-        embed.add_field(name=".setabcd",value="switch between true/false to adding abcd under every image",inline=False)
         embed.add_field(name=".shutdown",value="shutdowns the bot",inline=False)
         embed.add_field(name="@anyone",value="pokes a random person",inline=False)
         embed.add_field(name="@self",value="( ͡° ͜ʖ ͡°)",inline=False)
@@ -68,44 +67,12 @@ class Stuff(commands.Cog):
 
     @commands.command(name='settimezone')
     @commands.has_permissions(manage_guild=True)
-    async def _settimezone(self, ctx: commands.Context):
+    async def _settimezone(self, ctx: commands.Context, zone):
         """Set the bot working timezone"""
 
-        try:
-            self.timezone = pytz.timezone(ctx.message)
-        except Exception:
-            await ctx.send('Something went wrong using this command')
-            pass
-
-    @commands.command(name='sound')
-    async def _sound(self,ctx: commands.Context,soundType):
-        """Arrives to you and plays your favourite sound"""
-
-        if len(self.bot.voice_clients) == 0 and soundType != None:
-            member = ctx.message.author
-            await ctx.send("Playing now Darude-Sandstorm")
-            for channel in member.guild.channels:
-                if channel.type == discord.ChannelType.voice:
-                    for m in channel.voice_states:
-                        if m == member.id:
-                            path = 'audio/'+soundType+'.mp3'
-                            if os.path.isfile(path):
-                                self.voice = await channel.connect()
-                                await asyncio.sleep(0.5)      
-                                self.voice.play(discord.FFmpegPCMAudio(path), after = self.voice.stop())
-                                while(self.voice.is_playing()):
-                                    await asyncio.sleep(1)
-                                await self.voice.disconnect()
-
-    @commands.command(name='us')
-    @commands.has_permissions(manage_guild=True)
-    async def _uploadSound(self, ctx: commands.Context):
-        if len(ctx.message.attachments) == 1:
-            file = ctx.message.attachments[0].filename
-            path = "audio/{}".format(file)
-            if file.endswith(".mp3") and not os.path.isfile(path):
-                await ctx.message.attachments[0].save(fp=path)
-
+        self.timezone = pytz.timezone(zone)
+        await ctx.send('Time zone set to: ' + str(self.timezone))
+    
     #---Listener section---#
     @commands.Cog.listener()
     async def on_voice_state_update(self ,member, before, after):

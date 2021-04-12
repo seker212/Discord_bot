@@ -26,6 +26,7 @@ test/
 .vscode/
 
 # particular files
+README.md
 timer.py
 token*
 poker/

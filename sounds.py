@@ -6,9 +6,7 @@ from discord.ext import commands
 class Sounds(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.channel = None
         self.voice = None
-        self.timezone = None
     
     def cog_unload(self):
         pass

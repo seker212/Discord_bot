@@ -1,4 +1,4 @@
-FROM tracktennis/ffmpeg-python38:v4.2.2
+FROM python:3.9-alpine
 WORKDIR /app
 RUN apk update && \
         apk add gcc && \
@@ -8,7 +8,8 @@ RUN apk update && \
         apk add libffi-dev && \
         apk add make && \
         apk add opus-dev && \
-        apk add opus
+        apk add opus && \
+        apk add ffmpeg
 COPY . .
 RUN python -m pip install -r requirements.txt
 CMD [ "python", "start_bot.py" ]

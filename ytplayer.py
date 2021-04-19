@@ -29,19 +29,33 @@ class YTPlayer(commands.Cog):
         """Play audio form youtube. Uses first result of a youtube search."""
         
         channel = ctx.message.author.voice.channel
-        if(len(self.bot.voice_clients) == 0 and channel != None):                              
-            search = ""
-            for x in args:
-                search = search + str(x) + "+" 
-            html = urllib.request.urlopen("https://www.youtube.com/results?search_query=" + search)
-            video_ids = re.findall(r"watch\?v=(\S{11})", html.read().decode())
+        if(len(self.bot.voice_clients) == 0 and channel != None):
+            video_id = None
+            if len(args) == 1:
+                web_link_regex_long = r'(https://)?(www\.)?youtube\.com/watch\?.*v=(\S{11}).*'
+                web_link_regex_short = r'(https://)?youtu\.be/(\S{11}).*'
+                match_long = re.match(web_link_regex_long, args[0])
+                match_short = re.match(web_link_regex_short, args[0])
+                if match_long != None:
+                    video_id = match_long[3]
+                elif match_short != None:
+                    video_id = match_short[2]
+
+            if video_id == None:
+                search = ""
+                for x in args:
+                    search = search + str(x) + "+" 
+                html = urllib.request.urlopen("https://www.youtube.com/results?search_query=" + search)
+                video_id = re.findall(r"watch\?v=(\S{11})", html.read().decode())[0]
             
-            song = pafy.new(video_ids[0])
+            song = pafy.new(video_id)
             url = song.getbestaudio().url
             
             self.voice = await channel.connect()
 
-            await ctx.send("https://www.youtube.com/watch?v=" + video_ids[0])
+            e = discord.Embed(title='Now playing', description=f"Title: *** {song.title} *** \nTime: {song.duration}", url=song.watchv_url)
+            e.set_thumbnail(url=song.bigthumb)
+            await ctx.send(embed=e)
                          
             source = discord.FFmpegPCMAudio(url, **FFMPEG_OPTIONS)
             self.voice.play(source)

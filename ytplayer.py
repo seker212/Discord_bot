@@ -53,7 +53,9 @@ class YTPlayer(commands.Cog):
             
             self.voice = await channel.connect()
 
-            await ctx.send("https://www.youtube.com/watch?v=" + video_id)
+            e = discord.Embed(title='Now playing', description=f"Title: *** {song.title} *** \nTime: {song.duration}", url=song.watchv_url)
+            e.set_thumbnail(url=song.bigthumb)
+            await ctx.send(embed=e)
                          
             source = discord.FFmpegPCMAudio(url, **FFMPEG_OPTIONS)
             self.voice.play(source)

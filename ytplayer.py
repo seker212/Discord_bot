@@ -35,11 +35,14 @@ class YTPlayer(commands.Cog):
                 search = search + str(x) + "+" 
             html = urllib.request.urlopen("https://www.youtube.com/results?search_query=" + search)
             video_ids = re.findall(r"watch\?v=(\S{11})", html.read().decode())
-            await ctx.send("https://www.youtube.com/watch?v=" + video_ids[0])
+            
             song = pafy.new(video_ids[0])
             url = song.getbestaudio().url
             
-            self.voice = await channel.connect()                      
+            self.voice = await channel.connect()
+
+            await ctx.send("https://www.youtube.com/watch?v=" + video_ids[0])
+                         
             source = discord.FFmpegPCMAudio(url, **FFMPEG_OPTIONS)
             self.voice.play(source)
             while(self.voice.is_playing() or self.voice.is_paused()):

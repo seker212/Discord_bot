@@ -58,10 +58,8 @@ class YTPlayer(commands.Cog):
 
                 song = pafy.new(video_id)
                 self.queue.append(song)
-                print(str(len(self.queue))+ " after append")
 
                 if len(self.bot.voice_clients) != 0:
-                    print(str(len(self.queue))+ " in if")
                     embed_title = "Postion " + str(len(self.queue)) + " in queue"
                     e = discord.Embed(title=embed_title, description=f"Title: *** {song.title} *** \nTime: {song.duration}", url=song.watchv_url)
                     e.set_thumbnail(url=song.bigthumb)
@@ -71,7 +69,6 @@ class YTPlayer(commands.Cog):
                         self.voice = await channel.connect() 
                     while len(self.queue) > 0:  
                         poped_song = self.queue.pop(0)
-                        print(str(len(self.queue))+ " after pop")
 
                         url = poped_song.getbestaudio().url
                         e = discord.Embed(title='Now playing', description=f"Title: *** {poped_song.title} *** \nTime: {poped_song.duration}", url=poped_song.watchv_url)

@@ -33,9 +33,7 @@ class YTPlayer(commands.Cog):
             await ctx.send("You need to be in a vc to use this command")
         else:
             channel = ctx.message.author.voice.channel
-            if channel is None :
-                await ctx.send("youre not in a vc fook oof")
-            elif len(self.bot.voice_clients) != 0 and self.voice.channel is not channel:
+            if len(self.bot.voice_clients) != 0 and self.voice.channel is not channel:
                 await ctx.send("youre in a wrong vc fook oof")
             else:
                 video_id = None
@@ -65,8 +63,7 @@ class YTPlayer(commands.Cog):
                     e.set_thumbnail(url=song.bigthumb)
                     await ctx.send(embed=e)
                 else:
-                    if len(self.bot.voice_clients) == 0 and channel != None:
-                        self.voice = await channel.connect() 
+                    self.voice = await channel.connect() 
                     while len(self.queue) > 0:  
                         poped_song = self.queue.pop(0)
 
@@ -131,7 +128,7 @@ class YTPlayer(commands.Cog):
     async def _clear(self,ctx: commands.Context):
         """Empty queue"""
         
-        self.qeueu = []
+        self.queue = []
     
     @commands.command(name='queue')
     async def _queue(self,ctx: commands.Context):

@@ -2,6 +2,7 @@ import asyncio
 import discord
 from discord.ext import commands
 import re
+import random
 
 import pafy
 import urllib.request
@@ -121,8 +122,6 @@ class YTPlayer(commands.Cog):
                     await ctx.send("youh numbhas ar not in tha queue")
             except ValueError:
                 await ctx.send("you idiot itsa not a numbha")
-        
-        
     
     @commands.command(name='clear')
     async def _clear(self,ctx: commands.Context):
@@ -143,6 +142,30 @@ class YTPlayer(commands.Cog):
                 string = string + str(number) + ". " + x.title + "\n"
                 number = number + 1
             await ctx.send(string)
+
+    @commands.command(name='shuffle')
+    async def _shuffle(self,ctx: commands.Context):
+        """Shuffle queue"""
+
+        if len(self.queue) == 0:
+            await ctx.send("Queue is empty you dingus")
+        else:
+            random.shuffle(self.queue)
+            await ctx.send("Queue (maybe) shuffled")
+    
+    @commands.command(name='remove')
+    async def _remove(self,ctx: commands.Context, pos):
+        """Remove song from queue"""
+
+        if len(self.queue) == 0:
+            await ctx.send("Queue is empty you dingus")
+        else:
+            try:
+                song = self.queue.pop(int(pos) - 1)
+                await ctx.send(song.title + " removed from queue")
+            except ValueError:
+                await ctx.send("you idiot itsa not a numbha")
+        
 
 
 def setup(bot):

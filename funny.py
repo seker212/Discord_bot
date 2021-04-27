@@ -174,6 +174,9 @@ class Funny(commands.Cog):
                         #Tak tutaj napewnie nie dzieją sie dziwne rzeczy 
                         await message.channel.send(str(random.choice(response))+' '+message.author.mention)
 
+            if re.search("^.*[K|k][T|t][O|o] [P|p][Y|y][T|t][A|a][L|l|Ł|ł].*$", msg) != None:
+                await message.channel.send("Ale kto pytał? "+message.author.mention)
+
         else:
             await self.bot.process_commands(message)
 

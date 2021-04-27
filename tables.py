@@ -35,7 +35,8 @@ response = ['No i co ty chcesz?',
 'Brrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr',
 'Wypierdalaj, gram w WEEEEEEEEEEEEEEEEEEEEEEEEEEE',
 'Chcesz coś? Dopisz sobie',
-'To kiedy Hori?']
+'To kiedy Hori?',
+'Ja nic']
 
 
 facts = ['Korea Północna i Kuba to jedyne miejsca, w których nie można kupić Coca-Coli.',

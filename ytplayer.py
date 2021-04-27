@@ -29,55 +29,63 @@ class YTPlayer(commands.Cog):
     @commands.command(name='play')
     async def _play(self,ctx: commands.Context, *args):     
         """Play audio form youtube. Uses first result of a youtube search."""
-
-        if not ctx.message.author.voice:
-            await ctx.send("You need to be in a vc to use this command")
+        if len(args) == 0:
+            await ctx.send("pierdol sie")
         else:
-            channel = ctx.message.author.voice.channel
-            if len(self.bot.voice_clients) != 0 and self.voice.channel is not channel:
-                await ctx.send("youre in a wrong vc fook oof")
+            if not ctx.message.author.voice:
+                await ctx.send("You need to be in a vc to use this command")
             else:
-                video_id = None
-                if len(args) == 1:
-                    web_link_regex_long = r'(https://)?(www\.)?youtube\.com/watch\?.*v=(\S{11}).*'
-                    web_link_regex_short = r'(https://)?youtu\.be/(\S{11}).*'
-                    match_long = re.match(web_link_regex_long, args[0])
-                    match_short = re.match(web_link_regex_short, args[0])
-                    if match_long != None:
-                        video_id = match_long[3]
-                    elif match_short != None:
-                        video_id = match_short[2]
+                channel = ctx.message.author.voice.channel
+                check_bot_vclist = len(self.bot.voice_clients) != 0
+                if check_bot_vclist:
+                    while not self.voice:
+                        await asyncio.sleep(1)
 
-                if video_id == None:
-                    search = ""
-                    for x in args:
-                        search = search + str(x) + "+" 
-                    html = urllib.request.urlopen("https://www.youtube.com/results?search_query=" + search)
-                    video_id = re.findall(r"watch\?v=(\S{11})", html.read().decode())[0]
-
-                song = pafy.new(video_id)
-                self.queue.append(song)
-
-                if len(self.bot.voice_clients) != 0:
-                    embed_title = "Postion " + str(len(self.queue)) + " in queue"
-                    e = discord.Embed(title=embed_title, description=f"Title: *** {song.title} *** \nTime: {song.duration}", url=song.watchv_url)
-                    e.set_thumbnail(url=song.bigthumb)
-                    await ctx.send(embed=e)
+                if check_bot_vclist and self.voice.channel is not channel:
+                    await ctx.send("youre in a wrong vc fook oof")
                 else:
-                    self.voice = await channel.connect() 
-                    while len(self.queue) > 0:  
-                        poped_song = self.queue.pop(0)
+                    video_id = None
+                    if len(args) == 1:
+                        web_link_regex_long = r'(https://)?(www\.)?youtube\.com/watch\?.*v=(\S{11}).*'
+                        web_link_regex_short = r'(https://)?youtu\.be/(\S{11}).*'
+                        match_long = re.match(web_link_regex_long, args[0])
+                        match_short = re.match(web_link_regex_short, args[0])
+                        if match_long != None:
+                            video_id = match_long[3]
+                        elif match_short != None:
+                            video_id = match_short[2]
 
-                        url = poped_song.getbestaudio().url
-                        e = discord.Embed(title='Now playing', description=f"Title: *** {poped_song.title} *** \nTime: {poped_song.duration}", url=poped_song.watchv_url)
-                        e.set_thumbnail(url=poped_song.bigthumb)
+                    if video_id == None:
+                        search = ""
+                        for x in args:
+                            search = search + str(x) + "+" 
+                        html = urllib.request.urlopen("https://www.youtube.com/results?search_query=" + search)
+                        video_id = re.findall(r"watch\?v=(\S{11})", html.read().decode())[0]
+
+                    song = pafy.new(video_id)
+                    self.queue.append(song)
+
+                    if len(self.bot.voice_clients) != 0:
+                        embed_title = "Postion " + str(len(self.queue)) + " in queue"
+                        e = discord.Embed(title=embed_title, description=f"Title: *** {song.title} *** \nTime: {song.duration}", url=song.watchv_url)
+                        e.set_thumbnail(url=song.bigthumb)
                         await ctx.send(embed=e)
-                                        
-                        source = discord.FFmpegPCMAudio(url, **FFMPEG_OPTIONS)
-                        self.voice.play(source)
-                        while self.voice.is_playing() or self.voice.is_paused():
-                            await asyncio.sleep(1) 
-                    await self.voice.disconnect()  
+                    else:
+                        self.voice = await channel.connect() 
+                        while len(self.queue) > 0:  
+                            poped_song = self.queue.pop(0)
+
+                            url = poped_song.getbestaudio().url
+                            e = discord.Embed(title='Now playing', description=f"Title: *** {poped_song.title} *** \nTime: {poped_song.duration}", url=poped_song.watchv_url)
+                            e.set_thumbnail(url=poped_song.bigthumb)
+                            await ctx.send(embed=e)
+                                            
+                            source = discord.FFmpegPCMAudio(url, **FFMPEG_OPTIONS)
+                            self.voice.play(source)
+                            while self.voice.is_playing() or self.voice.is_paused():
+                                await asyncio.sleep(1) 
+                        await self.voice.disconnect() 
+                        self.voice = None 
                             
     @commands.command(name='pause')
     async def _pause(self,ctx: commands.Context):
@@ -141,7 +149,8 @@ class YTPlayer(commands.Cog):
             for x in self.queue:
                 string = string + str(number) + ". " + x.title + "\n"
                 number = number + 1
-            await ctx.send(string)
+            e = discord.Embed(title='Queue', description=string)
+            await ctx.send(embed=e)
 
     @commands.command(name='shuffle')
     async def _shuffle(self,ctx: commands.Context):

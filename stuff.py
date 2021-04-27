@@ -160,6 +160,9 @@ class Stuff(commands.Cog):
                         if self.bot.user.id in message.raw_mentions:
                             await message.channel.send(str(random.choice(response))+' '+message.author.mention)
 
+            if re.search("^.*[K|k][T|t][O|o] [P|p][Y|y][T|t][A|a][L|l|Ł|ł].*$", msg) != None:
+                await message.channel.send("Ale kto pytał? "+message.author.mention)
+
         else:
             await self.bot.process_commands(message)
 

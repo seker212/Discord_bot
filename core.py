@@ -5,8 +5,6 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import context
 import sqlite3
-from pypika import SQLLiteQuery, Table, Field
-import pypika
 #from poker.discord_control import *
 #from poker.pair import *
 

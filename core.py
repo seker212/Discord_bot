@@ -1,6 +1,12 @@
 import asyncio
+import logging
+from os import curdir
 import discord
 from discord.ext import commands
+from discord.ext.commands import context
+import sqlite3
+from pypika import SQLLiteQuery, Table, Field
+import pypika
 #from poker.discord_control import *
 #from poker.pair import *
 
@@ -118,7 +124,8 @@ class Core(commands.Cog, name='Core'):
                         outMessage += overwrite.mention + ' '
             if outMessage:
                 await ctx.message.reply(outMessage)
-
+    
+logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p %Z', level=logging.INFO, handlers=[logging.FileHandler("file.log"), logging.StreamHandler()])
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix= '.', intents=intents)
 bot.load_extension('stuff')
@@ -131,7 +138,7 @@ bot.add_cog(Core(bot))
 async def on_ready():
     """On ready command list"""
 
-    print('Logged in as {0.user}'.format(bot))
+    logging.info('Logged in as {0.user}'.format(bot))
     await bot.change_presence(activity=discord.Game(name='WEEEEEEEEEEEEEEEEEEEEEEEEEEE'))
     #load()
 

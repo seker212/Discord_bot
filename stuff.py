@@ -1,24 +1,31 @@
 import asyncio
 import discord
 import re
-
-import time
+import logging
 import datetime
 import pytz
 
 import random
 import os.path
 from discord.ext import commands
+from json import load
+from settings import Settings
 
 from tables import response,facts
 
 class Stuff(commands.Cog):
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot: commands.Bot, settings : Settings):
         self.bot = bot
-        self.channel = None
         self.voice = None
+        self.settings = settings
+        self.channel = None
         self.timezone = None
     
+    @commands.Cog.listener()
+    async def on_ready(self):
+        self.channel = self.bot.get_channel(self.settings.channel_id)
+        self.timezone = self.settings.timezone
+
     def cog_unload(self):
         pass
 
@@ -39,7 +46,7 @@ class Stuff(commands.Cog):
 
         await ctx.channel.send("I'm about to end my life")
         await self.bot.close()
-        print('Bot ended his life')
+        logging.info('Bot ended his life')
 
     @commands.command(name='halp')
     async def _halp(self, ctx: commands.Context):
@@ -189,4 +196,4 @@ class Stuff(commands.Cog):
 def setup(bot):
     """Add component"""
 
-    bot.add_cog(Stuff(bot))
+    bot.add_cog(Stuff(bot, Settings()))

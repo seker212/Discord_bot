@@ -3,6 +3,9 @@ import discord
 import os.path
 from discord.ext import commands
 
+import logger as log
+logger = log.getLogger(__name__)
+
 class Sounds(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -88,4 +91,5 @@ class Sounds(commands.Cog):
 def setup(bot):
     """Add component"""
 
+    logger.info("Adding cog " + __name__)
     bot.add_cog(Sounds(bot))

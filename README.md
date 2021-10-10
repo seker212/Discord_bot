@@ -60,7 +60,7 @@ python -m pip install -r requirements.txt
 
 ### How to run
 
-To run your virtual enviroment must be enabled and folder should contain a file named `token.txt` with the discord secret token. Also file `settings.json` should be in the same folder with the values specified below.
+To run your virtual enviroment must be enabled and folder `settings/` should contain a file named `token.txt` with the discord secret token. Also file `settings.json` should be in the same folder with the values specified below.
 
 ```json
 {

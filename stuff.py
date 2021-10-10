@@ -1,7 +1,6 @@
 import asyncio
 import discord
 import re
-import logging
 import datetime
 import pytz
 
@@ -10,6 +9,9 @@ import os.path
 from discord.ext import commands
 from json import load
 from settings import Settings
+
+import logger as log
+logger = log.getLogger(__name__)
 
 from tables import response,facts
 
@@ -46,7 +48,7 @@ class Stuff(commands.Cog):
 
         await ctx.channel.send("I'm about to end my life")
         await self.bot.close()
-        logging.info('Bot ended his life')
+        logger.info('Bot ended his life')
 
     @commands.command(name='halp')
     async def _halp(self, ctx: commands.Context):
@@ -196,4 +198,5 @@ class Stuff(commands.Cog):
 def setup(bot):
     """Add component"""
 
+    logger.info("Adding cog " + __name__)
     bot.add_cog(Stuff(bot, Settings()))

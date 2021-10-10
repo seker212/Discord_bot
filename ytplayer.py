@@ -7,6 +7,9 @@ import random
 import pafy
 import urllib.request
 
+import logger as log
+logger = log.getLogger(__name__)
+
 FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5','options': '-vn'}
 
 class YTPlayer(commands.Cog):
@@ -180,4 +183,5 @@ class YTPlayer(commands.Cog):
 def setup(bot):
     """Add component"""
     
+    logger.info("Adding cog " + __name__)
     bot.add_cog(YTPlayer(bot))

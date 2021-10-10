@@ -29,4 +29,6 @@ test/
 README.md
 timer.py
 token*
+*.log
+settings.json
 poker/

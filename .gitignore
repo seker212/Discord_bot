@@ -136,7 +136,6 @@ restart
 run
 
 token.txt
-/.vscode
 *.log
 settings.json
 database.db

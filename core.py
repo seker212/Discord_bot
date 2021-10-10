@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import logging.config
 from os import curdir
 import discord
 from discord.ext import commands
@@ -126,6 +127,7 @@ class Core(commands.Cog, name='Core'):
                 await ctx.message.reply(outMessage)
     
 logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p %Z', level=logging.INFO, handlers=[logging.FileHandler("file.log"), logging.StreamHandler()])
+logging.config.fileConfig('logging.conf')
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix= '.', intents=intents)
 bot.load_extension('stuff')

@@ -1,0 +1,14 @@
+ # TODO: DELETE THIS SHIT AFTER FINISHING DATABASE
+    # @commands.command(name='fill')
+    # async def _fill(self, ctx : commands.Context):
+    #     print('a1')
+    #     query = pypika.Query.into(Table('accounts'))
+    #     for mem in ctx.guild.members:
+    #         query = query.insert(str(mem.id), mem.name, '')
+    #     db_conn = sqlite3.connect('database.db')
+    #     db_cursor = db_conn.cursor()
+    #     db_cursor.execute(str(query))
+    #     db_cursor.close()
+    #     db_conn.commit()
+    #     db_conn.close()
+    #     print('a2')

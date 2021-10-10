@@ -138,3 +138,6 @@ run
 token.txt
 /.vscode
 /logs
+settings.json
+database.db
+/.vscode

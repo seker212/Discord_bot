@@ -6,7 +6,37 @@ Docker hub link: [here](https://hub.docker.com/r/seker212/discord_bot)
 
 ## Running in docker
 
-### How to install
+### Using docker compose
+
+Container can be run using provided docker-compose-template.yaml. Simply download this file into a machine or copy paste its content to a yaml file on machine.
+Change fields depending on template.
+
+```yml
+version: "3.9"
+services:
+  Chi-chan:
+    image: seker212/discord_bot
+    environment:
+    # Set this a discord token generated on discord page
+      - TOKEN=0
+    volumes: 
+      # Where audio files from .sound commands should be placed
+      - ./audio:/app/audio
+      # Where settings folder should be placed 
+      - ./settings:/app/settings
+      # Where logs will be stored
+      - ./logs:/app/logs
+```
+
+Execute this command while in foler with docker-compose.yaml and the container should be up and running.
+
+```bash
+docker-compose up -d
+```
+
+### Using docker commands
+
+#### How to install
 
 1. Pull image from docker hub
 
@@ -26,7 +56,7 @@ If neccesary docker container can be run with a folder sharded with operating sy
 -v <os path>:/app/audio
 ```
 
-### How to build docker image
+#### How to build docker image
 
 ```bash
 docker build -t seker212/discord_bot:latest .

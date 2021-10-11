@@ -24,6 +24,8 @@ services:
       - ./audio:/app/audio
       # Where settings folder should be placed 
       - ./settings:/app/settings
+      # Where logs will be stored
+      - ./logs:/app/logs
 ```
 
 Execute this command while in foler with docker-compose.yaml and the container should be up and running.

@@ -7,3 +7,4 @@ services:
     volumes: 
       - ./audio:/app/audio
       - ./settings:/app/settings
+      - ./logs:/app/logs

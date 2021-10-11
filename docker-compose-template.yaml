@@ -1,0 +1,9 @@
+version: "3.9"
+services:
+  Chi-chan:
+    image: seker212/discord_bot
+    environment:
+      - TOKEN=0
+    volumes: 
+      - ./audio:/app/audio
+      - ./settings.json:/app/settings.json

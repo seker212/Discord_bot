@@ -6,4 +6,4 @@ services:
       - TOKEN=0
     volumes: 
       - ./audio:/app/audio
-      - ./settings.json:/app/settings.json
+      - ./settings:/app/settings

@@ -4,7 +4,6 @@ on:
   push:
     branches: 
       - master
-      - workflow
 
 jobs:
   build:
@@ -26,7 +25,5 @@ jobs:
         with:
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/discord_bot:latest
-      - name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}

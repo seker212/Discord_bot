@@ -4,13 +4,57 @@ from discord.ext import commands
 import re
 import random
 
-import pafy
+import datetime
+import youtube_dl
 import urllib.request
 
 import logger as log
 logger = log.getLogger(__name__)
 
 FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5','options': '-vn'}
+class Song():
+    def __init__(self, url):
+        self.url = url
+        ydl = youtube_dl.YoutubeDL({'outtmpl': '%(id)s.%(ext)s', 'quiet': True})
+        with ydl:
+            result = ydl.extract_info(url, download=False, )
+
+        if 'entries' in result:
+            self.video = result['entries'][0]
+        else:
+            self.video = result
+        
+        self.title = result["title"]    
+        self.duration = str(datetime.timedelta(seconds=result["duration"]))
+        for x in result["formats"]:
+            if x["format_id"] == "251":
+                self.audio_url = x["url"]
+            elif x["format_id"] == "250":
+                self.audio_url = x["url"]
+            elif x["format_id"] == "249":
+                self.audio_url = x["url"]
+        self.thumbnail = result["thumbnail"]
+
+def find_video_url(args):
+    video_id = None
+    if len(args) == 1:
+        web_link_regex_long = r'(https://)?(www\.)?youtube\.com/watch\?.*v=(\S{11}).*'
+        web_link_regex_short = r'(https://)?youtu\.be/(\S{11}).*'
+        match_long = re.match(web_link_regex_long, args[0])
+        match_short = re.match(web_link_regex_short, args[0])
+        if match_long != None:
+            video_id = match_long[3]
+        elif match_short != None:
+            video_id = match_short[2]
+
+    if video_id == None:
+        search = ""
+        for x in args:
+            search = search + str(x) + "+" 
+        html = urllib.request.urlopen("https://www.youtube.com/results?search_query=" + search)
+        video_id = re.findall(r"watch\?v=(\S{11})", html.read().decode())[0]
+    
+    return ("https://www.youtube.com/watch?v=" + video_id)
 
 class YTPlayer(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -47,40 +91,23 @@ class YTPlayer(commands.Cog):
                 if check_bot_vclist and self.voice.channel is not channel:
                     await ctx.send("youre in a wrong vc fook oof")
                 else:
-                    video_id = None
-                    if len(args) == 1:
-                        web_link_regex_long = r'(https://)?(www\.)?youtube\.com/watch\?.*v=(\S{11}).*'
-                        web_link_regex_short = r'(https://)?youtu\.be/(\S{11}).*'
-                        match_long = re.match(web_link_regex_long, args[0])
-                        match_short = re.match(web_link_regex_short, args[0])
-                        if match_long != None:
-                            video_id = match_long[3]
-                        elif match_short != None:
-                            video_id = match_short[2]
-
-                    if video_id == None:
-                        search = ""
-                        for x in args:
-                            search = search + str(x) + "+" 
-                        html = urllib.request.urlopen("https://www.youtube.com/results?search_query=" + search)
-                        video_id = re.findall(r"watch\?v=(\S{11})", html.read().decode())[0]
-
-                    song = pafy.new(video_id)
+                    video_url = find_video_url(args)
+                    song = Song(video_url)
                     self.queue.append(song)
 
                     if len(self.bot.voice_clients) != 0:
                         embed_title = "Postion " + str(len(self.queue)) + " in queue"
-                        e = discord.Embed(title=embed_title, description=f"Title: *** {song.title} *** \nTime: {song.duration}", url=song.watchv_url)
-                        e.set_thumbnail(url=song.bigthumb)
+                        e = discord.Embed(title=embed_title, description=f"Title: *** {song.title} *** \nTime: {song.duration}", url=song.url)
+                        e.set_thumbnail(url=song.thumbnail)
                         await ctx.send(embed=e)
                     else:
                         self.voice = await channel.connect() 
                         while len(self.queue) > 0:  
                             poped_song = self.queue.pop(0)
 
-                            url = poped_song.getbestaudio().url
-                            e = discord.Embed(title='Now playing', description=f"Title: *** {poped_song.title} *** \nTime: {poped_song.duration}", url=poped_song.watchv_url)
-                            e.set_thumbnail(url=poped_song.bigthumb)
+                            url = poped_song.audio_url
+                            e = discord.Embed(title='Now playing', description=f"Title: *** {poped_song.title} *** \nTime: {poped_song.duration}", url=poped_song.url)
+                            e.set_thumbnail(url=poped_song.thumbnail)
                             await ctx.send(embed=e)
                                             
                             source = discord.FFmpegPCMAudio(url, **FFMPEG_OPTIONS)

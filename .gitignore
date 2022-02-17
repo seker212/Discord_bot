@@ -137,6 +137,7 @@ run
 
 token.txt
 *.log
+logs.log.*
 settings.json
 database.db
 /.vscode

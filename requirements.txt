@@ -13,7 +13,7 @@ gTTS==2.2.4
 idna==3.3
 idna-ssl==1.1.0
 lxml==4.7.1
-multidict==5.2.0
+multidict==6.0.2
 pycparser==2.20
 PyNaCl==1.4.0
 pytz==2021.3

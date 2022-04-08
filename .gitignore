@@ -142,3 +142,4 @@ settings.json
 database.db
 /.vscode
 tmp/
+docker-compose.*

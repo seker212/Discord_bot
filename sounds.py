@@ -3,7 +3,7 @@ import discord
 import os, time
 from discord.ext import commands
 
-import pyttsx3
+from gtts import gTTS
 
 import logger as log
 logger = log.getLogger(__name__)
@@ -13,9 +13,9 @@ class Sounds(commands.Cog):
         self.bot = bot
         self.voice = None
         self.alphabet = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','V','W','Y','Z']
-        self.engine = pyttsx3.init()
-        self.engine.setProperty('rate', 150)
-    
+
+        os.mkdir('tmp')
+
     def cog_unload(self):
         pass
 
@@ -26,9 +26,15 @@ class Sounds(commands.Cog):
         return True
     
     async def cog_command_error(self, ctx: commands.Context, error: commands.CommandError):
-        await ctx.send(ctx.author.mention+" Napierdalamy!!!!!!! | "+ str(error))
+        await ctx.send(ctx.author.mention+" Sound Error look at this: "+ str(error))
 
-    async def _playInChannel(self, channel, path):
+    async def _removeFile(self, path):
+        """Removes file from given path"""
+
+        logger.info("Removing file: "+path)
+        os.remove(path)
+
+    async def _playInChannel(self, channel, path, removeFile=False):
         """Plays from file from given path to given channel"""
 
         logger.info("Playing sound in channel: ChannelId: "+str(channel.id)+" ChannelName: "+str(channel.name)+" Path: "+str(path))       
@@ -40,7 +46,10 @@ class Sounds(commands.Cog):
             await asyncio.sleep(1)
         await self.voice.disconnect()
 
-    async def _play(self, ctx: commands.Context, soundType=None, targetFolder=None, targetChannel=None):
+        if removeFile:
+            await self._removeFile(path)
+
+    async def _play(self, ctx: commands.Context, soundType=None, targetFolder=None, targetChannel=None, removeFile=False):
         """Abstract sound command to play in given context"""
 
         logger.info("Playing sound in context: GuildId: "+str(ctx.guild.id)+" ChannelId: "+str(ctx.channel.id)+" AuthorId: "+str(ctx.author.id))
@@ -48,6 +57,7 @@ class Sounds(commands.Cog):
         path = targetFolder+soundType+'.mp3'
         if not os.path.isfile(path):
             await ctx.send("File search failed. File: "+soundType)
+            return
 
         if len(self.bot.voice_clients) == 0:
             member = ctx.message.author
@@ -55,25 +65,55 @@ class Sounds(commands.Cog):
                 if channel.type == discord.ChannelType.voice:
                     if channel.name == targetChannel:
                         await ctx.send("Playing now: "+soundType)
-                        await self._playInChannel(channel, targetFolder+soundType+".mp3")
+                        await self._playInChannel(channel, path, removeFile=removeFile)
                         return              
                     if targetChannel == None:
                         for m in channel.voice_states:
                             if m == member.id:
                                 await ctx.send("Playing now: "+soundType)
-                                await self._playInChannel(channel, path)
+                                await self._playInChannel(channel, path, removeFile=removeFile)
                                 return
             await ctx.send("No channel found to play: "+soundType)
         else:
-            await ctx.send("Invalid sound : "+soundType)
+            await ctx.send("Impossible to play: "+soundType)
 
     @commands.command(name='sound')
-    async def _sound(self,ctx: commands.Context,soundType, channel=None):
+    async def _sound(self,ctx: commands.Context,soundType):
         """Arrives to you and plays your favourite sound"""
+
+        await self._play(ctx, soundType, "./audio/")
+
+    @commands.command(name='soundchannel')
+    @commands.has_permissions(manage_guild=True)
+    async def _soundchannel(self, ctx: commands.Context,soundType, *args):
+        """Arrives to you and plays your favourite sound in given channel"""
+
+        channel = None
+        if len(args) > 0:
+            channel = ' '.join(args)
 
         logger.info("Playing sound: "+soundType+ " in channel: "+str(channel))
 
         await self._play(ctx, soundType, "./audio/", targetChannel=channel)
+
+    @commands.command(name="soundtts")
+    async def _soundtts(self, ctx: commands.Context, *args):
+        """Arrives to you and plays given message"""
+
+        logger.info("Joining channel and speaking message: "+str(args))
+
+        tmpName = str(int(time.time()*1000.0))
+        text = ''
+
+        if len(args) == 0:
+            await ctx.send("No message given")
+            return
+        
+        text = ' '.join(args)
+        tts = gTTS(text=text, lang='pl')
+        tts.save('tmp/'+tmpName+'.mp3')
+
+        await self._play(ctx, soundType=tmpName, targetFolder="./tmp/", removeFile=True)
 
     @commands.command(name='soundlist')
     async def _soundList(self, ctx: commands.Context):
@@ -113,6 +153,7 @@ class Sounds(commands.Cog):
     @commands.has_permissions(manage_guild=True)
     async def _removeSound(self, ctx: commands.Context, sound):
         """Removes a given sound"""
+        
         logger.info("Removing sound: "+sound)
 
         try:
@@ -121,25 +162,6 @@ class Sounds(commands.Cog):
             await ctx.send('Removed: '+sound)
         except Exception:
             raise
-
-    @commands.command(name="soundtts")
-    async def _soundtts(self, ctx: commands.Context, *args):
-        """Joins channel and speaks given message"""
-
-        logger.info("Joining channel and speaking message: "+str(args))
-
-        tmpName = str(int(time.time()*1000.0))+'.mp3'
-        text = ''
-
-        if len(args) == 0:
-            await ctx.send("No message given")
-            return
-        
-        text = ' '.join(args)
-        self.engine.save_to_file(text, './tmp/'+tmpName)
-        self.engine.runAndWait()
-
-        await self._play(ctx, soundType=tmpName, targetFolder="./tmp/")
 
 def setup(bot):
     """Add component"""

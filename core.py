@@ -40,6 +40,8 @@ class Core(commands.Cog, name='Core'):
         emoji = discord.utils.get(ctx.guild.emojis, name='nyan')
         if emoji:
             await ctx.send(ctx.author.mention+" I'm alive "+str(emoji))
+        else:
+            await ctx.send(ctx.author.mention+" I'm alive but no emoji")
 
     @commands.command(name='cls')
     @commands.has_permissions(manage_guild=True)
@@ -81,7 +83,7 @@ class Core(commands.Cog, name='Core'):
             await ctx.send('Something went wrong')
             pass
 
-    @commands.command(name='archive-whitelist')
+    @commands.command(name='archive-whitelist', aliases=['archive'])
     @commands.has_permissions(manage_guild=True)
     async def _archive(self,ctx):
         """Function for archiving text channels with whitelist"""

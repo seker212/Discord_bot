@@ -1,5 +1,7 @@
 # Discord bot
 
+# !!! Development version please change README correcponding to changes after completion
+
 [![Chi-chan bot Container](https://github.com/seker212/Discord_bot/actions/workflows/Chi-chan_Container.yml/badge.svg?branch=master&event=push)](https://github.com/seker212/Discord_bot/actions/workflows/Chi-chan_Container.yml)
 
 Discord bot written in python using discord.py library, used in a private server.

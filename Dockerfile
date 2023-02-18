@@ -10,7 +10,8 @@ RUN apk update && \
         apk add opus-dev && \
         apk add opus && \
         apk add ffmpeg && \
-        apk add espeak
+        apk add espeak && \
+        apk add git
 COPY requirements.txt .
 RUN python -m pip install -r requirements.txt
 COPY . .

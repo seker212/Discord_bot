@@ -1,0 +1,38 @@
+﻿using Autofac;
+using Autofac.Core;
+using Discord;
+using Discord.WebSocket;
+using DiscordBot.Commands;
+using DiscordBot.Commands.Core;
+using DiscordBot.Core;
+using DiscordBot.Core.Providers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DiscordBot
+{
+    public class Startup
+    {
+        public IContainer GetAutofacContainer()
+        {
+            var builder = new ContainerBuilder();
+            builder.Register(_ => new DiscordSocketConfig { MessageCacheSize = 100, GatewayIntents = GatewayIntents.All }).AsSelf().SingleInstance();
+            builder.RegisterType<BotTokenProvider>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<BotClientRunner>().AsSelf().SingleInstance();
+            builder.RegisterType<DiscordSocketClient>()
+                .AsSelf().As<IDiscordClient>().SingleInstance()
+                .WithParameter(
+                    (pi, ctx) => pi.ParameterType == typeof(DiscordSocketConfig),
+                    (pi, ctx) => ctx.Resolve<DiscordSocketConfig>());
+            builder.Register(_ => new ActivityProvider(ActivityType.Playing, "WEEEEEEEEEEEEEEEEEEEEEEEEE")).AsImplementedInterfaces().SingleInstance();
+            builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(OnCommand))!).Where(x => x.IsClass && !x.IsAbstract && x.IsAssignableTo<ICommand>()).As<ICommand>();
+            builder.RegisterType<SlashCommandsManager>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<SlashCommandHandlerProvider>().AsImplementedInterfaces().SingleInstance();
+            return builder.Build();
+        }
+    }
+}

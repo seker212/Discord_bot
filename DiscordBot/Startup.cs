@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using Autofac.Core;
 using Discord;
 using Discord.WebSocket;
 using DiscordBot.Commands;
@@ -9,12 +8,7 @@ using DiscordBot.Core.Helpers;
 using DiscordBot.Core.Providers;
 using Serilog;
 using Serilog.Extensions.Autofac.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiscordBot
 {

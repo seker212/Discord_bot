@@ -60,6 +60,7 @@ namespace DiscordBot.Core.Voice
         private Stream? _discordAudioStream;
         private Task? _playingTask;
         private bool _stop;
+        private readonly object _lock = new object();
 
         public AudioPlayingStatus Status { get; private set; }
 
@@ -75,27 +76,29 @@ namespace DiscordBot.Core.Voice
 
         public Task PlayAsync(Stream audioStream) //TODO: Add lock?
         {
-            //TODO: Check if client is connected
-            if (Status == AudioPlayingStatus.Playing || Status == AudioPlayingStatus.Paused)
-                throw new InvalidOperationException("Cannot start playing when the player is already playing something.");
-            if (_playingTask is not null && !_playingTask.IsCompleted)
-                _playingTask.Wait();
-            _playingTask = Task.Run(() =>
+            lock (_lock)
             {
-                _sourceDataStream = audioStream;
-                _discordAudioStream = _audioClient.CreatePCMStream(AudioApplication.Mixed);
-                Status = AudioPlayingStatus.Playing;
-                Play();
-            });
-            return _playingTask;
+                if (Status == AudioPlayingStatus.Playing || Status == AudioPlayingStatus.Paused)
+                    throw new InvalidOperationException("Cannot start playing when the player is already playing something.");
+                if (_playingTask is not null && !_playingTask.IsCompleted)
+                    _playingTask.Wait();
+                _playingTask = Task.Run(() =>
+                {
+                    _sourceDataStream = audioStream;
+                    _discordAudioStream = _audioClient.CreatePCMStream(AudioApplication.Mixed);
+                    Status = AudioPlayingStatus.Playing;
+                    Play();
+                });
+                return _playingTask;
+            }
         }
 
         public Task StopAsync()
         {
+            if (Status == AudioPlayingStatus.NotPlaying || _playingTask is null)
+                throw new InvalidOperationException("Nothing is playing");
             return Task.Run(() =>
             {
-                if (Status == AudioPlayingStatus.NotPlaying || _playingTask is null)
-                    throw new InvalidOperationException("Nothing is playing");
                 _stop = true;
                 _playingTask.Wait();
                 _stop = false;

@@ -1,9 +1,12 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using DiscordBot.Commands.Core;
+using DiscordBot.Core.Helpers;
 using DiscordBot.Core.Providers;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -16,39 +19,44 @@ namespace DiscordBot.Core
         private readonly DiscordSocketClient _client;
         private readonly ITokenProvider _tokenProvider;
         private readonly IActivityProvider _activityProvider;
-        private readonly ISlashCommandsManager _slashCommandsRegistrant;
-        private readonly IEnumerable<ICommand> _commands;
+        private readonly ISlashCommandsManager _slashCommandsManager;
         private readonly ISlashCommandHandlerProvider _slashCommandHandlerProvider;
+        private readonly ILogger<BotClientRunner> _logger;
+        private readonly IDiscordLoggingHelper _discordLoggingHelper;
+        private readonly ILogger<DiscordSocketClient> _discordSocketClientLoger;
 
-        public BotClientRunner(DiscordSocketClient client, ITokenProvider tokenProvider, IActivityProvider activityProvider, ISlashCommandsManager slashCommandsRegistrant, IEnumerable<ICommand> commands, ISlashCommandHandlerProvider slashCommandHandlerProvider)
+        public BotClientRunner(DiscordSocketClient client, ITokenProvider tokenProvider, IActivityProvider activityProvider, ISlashCommandsManager slashCommandsManager, ISlashCommandHandlerProvider slashCommandHandlerProvider, ILogger<BotClientRunner> logger, IDiscordLoggingHelper discordLoggingHelper, ILogger<DiscordSocketClient> discordSocketClientLoger)
         {
             _client = client;
             _tokenProvider = tokenProvider;
             _activityProvider = activityProvider;
-            _slashCommandsRegistrant = slashCommandsRegistrant;
-            _commands = commands;
+            _slashCommandsManager = slashCommandsManager;
             _slashCommandHandlerProvider = slashCommandHandlerProvider;
+            _logger = logger;
+            _discordLoggingHelper = discordLoggingHelper;
+            _discordSocketClientLoger = discordSocketClientLoger;
         }
 
         public async Task Run()
         {
-            _client.Ready += _slashCommandsRegistrant.RemoveUnknownCommandsAsync;
-            _client.Ready += _slashCommandsRegistrant.RegisterCommandsAsync;
-            _client.SlashCommandExecuted += _slashCommandHandlerProvider.SlashCommandHandler;
-            _client.Log += Log;
+            _logger.LogDebug("Registering client's events");
+            _client.Ready += _slashCommandsManager.RemoveUnknownCommandsAsync;
+            _client.Ready += _slashCommandsManager.RegisterCommandsAsync;
+            _client.SlashCommandExecuted += _slashCommandHandlerProvider.SlashCommandHandlerAsync;
+            _client.Log += x => _discordLoggingHelper.LogDiscordLogMessage(_discordSocketClientLoger, x);
             _client.MessageReceived += ClientOnMessageReceived;
+            _logger.LogDebug("Client's events registered");
+            _logger.LogDebug("Setting bot's activity...");
             await _client.SetGameAsync(_activityProvider.ActivityName, _activityProvider.TwitchStreamUrl, _activityProvider.ActivityType);
+            _logger.LogDebug("Bot's activity set");
+            _logger.LogDebug("Logging client...");
             await _client.LoginAsync(_tokenProvider.TokenType, _tokenProvider.Token);
+            _logger.LogDebug("Client logged in");
+            _logger.LogDebug("Starting client...");
             await _client.StartAsync();
-
+            _logger.LogDebug("Client started");
             // Block this task until the program is closed.
             await Task.Delay(-1);
-        }
-
-        private Task Log(LogMessage msg) //TODO: Add proper logging
-        {
-            Console.WriteLine(msg.ToString());
-            return Task.CompletedTask;
         }
 
         public async Task ClientOnMessageReceived(SocketMessage socketMessage) //TODO: Create separate structure for those events

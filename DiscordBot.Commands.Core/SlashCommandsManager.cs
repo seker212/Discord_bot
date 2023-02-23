@@ -1,11 +1,6 @@
-﻿using Discord;
-using Discord.WebSocket;
-using System;
+﻿using Discord.WebSocket;
+using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiscordBot.Commands.Core
 {
@@ -23,39 +18,49 @@ namespace DiscordBot.Commands.Core
     {
         readonly DiscordSocketClient _client;
         private readonly IEnumerable<ICommand> _commands;
+        private readonly ILogger<SlashCommandsManager> _logger;
 
-        public SlashCommandsManager(DiscordSocketClient client, IEnumerable<ICommand> commands)
+        public SlashCommandsManager(DiscordSocketClient client, IEnumerable<ICommand> commands, ILogger<SlashCommandsManager> logger)
         {
             _client = client;
             _commands = commands;
+            _logger = logger;
         }
 
         public Task RemoveUnknownCommandsAsync()
         {
+            Task AddCommands(ConcurrentBag<SocketApplicationCommand> collection, Func<Task<IReadOnlyCollection<SocketApplicationCommand>>> commandsGetter)
+            => Task.Run(async () =>
+            {
+                var commandsCollection = await commandsGetter();
+                foreach (var command in commandsCollection)
+                    collection.Add(command);
+            });
+
             return Task.Run(() =>
             {
-                var commands = new ConcurrentBag<SocketApplicationCommand>();
+                var serverCommands = new ConcurrentBag<SocketApplicationCommand>();
 
-                Task AddCommands(ConcurrentBag<SocketApplicationCommand> collection, Func<Task<IReadOnlyCollection<SocketApplicationCommand>>> commandsGetter)
-                => Task.Run(async () =>
-                {
-                    var commandsCollection = await commandsGetter();
-                    foreach (var command in commandsCollection)
-                        collection.Add(command);
-                });
-
-                var taskCache = new List<Task>
-                {
-                    AddCommands(commands, () => _client.GetGlobalApplicationCommandsAsync())
-                };
-                foreach (var guild in _client.Guilds)
-                    taskCache.Add(AddCommands(commands, () => guild.GetApplicationCommandsAsync()));
+                var taskCache = _client.Guilds.Select(x => AddCommands(serverCommands, () => x.GetApplicationCommandsAsync()))
+                    .Append(AddCommands(serverCommands, () => _client.GetGlobalApplicationCommandsAsync()))
+                    .ToArray();
                 Task.WaitAll(taskCache.ToArray());
-                foreach (var command in commands)
-                {
-                    if (!_commands.Any(x => x.Name == command.Name && (x.GuildId is null && command.IsGlobalCommand || x.GuildId == command.Guild.Id)))
-                        command.DeleteAsync();
-                }
+                
+                var removalTasks = serverCommands
+                    .Where(serverCmd => !_commands.Any(x => x.Name == serverCmd.Name && (x.GuildId is null && serverCmd.IsGlobalCommand || x.GuildId == serverCmd.Guild.Id))) //FIXME: Add proper command comparing
+                    .Select(serverCmd => RemoveServerCommandAsync(serverCmd))
+                    .ToArray();
+                Task.WaitAll(removalTasks);
+            });
+        }
+
+        private Task RemoveServerCommandAsync(SocketApplicationCommand serverCommand)
+        {
+            return Task.Run(async () =>
+            {
+                _logger.LogDebug("Removing slash command {CommandName} from server", serverCommand.Name);
+                await serverCommand.DeleteAsync();
+                _logger.LogDebug("Removed slash command {CommandName} from server", serverCommand.Name);
             });
         }
 
@@ -63,19 +68,28 @@ namespace DiscordBot.Commands.Core
         {
             return Task.Run(() =>
             {
-                var taskCache = new List<Task>();
-                foreach (var command in _commands)
-                    taskCache.Add(RegisterCommandAsync(command));
-                Task.WaitAll(taskCache.ToArray());
+                var taskCache = _commands.Select(c => RegisterCommandAsync(c)).ToArray();
+                Task.WaitAll(taskCache);
             });
         }
 
         private Task RegisterCommandAsync(ICommand command)
         {
             if (command.GuildId.HasValue)
-                return _client.GetGuild(command.GuildId.Value).CreateApplicationCommandAsync(command.Build());
+                return Task.Run(async () =>
+                {
+                    var guild = _client.GetGuild(command.GuildId.Value);
+                    _logger.LogDebug("Registering guild slash command {CommandName} for guild {GuildName}", command.Name, guild.Name);
+                    await guild.CreateApplicationCommandAsync(command.Build());
+                    _logger.LogDebug("Registered guild slash command {CommandName} for guild {GuildName}", command.Name, guild.Name);
+                });
             else
-                return _client.CreateGlobalApplicationCommandAsync(command.Build());
+                return Task.Run(async () =>
+                {
+                    _logger.LogDebug("Registering global slash command {CommandName}", command.Name);
+                    await _client.CreateGlobalApplicationCommandAsync(command.Build());
+                    _logger.LogDebug("Registered global slash command {CommandName}", command.Name);
+                });
         }
     }
 }

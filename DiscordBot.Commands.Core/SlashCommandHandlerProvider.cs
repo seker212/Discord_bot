@@ -1,9 +1,5 @@
 ﻿using Discord.WebSocket;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace DiscordBot.Commands.Core
 {
@@ -12,34 +8,42 @@ namespace DiscordBot.Commands.Core
     /// </summary>
     public interface ISlashCommandHandlerProvider
     {
-        Task SlashCommandHandler(SocketSlashCommand command);
+        Task SlashCommandHandlerAsync(SocketSlashCommand commandInput);
     }
 
     /// <inheritdoc cref="ISlashCommandHandlerProvider"/>
     public class SlashCommandHandlerProvider : ISlashCommandHandlerProvider
     {
-        readonly IEnumerable<ICommand> _commands; //TODO: Change this to hash dict?
+        readonly IEnumerable<ICommand> _commands; //TODO: Change this to command provider. Use hash dict?
+        private readonly ILogger<SlashCommandHandlerProvider> _logger;
 
-        public SlashCommandHandlerProvider(IEnumerable<ICommand> commands)
+        public SlashCommandHandlerProvider(IEnumerable<ICommand> commands, ILogger<SlashCommandHandlerProvider> logger)
         {
             _commands = commands;
+            _logger = logger;
         }
 
-        public async Task SlashCommandHandler(SocketSlashCommand command)
+        public Task SlashCommandHandlerAsync(SocketSlashCommand commandInput)
         {
-            try
+            return Task.Run(async () => 
             {
-                var commandObj = _commands.Single(x => x.Name == command.CommandName && (x.GuildId is null || x.GuildId == command.GuildId));
-                await commandObj.ExecuteAsync(command);
-            }
-            catch (InvalidOperationException)
-            {
-                await command.RespondAsync($"Command with name {command.CommandName} was not found");
-            }
-            catch (Exception ex)
-            {
-                await command.RespondAsync($"Command handling threw exception: {ex.Message}");
-            }
+                ICommand command = null!;
+                try { command = _commands.Single(x => x.Name == commandInput.CommandName && (x.GuildId is null || x.GuildId == commandInput.GuildId)); } //FIXME: Add proper command comparing
+                catch (InvalidOperationException)
+                {
+                    _logger.LogWarning("Command with name {CommandName} was not found. GuildId: {GuildId}", commandInput.CommandName, commandInput.GuildId);
+                    await commandInput.RespondAsync($"Command with name {commandInput.CommandName} was not found");
+                }
+                try { 
+                    if (command is not null) 
+                        await command.ExecuteAsync(commandInput); 
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Command {CommandName} could not be handled. Used options: {Options}", commandInput.CommandName, commandInput.Data.Options.Select(x => (x.Name, x.Value)));
+                    await commandInput.RespondAsync($"Command could not be handled.");
+                }
+            });
         }
     }
 }

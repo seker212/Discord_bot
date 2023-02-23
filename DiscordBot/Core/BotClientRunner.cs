@@ -42,7 +42,7 @@ namespace DiscordBot.Core
             _logger.LogDebug("Registering client's events");
             _client.Ready += _slashCommandsManager.RemoveUnknownCommandsAsync;
             _client.Ready += _slashCommandsManager.RegisterCommandsAsync;
-            _client.SlashCommandExecuted += _slashCommandHandlerProvider.SlashCommandHandler;
+            _client.SlashCommandExecuted += _slashCommandHandlerProvider.SlashCommandHandlerAsync;
             _client.Log += x => _discordLoggingHelper.LogDiscordLogMessage(_discordSocketClientLoger, x);
             _client.MessageReceived += ClientOnMessageReceived;
             _logger.LogDebug("Client's events registered");

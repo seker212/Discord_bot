@@ -74,7 +74,7 @@ namespace DiscordBot.Core.Voice
             _playingTask = null;
         }
 
-        public Task PlayAsync(Stream audioStream) //TODO: Add lock?
+        public Task PlayAsync(Stream audioStream)
         {
             lock (_lock)
             {
@@ -108,14 +108,12 @@ namespace DiscordBot.Core.Voice
 
         public void Pause()
         {
-            //TODO: Check if client is connected
             if (Status == AudioPlayingStatus.Playing)
                 Status = AudioPlayingStatus.Paused;
         }
 
-        public void Resume() //TODO: Add lock?
+        public void Resume()
         {
-            //TODO: Check if client is connected
             if (Status == AudioPlayingStatus.Paused)
                 Play();
         }
@@ -124,11 +122,11 @@ namespace DiscordBot.Core.Voice
         {
             if (_sourceDataStream is not null && _discordAudioStream is not null)
             {
-                int read;
+                int read = 0;
                 Status = AudioPlayingStatus.Playing;
                 while (Status == AudioPlayingStatus.Playing && !_stop && (read = _sourceDataStream.Read(_buffer, 0, _buffer.Length)) > 0)
                     _discordAudioStream.Write(_buffer, 0, read);
-                if (_stop)
+                if (_stop || read <= 0)
                     StreamsCleanup();
             }
         }
@@ -151,7 +149,6 @@ namespace DiscordBot.Core.Voice
         public void Dispose()
         {
             StreamsCleanup();
-            _audioClient.Dispose();
         }
     }
 }

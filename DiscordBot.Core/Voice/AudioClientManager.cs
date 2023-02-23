@@ -6,6 +6,13 @@ namespace DiscordBot.Core.Voice
     public interface IAudioClientManager : IDisposable
     {
         /// <summary>
+        /// Gets or creates audio player for given client.
+        /// </summary>
+        /// <param name="audioClient">Audio client</param>
+        /// <returns>Audio player</returns>
+        IAudioPlayer GetAudioPlayer(IAudioClient audioClient);
+
+        /// <summary>
         /// Returns guild's voice channel, to which the audio client is connected.
         /// </summary>
         /// <param name="guildId">Guild'd Id</param>
@@ -43,14 +50,18 @@ namespace DiscordBot.Core.Voice
     public sealed class AudioClientManager : IAudioClientManager
     {
         private readonly IDictionary<ulong, (IVoiceChannel Channel, IAudioClient Client)> _audioClientsCache; //Key: guild id 
+        private readonly IDictionary<IAudioClient, IAudioPlayer> _audioPlayersCache;
 
         public AudioClientManager()
         {
             _audioClientsCache = new Dictionary<ulong, (IVoiceChannel Channel, IAudioClient Client)>();
+            _audioPlayersCache = new Dictionary<IAudioClient, IAudioPlayer>();
         }
 
         public void Dispose()
         {
+            foreach (var client in _audioPlayersCache)
+                client.Value.Dispose();
             foreach (var entry in _audioClientsCache)
                 entry.Value.Client.Dispose();
         }
@@ -81,6 +92,10 @@ namespace DiscordBot.Core.Voice
                 if (_audioClientsCache[channel.Guild.Id].Channel.Id != channel.Id)
                     throw new ArgumentException("Guild doesn't have active voice client on given channel.");
 
+                var audioClient = _audioClientsCache[channel.Guild.Id].Client;
+                if (_audioPlayersCache.ContainsKey(audioClient))
+                    _audioPlayersCache.Remove(audioClient);
+
                 await channel.DisconnectAsync();
                 _audioClientsCache.Remove(channel.Guild.Id);
             });
@@ -89,5 +104,17 @@ namespace DiscordBot.Core.Voice
         public IAudioClient GetGuildAudioClient(ulong guildId) => _audioClientsCache[guildId].Client;
         
         public IVoiceChannel GetGuildActiveVoiceChannel(ulong guildId) => _audioClientsCache[guildId].Channel;
+
+        public IAudioPlayer GetAudioPlayer(IAudioClient audioClient)
+        {
+            if (_audioPlayersCache.ContainsKey(audioClient))
+                return _audioPlayersCache[audioClient];
+            else
+            {
+                var player = new AudioPlayer(audioClient, 4096);
+                _audioPlayersCache.Add(audioClient, player);
+                return player;
+            }
+        }
     }
 }

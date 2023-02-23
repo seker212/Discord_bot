@@ -32,11 +32,16 @@ namespace DiscordBot.Commands.Core
             GuildId = guildIdAttribute is null ? null : guildIdAttribute.Id;
         }
 
-        public virtual SlashCommandProperties Build()
-            => new SlashCommandBuilder()
+        public SlashCommandProperties Build()
+        {
+            var builder = new SlashCommandBuilder()
                 .WithName(Name)
-                .WithDescription(_description)
-                .Build();
+                .WithDescription(_description);
+            return CustomBuildAction(builder).Build();
+        }
+
+        public virtual SlashCommandBuilder CustomBuildAction(SlashCommandBuilder slashCommandBuilder)
+            => slashCommandBuilder;
 
         public abstract Task ExecuteAsync(SocketSlashCommand command);
     }

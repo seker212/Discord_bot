@@ -20,13 +20,34 @@ namespace DiscordBot.Core.Voice
         Paused
     }
 
+    /// <summary>
+    /// Allows to play audio stream using <see cref="IAudioClient"/>.
+    /// </summary>
     public interface IAudioPlayer : IDisposable
     {
         AudioPlayingStatus Status { get; }
 
+        /// <summary>
+        /// Pauses playing.
+        /// </summary>
         void Pause();
+
+        /// <summary>
+        /// Starts playing from stream.
+        /// </summary>
+        /// <param name="audioStream">Audio data source.</param>
+        /// <returns></returns>
         Task PlayAsync(Stream audioStream);
+        
+        /// <summary>
+        /// Resumes playing if it was paused.
+        /// </summary>
         void Resume();
+
+        /// <summary>
+        /// Stops playing and cleans the stream data.
+        /// </summary>
+        /// <returns></returns>
         Task StopAsync();
     }
 
@@ -35,8 +56,8 @@ namespace DiscordBot.Core.Voice
         private readonly IAudioClient _audioClient;
         private readonly int _bufferSize;
         private byte[] _buffer;
-        private Stream _sourceDataStream;
-        private Stream _discordAudioStream;
+        private Stream? _sourceDataStream;
+        private Stream? _discordAudioStream;
         private Task? _playingTask;
         private bool _stop;
 
@@ -73,10 +94,11 @@ namespace DiscordBot.Core.Voice
         {
             return Task.Run(() =>
             {
+                if (Status == AudioPlayingStatus.NotPlaying || _playingTask is null)
+                    throw new InvalidOperationException("Nothing is playing");
                 _stop = true;
                 _playingTask.Wait();
                 _stop = false;
-                _buffer = new byte[_bufferSize];
                 Status = AudioPlayingStatus.NotPlaying;
             });
         }
@@ -97,24 +119,36 @@ namespace DiscordBot.Core.Voice
 
         private void Play()
         {
-            int read;
-            Status = AudioPlayingStatus.Playing;
-            while (Status == AudioPlayingStatus.Playing && !_stop && (read = _sourceDataStream.Read(_buffer, 0, _buffer.Length)) > 0)
-                _discordAudioStream.Write(_buffer, 0, read);
-            if (_stop)
+            if (_sourceDataStream is not null && _discordAudioStream is not null)
+            {
+                int read;
+                Status = AudioPlayingStatus.Playing;
+                while (Status == AudioPlayingStatus.Playing && !_stop && (read = _sourceDataStream.Read(_buffer, 0, _buffer.Length)) > 0)
+                    _discordAudioStream.Write(_buffer, 0, read);
+                if (_stop)
+                    StreamsCleanup();
+            }
+        }
+
+        private void StreamsCleanup()
+        {
+            if (_sourceDataStream is not null)
             {
                 _sourceDataStream.Flush();
-                _discordAudioStream.Flush();
                 _sourceDataStream.Dispose();
+            }
+            if (_discordAudioStream is not null)
+            {
+                _discordAudioStream.Flush();
                 _discordAudioStream.Dispose();
             }
+            _buffer = new byte[_bufferSize];
         }
 
         public void Dispose()
         {
+            StreamsCleanup();
             _audioClient.Dispose();
-            _discordAudioStream.Dispose();
-            _sourceDataStream.Dispose();
         }
     }
 }

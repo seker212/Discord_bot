@@ -22,7 +22,7 @@ namespace DiscordBot.Core.Voice
         /// <summary>
         /// Creates audio client and connects it to the voice channel.
         /// </summary>
-        /// <param name="channel">Voice channel to connect to</param>
+        /// <param name="channel">Voice channel to connect to.</param>
         /// <returns>Connection task with connected audio client as a result.</returns>
         /// <exception cref="ArgumentException">The <paramref name="channel"/>'s guild already has active audio client.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="channel"/> was <see cref="null"/>.</exception>
@@ -31,8 +31,10 @@ namespace DiscordBot.Core.Voice
         /// <summary>
         /// Disconnects voice client from the voice channel.
         /// </summary>
-        /// <param name="channel">Voice channel to dicconnect from</param>
+        /// <param name="channel">Voice channel to dicconnect from.</param>
         /// <returns>Disconnection task.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="channel"/> was <see cref="null"/>.</exception>
+        /// <exception cref="ArgumentException">Given channel or it's guild doesn't have active voice channel.</exception>
         Task LeaveChannelAsync(IVoiceChannel channel);
     }
 
@@ -75,9 +77,9 @@ namespace DiscordBot.Core.Voice
                 if (channel is null)
                     throw new ArgumentNullException(nameof(channel));
                 if (!_audioClientsCache.ContainsKey(channel.Guild.Id))
-                    throw new ArgumentException("Guild doeasn't have active voice client");
+                    throw new ArgumentException("Guild doesn't have active voice client");
                 if (_audioClientsCache[channel.Guild.Id].Channel.Id != channel.Id)
-                    throw new ArgumentException("Guild doeasn't have active voice client on given channel.");
+                    throw new ArgumentException("Guild doesn't have active voice client on given channel.");
 
                 await channel.DisconnectAsync();
                 _audioClientsCache.Remove(channel.Guild.Id);

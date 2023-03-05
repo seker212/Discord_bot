@@ -137,18 +137,29 @@ namespace DiscordBot.Core.Voice
             {
                 _sourceDataStream.Flush();
                 _sourceDataStream.Dispose();
+                _sourceDataStream = null;
             }
             if (_discordAudioStream is not null)
             {
                 _discordAudioStream.Flush();
                 _discordAudioStream.Dispose();
+                _discordAudioStream = null;
             }
             _buffer = new byte[_bufferSize];
         }
 
         public void Dispose()
         {
-            StreamsCleanup();
+            try
+            {
+                if (Status != AudioPlayingStatus.NotPlaying)
+                    StopAsync().Wait();
+            }
+            catch 
+            {
+                StreamsCleanup();
+                throw;
+            }
         }
     }
 }

@@ -3,6 +3,9 @@ using Discord.WebSocket;
 using DiscordBot.Commands.Core;
 using DiscordBot.Commands.Core.CommandAttributes;
 using DiscordBot.Core.Voice;
+using Microsoft.Extensions.Logging;
+using System.Diagnostics;
+using System.IO;
 
 namespace DiscordBot.Commands
 {
@@ -11,10 +14,12 @@ namespace DiscordBot.Commands
     public class SoundCommand : Command
     {
         private readonly IAudioClientManager _audioClientManager;
+        private readonly ILogger<SoundCommand> _logger;
 
-        public SoundCommand(IAudioClientManager audioClientManager)
+        public SoundCommand(IAudioClientManager audioClientManager, ILogger<SoundCommand> logger)
         {
             _audioClientManager = audioClientManager;
+            _logger = logger;
         }
 
         public override SlashCommandBuilder CustomBuildAction(SlashCommandBuilder slashCommandBuilder) //TODO: Add attribute for basic options
@@ -38,20 +43,50 @@ namespace DiscordBot.Commands
         {
             Task.Run(async () =>
             {
-                var audioFile = new FileInfo(Path.Combine(@"..\..\..\..\audio\", command.Data.Options.Single(x => x.Name == "soundname").Value as string));
-                if (!audioFile.Exists)
-                    throw new FileNotFoundException(audioFile.FullName);
-                var targetChannel = command.Data.Options.Single(x => x.Name == "channel").Value as SocketChannel;
-                if (targetChannel is SocketVoiceChannel voiceChannel)
+                try
                 {
-                    var stream = new MemoryStream(); //TODO: Change this to PCM Stream
-                    var audioClient = await _audioClientManager.JoinChannelAsync(voiceChannel);
-                    var player = _audioClientManager.GetAudioPlayer(audioClient);
-                    await player.PlayAsync(stream);
-                    await _audioClientManager.LeaveChannelAsync(voiceChannel);
+                    var soundName = command.Data.Options.Single(x => x.Name == "soundname").Value as string;
+                    var audioFile = new FileInfo(Path.Combine(@"..\..\..\..\..\audio\", $"{soundName}.mp3"));
+                    if (!audioFile.Exists)
+                    {
+                        var message = $"Sound {soundName} not found";
+                        if (command.HasResponded)
+                            await command.ModifyOriginalResponseAsync(m => m.Content = message);
+                        else
+                            await command.RespondAsync(message);
+                        throw new FileNotFoundException(audioFile.FullName);
+                    }
+                    else
+                    {
+                        var targetChannel = command.Data.Options.Single(x => x.Name == "channel").Value as SocketChannel;
+                        if (targetChannel is SocketVoiceChannel voiceChannel)
+                        {
+                            var audioClient = await _audioClientManager.JoinChannelAsync(voiceChannel);
+                            try
+                            {
+                                var player = _audioClientManager.GetAudioPlayer(audioClient);
+                                using (var ffmpegProcess = Process.Start(new ProcessStartInfo
+                                {
+                                    FileName = "ffmpeg.exe",
+                                    Arguments = $"-hide_banner -loglevel panic -i \"{audioFile.FullName}\" -ac 2 -f s16le -ar 48000 pipe:1",
+                                    UseShellExecute = false,
+                                    RedirectStandardOutput = true
+                                }))
+                                    await player.PlayAsync(ffmpegProcess.StandardOutput.BaseStream);
+                            }
+                            finally
+                            {
+                                await _audioClientManager.LeaveChannelAsync(voiceChannel);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Sound command threw an exception");
                 }
             });
-            return Task.Run(() => { command.RespondAsync("placeholder"); });
+            return command.RespondAsync("placeholder");
         }
     }
 }

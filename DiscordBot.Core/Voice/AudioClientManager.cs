@@ -94,7 +94,10 @@ namespace DiscordBot.Core.Voice
 
                 var audioClient = _audioClientsCache[channel.Guild.Id].Client;
                 if (_audioPlayersCache.ContainsKey(audioClient))
+                {
+                    _audioPlayersCache[audioClient].Dispose();
                     _audioPlayersCache.Remove(audioClient);
+                }
 
                 await channel.DisconnectAsync();
                 _audioClientsCache.Remove(channel.Guild.Id);

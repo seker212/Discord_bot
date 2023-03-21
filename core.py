@@ -130,11 +130,6 @@ class Core(commands.Cog, name='Core'):
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix= '.', intents=intents)
-bot.load_extension('stuff')
-bot.load_extension('sounds')
-bot.load_extension('ytplayer')
-# bot.load_extension('timer')
-bot.add_cog(Core(bot))
 
 @bot.event
 async def on_ready():
@@ -142,6 +137,10 @@ async def on_ready():
 
     logger.info('Logged in as {0.user}'.format(bot))
     await bot.change_presence(activity=discord.Game(name='WEEEEEEEEEEEEEEEEEEEEEEEEEEE'))
+    await bot.load_extension('stuff')
+    await bot.load_extension('sounds')
+    await bot.load_extension('ytplayer')
+    await bot.add_cog(Core(bot))
     #load()
 
 

@@ -207,8 +207,8 @@ class YTPlayer(commands.Cog):
         
 
 
-def setup(bot):
+async def setup(bot):
     """Add component"""
     
     logger.info("Adding cog " + __name__)
-    bot.add_cog(YTPlayer(bot))
+    await bot.add_cog(YTPlayer(bot))

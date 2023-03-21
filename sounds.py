@@ -14,7 +14,11 @@ class Sounds(commands.Cog):
         self.voice = None
         self.alphabet = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','V','W','Y','Z']
 
-        os.mkdir('tmp')
+        logger.info("Sound constructor finished")
+
+        if os.path.isdir("/tmp"):
+            logger.info("tmp folder does not exists, creating...")
+            os.mkdir('tmp')
 
     def cog_unload(self):
         pass
@@ -163,8 +167,8 @@ class Sounds(commands.Cog):
         except Exception:
             raise
 
-def setup(bot):
+async def setup(bot):
     """Add component"""
 
     logger.info("Adding cog " + __name__)
-    bot.add_cog(Sounds(bot))
+    await bot.add_cog(Sounds(bot))

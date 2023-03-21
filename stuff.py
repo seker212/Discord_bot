@@ -190,8 +190,8 @@ class Stuff(commands.Cog):
                         await channel.send(stamp+'***'+user +'*** Changed status: '+str(before.activity.name)+' to '+str(after.activity.name)+' for '+str(played))
         """
 
-def setup(bot):
+async def setup(bot):
     """Add component"""
 
     logger.info("Adding cog " + __name__)
-    bot.add_cog(Stuff(bot, Settings()))
+    await bot.add_cog(Stuff(bot, Settings()))

@@ -1,5 +1,7 @@
 ﻿using Discord;
 using Discord.Audio;
+using Microsoft.Extensions.Logging;
+using System.Threading.Channels;
 
 namespace DiscordBot.Core.Voice
 {
@@ -46,16 +48,20 @@ namespace DiscordBot.Core.Voice
     }
 
     /// <inheritdoc cref="IAudioClientManager"/>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Major Code Smell", "S3928:Parameter names used into ArgumentException constructors should match an existing one ", Justification = "<Pending>")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Major Code Smell", "S3928:Parameter names used into ArgumentException constructors should match an existing one ")]
     public sealed class AudioClientManager : IAudioClientManager
     {
         private readonly IDictionary<ulong, (IVoiceChannel Channel, IAudioClient Client)> _audioClientsCache; //Key: guild id 
         private readonly IDictionary<IAudioClient, IAudioPlayer> _audioPlayersCache;
+        private readonly ILogger<AudioClientManager> _logger;
+        private readonly ILoggerFactory _loggerFactory;
 
-        public AudioClientManager()
+        public AudioClientManager(ILogger<AudioClientManager> logger, ILoggerFactory loggerFactory)
         {
             _audioClientsCache = new Dictionary<ulong, (IVoiceChannel Channel, IAudioClient Client)>();
             _audioPlayersCache = new Dictionary<IAudioClient, IAudioPlayer>();
+            _logger = logger;
+            _loggerFactory = loggerFactory;
         }
 
         public void Dispose()
@@ -92,16 +98,27 @@ namespace DiscordBot.Core.Voice
                 if (_audioClientsCache[channel.Guild.Id].Channel.Id != channel.Id)
                     throw new ArgumentException("Guild doesn't have active voice client on given channel.");
 
-                var audioClient = _audioClientsCache[channel.Guild.Id].Client;
+                await channel.DisconnectAsync();
+                RemoveClientFromCache(channel.Guild);
+            });
+        }
+
+        private void RemoveClientFromCache(IGuild guild)
+        {
+            if (_audioClientsCache.ContainsKey(guild.Id))
+            {
+                var audioClient = _audioClientsCache[guild.Id].Client;
                 if (_audioPlayersCache.ContainsKey(audioClient))
                 {
                     _audioPlayersCache[audioClient].Dispose();
-                    _audioPlayersCache.Remove(audioClient);
+                    var isPlayerRemoved = _audioPlayersCache.Remove(audioClient);
+                    if (isPlayerRemoved)
+                        _logger.LogDebug("Removed audio player instance for guild {guildName}", guild.Name);
                 }
-
-                await channel.DisconnectAsync();
-                _audioClientsCache.Remove(channel.Guild.Id);
-            });
+                var isClientRemoved = _audioClientsCache.Remove(guild.Id);
+                if (isClientRemoved)
+                    _logger.LogDebug("Removed audio client for guild {guildName}", guild.Name);
+            }
         }
 
         public IAudioClient GetGuildAudioClient(ulong guildId) => _audioClientsCache[guildId].Client;
@@ -114,7 +131,7 @@ namespace DiscordBot.Core.Voice
                 return _audioPlayersCache[audioClient];
             else
             {
-                var player = new AudioPlayer(audioClient, 4096);
+                var player = new AudioPlayer(audioClient, 4096, _loggerFactory.CreateLogger<AudioPlayer>());
                 _audioPlayersCache.Add(audioClient, player);
                 return player;
             }

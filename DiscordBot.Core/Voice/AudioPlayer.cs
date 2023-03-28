@@ -1,4 +1,5 @@
 ﻿using Discord.Audio;
+using Microsoft.Extensions.Logging;
 
 namespace DiscordBot.Core.Voice
 {
@@ -53,6 +54,7 @@ namespace DiscordBot.Core.Voice
 
     public sealed class AudioPlayer : IAudioPlayer
     {
+        private readonly ILogger<AudioPlayer> _logger;
         private readonly IAudioClient _audioClient;
         private readonly int _bufferSize;
         private byte[] _buffer;
@@ -64,18 +66,22 @@ namespace DiscordBot.Core.Voice
 
         public AudioPlayingStatus Status { get; private set; }
 
-        public AudioPlayer(IAudioClient audioClient, int bufferSize)
+        public AudioPlayer(IAudioClient audioClient, int bufferSize, ILogger<AudioPlayer> logger)
         {
             _audioClient = audioClient;
             _bufferSize = bufferSize;
+            _logger = logger;
             Status = AudioPlayingStatus.NotPlaying;
             _buffer = new byte[_bufferSize];
             _stop = false;
             _playingTask = null;
+            _logger.LogDebug("Created new instance of {Type} object", GetType().FullName);
+
         }
 
         public Task PlayAsync(Stream audioStream)
         {
+            _logger.LogDebug("Attempting to play");
             lock (_lock)
             {
                 if (Status == AudioPlayingStatus.Playing || Status == AudioPlayingStatus.Paused)
@@ -133,19 +139,22 @@ namespace DiscordBot.Core.Voice
 
         private void StreamsCleanup()
         {
+            bool hasDisposedStream = false;
             if (_sourceDataStream is not null)
             {
-                _sourceDataStream.Flush();
                 _sourceDataStream.Dispose();
                 _sourceDataStream = null;
+                hasDisposedStream = true;
             }
             if (_discordAudioStream is not null)
             {
-                _discordAudioStream.Flush();
                 _discordAudioStream.Dispose();
                 _discordAudioStream = null;
+                hasDisposedStream = true;
             }
             _buffer = new byte[_bufferSize];
+            if (hasDisposedStream)
+                _logger.LogDebug("Disposed of audio streams.");
         }
 
         public void Dispose()
@@ -155,10 +164,10 @@ namespace DiscordBot.Core.Voice
                 if (Status != AudioPlayingStatus.NotPlaying)
                     StopAsync().Wait();
             }
-            catch 
+            catch (Exception ex)
             {
                 StreamsCleanup();
-                throw;
+                _logger.LogWarning(ex, "Exception was thrown during disposal of the object instance.");
             }
         }
     }

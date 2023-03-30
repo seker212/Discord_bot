@@ -10,11 +10,12 @@ RUN apk update && \
         apk add libxml2-dev && \
         apk add libxslt-dev && \
         apk add libffi-dev && \
-        apk add opus && \
-        apk add opusfile && \
+        apk add opus-tools && \
         apk add libsodium && \
         apk add icu-dev && \
         apk add ffmpeg
 COPY --from=build /app/publish .
+RUN ln -s /usr/lib/libopus.so.0.8.0 /app/libopus.so
+RUN ln -s /usr/lib/libsodium.so.23.3.0 /app/libsodium.so
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 ENTRYPOINT [ "dotnet", "DiscordBot.dll" ]

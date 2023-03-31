@@ -5,6 +5,7 @@ using DiscordBot.Commands;
 using DiscordBot.Commands.Core;
 using DiscordBot.Core;
 using DiscordBot.Core.Helpers;
+using DiscordBot.Core.MessageReceivedHandlers;
 using DiscordBot.Core.Providers;
 using DiscordBot.Core.Voice;
 using Serilog;
@@ -42,6 +43,7 @@ namespace DiscordBot
                 (pi, ctx) => pi.ParameterType == typeof(IEnumerable<Task>),
                 (pi, ctx) => GetStartupTasks(ctx));
             builder.RegisterType<MessageReceivedHandlerProvider>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<OofReactionHandler>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterSerilog(loggerConfiguration);
             return builder.Build();
         }

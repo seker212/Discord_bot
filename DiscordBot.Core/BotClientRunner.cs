@@ -1,16 +1,7 @@
-﻿using Discord;
-using Discord.WebSocket;
-using DiscordBot.Commands.Core;
-using DiscordBot.Core.Helpers;
+﻿using Discord.WebSocket;
 using DiscordBot.Core.Providers;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace DiscordBot.Core
 {
@@ -19,31 +10,28 @@ namespace DiscordBot.Core
         private readonly DiscordSocketClient _client;
         private readonly ITokenProvider _tokenProvider;
         private readonly IActivityProvider _activityProvider;
-        private readonly ISlashCommandsManager _slashCommandsManager;
         private readonly ISlashCommandHandlerProvider _slashCommandHandlerProvider;
         private readonly ILogger<BotClientRunner> _logger;
-        private readonly IDiscordLoggingHelper _discordLoggingHelper;
-        private readonly ILogger<DiscordSocketClient> _discordSocketClientLoger;
+        private readonly IStartupTaskProvider _startupTaskProvider;
+        private readonly IDiscordClientLoggingProvider _discordClientLoggingProvider;
 
-        public BotClientRunner(DiscordSocketClient client, ITokenProvider tokenProvider, IActivityProvider activityProvider, ISlashCommandsManager slashCommandsManager, ISlashCommandHandlerProvider slashCommandHandlerProvider, ILogger<BotClientRunner> logger, IDiscordLoggingHelper discordLoggingHelper, ILogger<DiscordSocketClient> discordSocketClientLoger)
+        public BotClientRunner(DiscordSocketClient client, ITokenProvider tokenProvider, IActivityProvider activityProvider, IStartupTaskProvider startupTaskProvider, IDiscordClientLoggingProvider discordClientLoggingProvider, ISlashCommandHandlerProvider slashCommandHandlerProvider, ILogger<BotClientRunner> logger)
         {
             _client = client;
             _tokenProvider = tokenProvider;
             _activityProvider = activityProvider;
-            _slashCommandsManager = slashCommandsManager;
             _slashCommandHandlerProvider = slashCommandHandlerProvider;
             _logger = logger;
-            _discordLoggingHelper = discordLoggingHelper;
-            _discordSocketClientLoger = discordSocketClientLoger;
+            _startupTaskProvider = startupTaskProvider;
+            _discordClientLoggingProvider = discordClientLoggingProvider;
         }
 
         public async Task Run()
         {
             _logger.LogDebug("Registering client's events");
-            _client.Ready += _slashCommandsManager.RemoveUnknownCommandsAsync;
-            _client.Ready += _slashCommandsManager.RegisterCommandsAsync;
+            _client.Ready += _startupTaskProvider.OnReady;
             _client.SlashCommandExecuted += _slashCommandHandlerProvider.SlashCommandHandlerAsync;
-            _client.Log += x => _discordLoggingHelper.LogDiscordLogMessage(_discordSocketClientLoger, x);
+            _client.Log += _discordClientLoggingProvider.LogDiscordClientEvent;
             _client.MessageReceived += ClientOnMessageReceived;
             _logger.LogDebug("Client's events registered");
             _logger.LogDebug("Setting bot's activity...");

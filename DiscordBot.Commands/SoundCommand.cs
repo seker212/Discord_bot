@@ -5,7 +5,6 @@ using DiscordBot.Commands.Core.CommandAttributes;
 using DiscordBot.Core.Voice;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
-using System.IO;
 
 namespace DiscordBot.Commands
 {

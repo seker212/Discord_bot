@@ -1,16 +1,9 @@
 ﻿using Discord.WebSocket;
+using DiscordBot.Core.Providers;
 using Microsoft.Extensions.Logging;
 
 namespace DiscordBot.Commands.Core
 {
-    /// <summary>
-    /// Provides function for handling slash commands
-    /// </summary>
-    public interface ISlashCommandHandlerProvider
-    {
-        Task SlashCommandHandlerAsync(SocketSlashCommand commandInput);
-    }
-
     /// <inheritdoc cref="ISlashCommandHandlerProvider"/>
     public class SlashCommandHandlerProvider : ISlashCommandHandlerProvider
     {

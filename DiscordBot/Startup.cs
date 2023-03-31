@@ -36,8 +36,25 @@ namespace DiscordBot
             builder.RegisterType<SlashCommandHandlerProvider>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<DiscordLoggingHelper>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<AudioClientManager>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<DiscordClientLoggingProvider>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<StartupTaskProvider>().AsImplementedInterfaces().SingleInstance()
+                .WithParameter(
+                (pi, ctx) => pi.ParameterType == typeof(IEnumerable<Task>),
+                (pi, ctx) => GetStartupTasks(ctx));
             builder.RegisterSerilog(loggerConfiguration);
             return builder.Build();
+        }
+
+        private IEnumerable<Task> GetStartupTasks(IComponentContext componentContext)
+        {
+            var slashCommandsManager = componentContext.Resolve<ISlashCommandsManager>();
+
+            var actionList = new List<Action>()
+            {
+                () => Task.WaitAll(slashCommandsManager.RemoveUnknownCommandsAsync(), slashCommandsManager.RegisterCommandsAsync())
+            };
+
+            return actionList.Select(x => new Task(x));
         }
     }
 }

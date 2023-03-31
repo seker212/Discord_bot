@@ -1,9 +1,6 @@
 ﻿using Discord;
-using Discord.Interactions;
 using Discord.WebSocket;
 using DiscordBot.Commands.Core.CommandAttributes;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
 
 namespace DiscordBot.Commands.Core
 {

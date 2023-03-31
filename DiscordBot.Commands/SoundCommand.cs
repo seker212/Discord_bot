@@ -5,7 +5,6 @@ using DiscordBot.Commands.Core.CommandAttributes;
 using DiscordBot.Core.Voice;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
-using System.IO;
 
 namespace DiscordBot.Commands
 {
@@ -42,7 +41,7 @@ namespace DiscordBot.Commands
 
         public override Task ExecuteAsync(SocketSlashCommand command)
         {
-            command.RespondAsync("placeholder").Wait();
+            command.DeferAsync().Wait();
             Task.Run(async () =>
             {
                 try
@@ -88,6 +87,7 @@ namespace DiscordBot.Commands
                             {
                                 _logger.LogDebug("Leaving channel");
                                 await _audioClientManager.LeaveChannelAsync(voiceChannel);
+                                await command.ModifyOriginalResponseAsync(m => m.Content = $"Finished playing {soundName}");
                             }
                         }
                     }

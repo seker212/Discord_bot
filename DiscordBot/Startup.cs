@@ -47,12 +47,11 @@ namespace DiscordBot
 
         private IEnumerable<Task> GetStartupTasks(IComponentContext componentContext)
         {
-            var slashCommandsStartup = 
-                (ISlashCommandsManager slashCommandsManager) => MultipleTaskRunner.RunTasksAsync(slashCommandsManager.RemoveUnknownCommandsAsync(), slashCommandsManager.RegisterCommandsAsync());
+            var slashCommandsManager = componentContext.Resolve<ISlashCommandsManager>();
 
             var actionList = new List<Action>()
             {
-                () => slashCommandsStartup(componentContext.Resolve<ISlashCommandsManager>())
+                () => Task.WaitAll(slashCommandsManager.RemoveUnknownCommandsAsync(), slashCommandsManager.RegisterCommandsAsync())
             };
 
             return actionList.Select(x => new Task(x));

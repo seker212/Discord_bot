@@ -48,34 +48,5 @@ namespace DiscordBot.Core
             // Block this task until the program is closed.
             await Task.Delay(-1);
         }
-
-        public async Task ClientOnMessageReceived(SocketMessage socketMessage) //TODO: Create separate structure for those events
-        {
-            await Task.Run(() =>
-            {
-                if (!socketMessage.Author.IsBot && socketMessage.Channel is SocketTextChannel socketChannel)
-                {
-                    var guild = socketChannel.Guild;
-                    var oof = guild.Emotes.SingleOrDefault(x => x.Name.ToLower() == "oof");
-                    if (oof is not null)
-                    {
-                        var message = socketMessage.Content;
-
-                        string pattern = @"^[^a-zA-Z0-9]*[o]+of[^a-zA-Z0-9]*$"; //TODO: Review this regex
-                        Regex rgx = new Regex(pattern);
-                        foreach (Match match in rgx.Matches(message))
-                        {
-                            socketMessage.AddReactionAsync(oof);
-                            Console.WriteLine(socketMessage.Content);
-
-                            socketChannel.SendMessageAsync(message);
-                            break;
-                        }
-
-                        socketChannel.SendMessageAsync(socketMessage.Content + socketMessage.Author + "asdasd");
-                    }
-                }
-            });
-        }
     }
 }

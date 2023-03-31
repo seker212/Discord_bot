@@ -1,7 +1,6 @@
 ﻿using Discord;
 using Discord.Audio;
 using Microsoft.Extensions.Logging;
-using System.Threading.Channels;
 
 namespace DiscordBot.Core.Voice
 {
@@ -79,7 +78,7 @@ namespace DiscordBot.Core.Voice
                 if (channel is null)
                     throw new ArgumentNullException(nameof(channel));
                 if (_audioClientsCache.ContainsKey(channel.Guild.Id))
-                    throw new ArgumentException("Guild already has active audio client");
+                    throw new InvalidOperationException("Guild already has active audio client");
 
                 var audioClient = await channel.ConnectAsync();
                 _audioClientsCache.Add(channel.Guild.Id, (channel, audioClient));
@@ -94,9 +93,9 @@ namespace DiscordBot.Core.Voice
                 if (channel is null)
                     throw new ArgumentNullException(nameof(channel));
                 if (!_audioClientsCache.ContainsKey(channel.Guild.Id))
-                    throw new ArgumentException("Guild doesn't have active voice client");
+                    throw new InvalidOperationException("Guild doesn't have active voice client");
                 if (_audioClientsCache[channel.Guild.Id].Channel.Id != channel.Id)
-                    throw new ArgumentException("Guild doesn't have active voice client on given channel.");
+                    throw new InvalidOperationException("Guild doesn't have active voice client on given channel.");
 
                 await channel.DisconnectAsync();
                 RemoveClientFromCache(channel.Guild);

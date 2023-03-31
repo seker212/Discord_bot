@@ -43,7 +43,7 @@ docker compose up -d
 Pulling and running container could be done using command below, simply place the TOKEN and name, and set the volume path in PWD.
 
 ```bash
-docker run --rm -d -e "TOKEN=<discord app client secret here>" --name <name> -v <PWD>/audio:/app/audio chi-chan2 seker212/discord_bot:2.0
+docker run --rm -d -e "TOKEN=<discord app client secret here>" --name <name> -v <PWD>/audio:/app/audio seker212/discord_bot:2.0
 ```
 
 ## Running in local enviroment

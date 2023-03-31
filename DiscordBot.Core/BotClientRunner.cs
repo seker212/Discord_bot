@@ -14,8 +14,9 @@ namespace DiscordBot.Core
         private readonly ILogger<BotClientRunner> _logger;
         private readonly IStartupTaskProvider _startupTaskProvider;
         private readonly IDiscordClientLoggingProvider _discordClientLoggingProvider;
+        private readonly IMessageReceivedHandlerProvider _messageReceivedHandlerProvider;
 
-        public BotClientRunner(DiscordSocketClient client, ITokenProvider tokenProvider, IActivityProvider activityProvider, IStartupTaskProvider startupTaskProvider, IDiscordClientLoggingProvider discordClientLoggingProvider, ISlashCommandHandlerProvider slashCommandHandlerProvider, ILogger<BotClientRunner> logger)
+        public BotClientRunner(DiscordSocketClient client, ITokenProvider tokenProvider, IActivityProvider activityProvider, IStartupTaskProvider startupTaskProvider, IDiscordClientLoggingProvider discordClientLoggingProvider, ISlashCommandHandlerProvider slashCommandHandlerProvider, ILogger<BotClientRunner> logger, IMessageReceivedHandlerProvider messageReceivedHandlerProvider)
         {
             _client = client;
             _tokenProvider = tokenProvider;
@@ -24,6 +25,7 @@ namespace DiscordBot.Core
             _logger = logger;
             _startupTaskProvider = startupTaskProvider;
             _discordClientLoggingProvider = discordClientLoggingProvider;
+            _messageReceivedHandlerProvider = messageReceivedHandlerProvider;
         }
 
         public async Task Run()
@@ -32,7 +34,7 @@ namespace DiscordBot.Core
             _client.Ready += _startupTaskProvider.OnReady;
             _client.SlashCommandExecuted += _slashCommandHandlerProvider.SlashCommandHandlerAsync;
             _client.Log += _discordClientLoggingProvider.LogDiscordClientEvent;
-            _client.MessageReceived += ClientOnMessageReceived;
+            _client.MessageReceived += _messageReceivedHandlerProvider.OnMessageReceived;
             _logger.LogDebug("Client's events registered");
             _logger.LogDebug("Setting bot's activity...");
             await _client.SetGameAsync(_activityProvider.ActivityName, _activityProvider.TwitchStreamUrl, _activityProvider.ActivityType);

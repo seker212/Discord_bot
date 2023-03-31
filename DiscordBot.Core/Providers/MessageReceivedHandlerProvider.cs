@@ -18,6 +18,10 @@ namespace DiscordBot.Core.Providers
         }
 
         public Task OnMessageReceived(SocketMessage socketMessage)
-            => Task.Run(() => Task.WaitAll(_handlers.Select(x => x.Execute(socketMessage)).ToArray()));
+            => Task.Run(() =>
+                {
+                    if (!socketMessage.Author.IsBot)
+                        Task.WaitAll(_handlers.Select(x => x.Execute(socketMessage)).ToArray());
+                });
     }
 }

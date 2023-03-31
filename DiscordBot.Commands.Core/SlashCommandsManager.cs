@@ -1,4 +1,5 @@
 ﻿using Discord.WebSocket;
+using DiscordBot.Core.Helpers;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 
@@ -29,29 +30,35 @@ namespace DiscordBot.Commands.Core
 
         public Task RemoveUnknownCommandsAsync()
         {
-            Task AddCommands(ConcurrentBag<SocketApplicationCommand> collection, Func<Task<IReadOnlyCollection<SocketApplicationCommand>>> commandsGetter)
-            => Task.Run(async () =>
+            return Task.Run(() =>
+            {
+                var serverCommands = GetRegisteredCommands();
+
+                var removalTasks = serverCommands
+                    .Where(serverCmd => !_commands.Any(x => x.Name == serverCmd.Name && (x.GuildId is null && serverCmd.IsGlobalCommand || x.GuildId == serverCmd.Guild.Id))) //FIXME: Add proper command comparing
+                    .Select(serverCmd => new Task(async () => await RemoveServerCommandAsync(serverCmd)));
+                MultipleTaskRunner.RunTasksAsync(removalTasks);
+            });
+        }
+
+        private IEnumerable<SocketApplicationCommand> GetRegisteredCommands()
+        {
+            var serverCommands = new ConcurrentBag<SocketApplicationCommand>();
+            
+            Task GetAddCommandsTask(Func<Task<IReadOnlyCollection<SocketApplicationCommand>>> commandsGetter)
+            => new(async () =>
             {
                 var commandsCollection = await commandsGetter();
                 foreach (var command in commandsCollection)
-                    collection.Add(command);
+                    serverCommands.Add(command);
             });
 
-            return Task.Run(() =>
-            {
-                var serverCommands = new ConcurrentBag<SocketApplicationCommand>();
-
-                var taskCache = _client.Guilds.Select(x => AddCommands(serverCommands, () => x.GetApplicationCommandsAsync()))
-                    .Append(AddCommands(serverCommands, () => _client.GetGlobalApplicationCommandsAsync()))
-                    .ToArray();
-                Task.WaitAll(taskCache.ToArray());
-                
-                var removalTasks = serverCommands
-                    .Where(serverCmd => !_commands.Any(x => x.Name == serverCmd.Name && (x.GuildId is null && serverCmd.IsGlobalCommand || x.GuildId == serverCmd.Guild.Id))) //FIXME: Add proper command comparing
-                    .Select(serverCmd => RemoveServerCommandAsync(serverCmd))
-                    .ToArray();
-                Task.WaitAll(removalTasks);
-            });
+            var requestTasks = _client.Guilds.Select(guild => GetAddCommandsTask(() => guild.GetApplicationCommandsAsync()))
+                    .Append(GetAddCommandsTask(() => _client.GetGlobalApplicationCommandsAsync()));
+            
+            MultipleTaskRunner.RunTasksAsync(requestTasks);
+            
+            return serverCommands;
         }
 
         private Task RemoveServerCommandAsync(SocketApplicationCommand serverCommand)

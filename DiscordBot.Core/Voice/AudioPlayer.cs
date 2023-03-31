@@ -133,7 +133,10 @@ namespace DiscordBot.Core.Voice
                 while (Status == AudioPlayingStatus.Playing && !_stop && (read = _sourceDataStream.Read(_buffer, 0, _buffer.Length)) > 0)
                     _discordAudioStream.Write(_buffer, 0, read);
                 if (_stop || read <= 0)
+                {
+                    _discordAudioStream.Flush();
                     StreamsCleanup();
+                }
             }
         }
 

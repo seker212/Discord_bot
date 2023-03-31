@@ -81,6 +81,7 @@ namespace DiscordBot.Commands
                                 {
                                     _logger.LogDebug("Playing stream");
                                     await player.PlayAsync(ffmpegProcess.StandardOutput.BaseStream);
+                                    await Task.Delay(10); //Deleay channel leaving after sound to not instantly hear the leaving sound
                                 }
                             }
                             finally

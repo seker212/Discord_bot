@@ -6,6 +6,7 @@ using DiscordBot.Commands.Core;
 using DiscordBot.Core;
 using DiscordBot.Core.Helpers;
 using DiscordBot.Core.Providers;
+using DiscordBot.Core.Voice;
 using Serilog;
 using Serilog.Extensions.Autofac.DependencyInjection;
 using System.Reflection;
@@ -18,7 +19,7 @@ namespace DiscordBot
         {
             var loggerConfiguration = new LoggerConfiguration()
                 .MinimumLevel.Debug()
-                .WriteTo.Console();
+                .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}");
 
             var builder = new ContainerBuilder();
             builder.Register(_ => new DiscordSocketConfig { MessageCacheSize = 100, GatewayIntents = GatewayIntents.All }).AsSelf().SingleInstance();
@@ -34,6 +35,7 @@ namespace DiscordBot
             builder.RegisterType<SlashCommandsManager>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<SlashCommandHandlerProvider>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<DiscordLoggingHelper>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<AudioClientManager>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterSerilog(loggerConfiguration);
             return builder.Build();
         }

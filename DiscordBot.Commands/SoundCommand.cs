@@ -10,6 +10,8 @@ namespace DiscordBot.Commands
 {
     [Name("sound")]
     [Description("Plays sound")]
+    [Option("soundname", "sound name", ApplicationCommandOptionType.String)]
+    [Option("channel", "voice channel", ApplicationCommandOptionType.Channel)]
     public class SoundCommand : Command
     {
         private const string AUDIO_DIRECTORY_PATH = @"/app/audio";
@@ -20,23 +22,6 @@ namespace DiscordBot.Commands
         {
             _audioClientManager = audioClientManager;
             _logger = logger;
-        }
-
-        public override SlashCommandBuilder CustomBuildAction(SlashCommandBuilder slashCommandBuilder) //TODO: Add attribute for basic options
-        {
-            var soundNameOptionBuilder = new SlashCommandOptionBuilder();
-            soundNameOptionBuilder
-                .WithName("soundname")
-                .WithDescription("sound name")
-                .WithType(ApplicationCommandOptionType.String);
-
-            var vcOptionBuilder = new SlashCommandOptionBuilder();
-            vcOptionBuilder
-                .WithName("channel")
-                .WithDescription("voice channel")
-                .WithType(ApplicationCommandOptionType.Channel);
-
-            return slashCommandBuilder.AddOptions(vcOptionBuilder, soundNameOptionBuilder);
         }
 
         public override Task ExecuteAsync(SocketSlashCommand command)

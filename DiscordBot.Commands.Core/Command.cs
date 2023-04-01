@@ -42,7 +42,7 @@ namespace DiscordBot.Commands.Core
             return CustomBuildAction(builder).Build();
         }
 
-        public virtual SlashCommandBuilder CustomBuildAction(SlashCommandBuilder slashCommandBuilder)
+        protected virtual SlashCommandBuilder CustomBuildAction(SlashCommandBuilder slashCommandBuilder)
             => slashCommandBuilder;
 
         public abstract Task ExecuteAsync(SocketSlashCommand command);

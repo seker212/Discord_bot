@@ -1,5 +1,5 @@
 ﻿using Discord.WebSocket;
-using DiscordBot.Core.MessageReceivedHandlers;
+using DiscordBot.Core.Interfaces;
 
 namespace DiscordBot.Core.Providers
 {

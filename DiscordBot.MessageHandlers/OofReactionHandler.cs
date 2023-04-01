@@ -1,15 +1,16 @@
 ﻿using Discord.WebSocket;
+using DiscordBot.Core.Interfaces;
 using System.Text.RegularExpressions;
 
-namespace DiscordBot.Core.MessageReceivedHandlers
+namespace DiscordBot.MessageHandlers
 {
     public class OofReactionHandler : IMessageReceivedHandler
     {
         private const string OOF_PATTERN = @"^[^a-zA-Z0-9]*[o]+of[^a-zA-Z0-9]*$"; //TODO: Review this regex
 
         private bool IsApplicable(SocketMessage socketMessage)
-            => socketMessage.Channel is SocketTextChannel socketChannel && 
-            socketChannel.Guild.Emotes.Any(x => x.Name.ToLower() == "oof") && 
+            => socketMessage.Channel is SocketTextChannel socketChannel &&
+            socketChannel.Guild.Emotes.Any(x => x.Name.ToLower() == "oof") &&
             Regex.IsMatch(socketMessage.Content, OOF_PATTERN);
 
         private Task ApplyReactionAsync(SocketMessage socketMessage)
@@ -26,6 +27,6 @@ namespace DiscordBot.Core.MessageReceivedHandlers
                 if (IsApplicable(socketMessage))
                     await ApplyReactionAsync(socketMessage);
             });
-            
+
     }
 }

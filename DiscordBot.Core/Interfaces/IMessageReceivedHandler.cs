@@ -1,6 +1,6 @@
 ﻿using Discord.WebSocket;
 
-namespace DiscordBot.Core.MessageReceivedHandlers
+namespace DiscordBot.Core.Interfaces
 {
     public interface IMessageReceivedHandler
     {

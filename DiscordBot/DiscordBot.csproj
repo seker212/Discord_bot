@@ -36,5 +36,6 @@
     <ProjectReference Include="..\DiscordBot.Commands.Core\DiscordBot.Commands.Core.csproj" />
     <ProjectReference Include="..\DiscordBot.Commands\DiscordBot.Commands.csproj" />
     <ProjectReference Include="..\DiscordBot.Core\DiscordBot.Core.csproj" />
+    <ProjectReference Include="..\DiscordBot.MessageHandlers\DiscordBot.MessageHandlers.csproj" />
   </ItemGroup>
 </Project>

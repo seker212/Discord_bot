@@ -8,11 +8,13 @@ namespace DiscordBot.Commands.Core
     public class SlashCommandHandlerProvider : ISlashCommandHandlerProvider
     {
         readonly IEnumerable<ICommand> _commands; //TODO: Change this to command provider. Use hash dict?
+        private readonly ICommandComparer _commandComparer;
         private readonly ILogger<SlashCommandHandlerProvider> _logger;
 
-        public SlashCommandHandlerProvider(IEnumerable<ICommand> commands, ILogger<SlashCommandHandlerProvider> logger)
+        public SlashCommandHandlerProvider(IEnumerable<ICommand> commands, ICommandComparer commandComparer, ILogger<SlashCommandHandlerProvider> logger)
         {
             _commands = commands;
+            _commandComparer = commandComparer;
             _logger = logger;
         }
 
@@ -24,7 +26,7 @@ namespace DiscordBot.Commands.Core
                 {
                     _logger.LogDebug("Recieved slash command");
                     ICommand command = null!;
-                    try { command = _commands.Single(x => x.Name == commandInput.CommandName && (x.GuildId is null || x.GuildId == commandInput.GuildId)); } //FIXME: Add proper command comparing
+                    try { command = _commands.Single(x => _commandComparer.CommandSyntaxEquals(x, commandInput)); }
                     catch (InvalidOperationException)
                     {
                         _logger.LogWarning("Command with name {CommandName} was not found. GuildId: {GuildId}", commandInput.CommandName, commandInput.GuildId);

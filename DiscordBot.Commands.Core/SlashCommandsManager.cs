@@ -19,13 +19,15 @@ namespace DiscordBot.Commands.Core
     {
         readonly DiscordSocketClient _client;
         private readonly IEnumerable<ICommand> _commands;
+        private readonly ICommandComparer _commandComparer;
         private readonly ILogger<SlashCommandsManager> _logger;
 
-        public SlashCommandsManager(DiscordSocketClient client, IEnumerable<ICommand> commands, ILogger<SlashCommandsManager> logger)
+        public SlashCommandsManager(DiscordSocketClient client, IEnumerable<ICommand> commands, ILogger<SlashCommandsManager> logger, ICommandComparer commandComparer)
         {
             _client = client;
             _commands = commands;
             _logger = logger;
+            _commandComparer = commandComparer;
         }
 
         public Task RemoveUnknownCommandsAsync()
@@ -35,7 +37,7 @@ namespace DiscordBot.Commands.Core
                 var serverCommands = GetRegisteredCommands();
 
                 var removalTasks = serverCommands
-                    .Where(serverCmd => !_commands.Any(x => x.Name == serverCmd.Name && (x.GuildId is null && serverCmd.IsGlobalCommand || x.GuildId == serverCmd.Guild.Id))) //FIXME: Add proper command comparing
+                    .Where(serverCmd => !_commands.Any(x => _commandComparer.CommandEquals(x, serverCmd)))
                     .Select(serverCmd => new Task(async () => await RemoveServerCommandAsync(serverCmd)));
                 MultipleTaskRunner.RunTasksAsync(removalTasks);
             });

@@ -2,7 +2,18 @@
 
 namespace DiscordBot.Commands.Core
 {
-    public class CommandComparer
+    /// <summary>
+    /// Helper for comparing commands
+    /// </summary>
+    public interface ICommandComparer
+    {
+        bool CommandEquals(ICommand command, SocketApplicationCommand socketCommand);
+        bool CommandOptionEquals(ICommandOption commandOption, SocketApplicationCommandOption socketCommandOption);
+        bool CommandSyntaxEquals(ICommand command, SocketSlashCommand socketCommand);
+        bool CommandOptionSyntaxEquals(ICommandOption commandOption, SocketSlashCommandDataOption socketCommandOption);
+    }
+
+    public class CommandComparer : ICommandComparer
     {
         /// <summary>
         /// Checks if commands syntax is the same (name, arguments types). Does not check non-functional parameters like descriptions.
@@ -14,7 +25,7 @@ namespace DiscordBot.Commands.Core
         {
             var sameName = command.Name.Equals(socketCommand.CommandName);
             var sameArgumentsCount = command.Options.Count == socketCommand.Data.Options.Count;
-            var sameOptions = command.Options.All(x => socketCommand.Data.Options.Any(y => CommndOptionSyntaxEquals(x, y)));
+            var sameOptions = command.Options.All(x => socketCommand.Data.Options.Any(y => CommandOptionSyntaxEquals(x, y)));
             return sameName && sameArgumentsCount && sameOptions;
         }
 
@@ -24,7 +35,7 @@ namespace DiscordBot.Commands.Core
         /// <param name="commandOption">First command option</param>
         /// <param name="socketCommandOption">Second command option</param>
         /// <returns>True if all fields have the same values.</returns>
-        public bool CommndOptionSyntaxEquals(ICommandOption commandOption, SocketSlashCommandDataOption socketCommandOption)
+        public bool CommandOptionSyntaxEquals(ICommandOption commandOption, SocketSlashCommandDataOption socketCommandOption)
         {
             var sameName = commandOption.Name.Equals(socketCommandOption.Name);
             var sameType = commandOption.Type.Equals(socketCommandOption.Type);

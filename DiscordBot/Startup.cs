@@ -44,6 +44,7 @@ namespace DiscordBot
                 (pi, ctx) => GetStartupTasks(ctx));
             builder.RegisterType<MessageReceivedHandlerProvider>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<OofReactionHandler>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<CommandComparer>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterSerilog(loggerConfiguration);
             return builder.Build();
         }

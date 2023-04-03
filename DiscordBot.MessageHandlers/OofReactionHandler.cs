@@ -4,9 +4,12 @@ using System.Text.RegularExpressions;
 
 namespace DiscordBot.MessageHandlers
 {
+    /// <summary>
+    /// Adds oof reaction to message that contains "oof"
+    /// </summary>
     public class OofReactionHandler : IMessageReceivedHandler
     {
-        private const string OOF_PATTERN = @"^[^a-zA-Z0-9]*[o]+of[^a-zA-Z0-9]*$"; //TODO: Review this regex
+        private const string OOF_PATTERN = @"(\s|^)[oO]{2,}[fF](\s|$)";
 
         private bool IsApplicable(SocketMessage socketMessage)
             => socketMessage.Channel is SocketTextChannel socketChannel &&

@@ -68,21 +68,23 @@ namespace DiscordBot.Commands
         }
     
         private YoutubeVideoData GetVideoDataFromUri(string uri)
-        {
+        {   
+            string args = $"--print-json --skip-download -f 251/250/249 {uri}";
             if (!Uri.IsWellFormedUriString(uri, UriKind.Absolute))
             {
-                _logger.LogWarning("{Uri} was not proper uri", uri);
-                throw new ArgumentException($"{uri} was not a proprt uri", nameof(uri));
+                args = $"--print-json --skip-download -f 251/250/249 ytsearch1:\"{uri}\"";
+                //_logger.LogWarning("{Uri} was not proper uri", uri);
+                //throw new ArgumentException($"{uri} was not a proprt uri", nameof(uri));
             }
             _logger.LogDebug("Getting yt metadata for {Uri}", uri);
             using (var youtubeProcess = Process.Start(new ProcessStartInfo
             {
                 FileName = "yt-dlp",
-                Arguments = $"--print-json -f 251/250/249 {uri}",
+                Arguments = args,
                 UseShellExecute = false,
                 RedirectStandardOutput = true
             }))
-                return JsonConvert.DeserializeObject<YoutubeVideoData>(youtubeProcess.StandardOutput.ReadToEnd())!;
+            return JsonConvert.DeserializeObject<YoutubeVideoData>(youtubeProcess.StandardOutput.ReadToEnd())!;
         }
     }
 }

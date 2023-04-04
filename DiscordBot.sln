@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiscordBot.Commands", "Disc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiscordBot.Core", "DiscordBot.Core\DiscordBot.Core.csproj", "{BFB8EAF5-4D9A-4610-9AA0-7CA27CE6F201}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordBot.MessageHandlers", "DiscordBot.MessageHandlers\DiscordBot.MessageHandlers.csproj", "{A9FF9F8A-B69D-4F85-BA7C-802875A329D2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiscordBot.MessageHandlers", "DiscordBot.MessageHandlers\DiscordBot.MessageHandlers.csproj", "{A9FF9F8A-B69D-4F85-BA7C-802875A329D2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

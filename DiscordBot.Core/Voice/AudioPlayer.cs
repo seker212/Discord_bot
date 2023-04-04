@@ -134,7 +134,7 @@ namespace DiscordBot.Core.Voice
                     _discordAudioStream.Write(_buffer, 0, read);
                 if (_stop || read <= 0)
                 {
-                    _discordAudioStream.Flush();
+                    _logger.LogDebug("Finished reading stream.");
                     StreamsCleanup();
                 }
             }

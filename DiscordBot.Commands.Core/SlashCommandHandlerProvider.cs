@@ -22,7 +22,7 @@ namespace DiscordBot.Commands.Core
         {
             return Task.Run(async () => 
             {
-                using (_logger.BeginScope(new Dictionary<string, object>() { { "GuildId", commandInput.GuildId }, { "CommandName", commandInput.CommandName }, { "CommandArguments", commandInput.Data.Options.ToDictionary(x => x.Name, x => x.Value) } }))
+                using (_logger.BeginScope(new Dictionary<string, object>() { { "CommandCallID", commandInput.Id }, { "GuildId", commandInput.GuildId }, { "CommandName", commandInput.CommandName }, { "CommandArguments", commandInput.Data.Options.ToDictionary(x => x.Name, x => x.Value) } }))
                 {
                     _logger.LogDebug("Recieved slash command");
                     ICommand command = null!;

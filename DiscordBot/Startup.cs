@@ -9,6 +9,7 @@ using DiscordBot.Core.Interfaces;
 using DiscordBot.Core.Providers;
 using DiscordBot.Core.Voice;
 using DiscordBot.MessageHandlers;
+using DiscordBot.ActivityLogging;
 using Serilog;
 using Serilog.Extensions.Autofac.DependencyInjection;
 using System.Reflection;
@@ -46,6 +47,9 @@ namespace DiscordBot
             builder.RegisterType<MessageReceivedHandlerProvider>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<OofReactionHandler>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<CommandComparer>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<ChannelDataProvider>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<VoiceChannelActivityProvider>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<VoiceChannelActivityHandler>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(OofReactionHandler))!).Where(x => x.IsClass && !x.IsAbstract && x.IsAssignableTo<IMessageReceivedHandler>()).AsImplementedInterfaces().SingleInstance();
             builder.RegisterSerilog(loggerConfiguration);
             return builder.Build();

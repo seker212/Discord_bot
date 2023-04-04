@@ -32,7 +32,7 @@ namespace DiscordBot.ActivityLogging
                 guildId = beforeVoiceChannel.Guild.Id;
             }
             
-            var textChannelId = _channelDataProvider.getChannel(guildId);
+            var textChannelId = _channelDataProvider.GetChannel(guildId);
 
             if(textChannelId.HasValue)
             {
@@ -46,8 +46,7 @@ namespace DiscordBot.ActivityLogging
 
         private async Task SendLogsToChannel(String mention, SocketTextChannel textChannel, String action)
         {
-            //TODO timezone handling
-            //var datetime;
+            //TODO datetime and timezone handling, issue #141
 
             var embed = new EmbedBuilder()
             {

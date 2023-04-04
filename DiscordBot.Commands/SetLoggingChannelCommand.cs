@@ -32,7 +32,7 @@ namespace DiscordBot.Commands
                 {
                     _logger.LogDebug("Set logger channel to {ch} in guild {id}", textChannel, guildId);
 
-                    _channelDataProvider.setChannel(guildId.Value, textChannel.Id);
+                    _channelDataProvider.SetChannel(guildId.Value, textChannel.Id);
 
                     await command.RespondAsync("Channel set");
                 } 

@@ -2,8 +2,8 @@ namespace DiscordBot.Core.Providers
 {
     public interface IChannelDataProvider
     {
-        ulong? getChannel(ulong guildId);
-        void setChannel(ulong guildId, ulong channelId);
+        ulong? GetChannel(ulong guildId);
+        void SetChannel(ulong guildId, ulong channelId);
     }
 
     public class ChannelDataProvider : IChannelDataProvider
@@ -15,16 +15,10 @@ namespace DiscordBot.Core.Providers
             channelDict = new Dictionary<ulong, ulong>();
         }
 
-        public ulong? getChannel(ulong guildId)
-        {
-            if(channelDict.ContainsKey(guildId))
-            {
-                return channelDict[guildId];
-            }
-            return null;
-        }
+        public ulong? GetChannel(ulong guildId) 
+            => channelDict.ContainsKey(guildId) ? channelDict[guildId] : null;
 
-        public void setChannel(ulong guildId, ulong channelId)
+        public void SetChannel(ulong guildId, ulong channelId)
         {
             if(channelDict.ContainsKey(guildId))
             {

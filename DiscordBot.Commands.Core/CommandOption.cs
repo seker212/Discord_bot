@@ -3,7 +3,19 @@ using DiscordBot.Commands.Core.CommandAttributes;
 
 namespace DiscordBot.Commands.Core
 {
-    public record CommandOption
+    public interface ICommandOption
+    {
+        string Description { get; }
+        string Name { get; }
+        ApplicationCommandOptionType Type { get; }
+
+        bool Equals(CommandOption? other);
+        bool Equals(object? obj);
+        int GetHashCode();
+        string ToString();
+    }
+
+    public record CommandOption : ICommandOption
     {
         public CommandOption(string name, string description, ApplicationCommandOptionType type)
         {

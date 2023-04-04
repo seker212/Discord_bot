@@ -44,6 +44,8 @@ namespace DiscordBot
                 (pi, ctx) => pi.ParameterType == typeof(IEnumerable<Task>),
                 (pi, ctx) => GetStartupTasks(ctx));
             builder.RegisterType<MessageReceivedHandlerProvider>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<OofReactionHandler>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<CommandComparer>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(OofReactionHandler))!).Where(x => x.IsClass && !x.IsAbstract && x.IsAssignableTo<IMessageReceivedHandler>()).AsImplementedInterfaces().SingleInstance();
             builder.RegisterSerilog(loggerConfiguration);
             return builder.Build();

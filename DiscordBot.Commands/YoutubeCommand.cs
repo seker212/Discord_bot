@@ -6,6 +6,7 @@ using DiscordBot.Commands.Helpers.Models;
 using DiscordBot.Core.Voice;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
@@ -13,7 +14,8 @@ namespace DiscordBot.Commands
 {
     [Name("yt")]
     [Description("yt play")]
-    [Option("url", "url", ApplicationCommandOptionType.String)]
+    [Option("url", "Link to YouTube video", ApplicationCommandOptionType.String, false)]
+    [Option("query", "Youtube search phrase", ApplicationCommandOptionType.String, false)]
     [Option("channel", "voice channel", ApplicationCommandOptionType.Channel)]
     public class YoutubeCommand : Command
     {
@@ -28,14 +30,14 @@ namespace DiscordBot.Commands
 
         public override Task ExecuteAsync(SocketSlashCommand command)
         {
+            CheckArguments(command).Wait();
             command.DeferAsync().Wait();
             Task.Run(async () =>
             {
-                var targetChannel = command.Data.Options.Single(x => x.Name == "channel").Value as SocketChannel;
+                var targetChannel = command.GetRequiredOptionValue("channel") as SocketChannel;
                 if (targetChannel is SocketVoiceChannel voiceChannel)
                 {
-                    var uri = command.Data.Options.Single(x => x.Name == "url").Value as string;
-                    var videoData = GetVideoDataFromUri(uri);
+                    var videoData = command.GetOptionValue("url") is not null ? GetVideoDataFromUri(command.GetOptionValue("url") as string) : GetVideoDataFromQuery(command.GetOptionValue("query") as string);
                     _logger.LogDebug("Connecting to channel {vc}", voiceChannel.Name);
                     var audioClient = await _audioClientManager.JoinChannelAsync(voiceChannel);
                     try
@@ -67,20 +69,45 @@ namespace DiscordBot.Commands
             return Task.CompletedTask;
         }
     
+        private async Task CheckArguments(SocketSlashCommand command)
+        {
+            var uri = command.GetOptionValue("url");
+            var query = command.GetOptionValue("query");
+            if (uri is null && query is null)
+            {
+                _logger.LogDebug("Called command with neither uri nor query parameters.");
+                throw new ArgumentException("Called command with neither uri nor query parameters.");
+            }
+            if (uri is not null && query is not null)
+            {
+                _logger.LogDebug("Called command with both uri and query parameters.");
+                throw new ArgumentException("Called command with both uri and query parameters.");
+            }
+        }
+
         private YoutubeVideoData GetVideoDataFromUri(string uri)
-        {   
-            string args = $"--print-json --skip-download -f 251/250/249 {uri}";
+        {
             if (!Uri.IsWellFormedUriString(uri, UriKind.Absolute))
             {
-                args = $"--print-json --skip-download -f 251/250/249 ytsearch1:\"{uri}\"";
-                //_logger.LogWarning("{Uri} was not proper uri", uri);
-                //throw new ArgumentException($"{uri} was not a proprt uri", nameof(uri));
+                _logger.LogWarning("{Uri} was not a proper uri", uri);
+                throw new ArgumentException($"{uri} was not a proprt uri", nameof(uri));
             }
             _logger.LogDebug("Getting yt metadata for {Uri}", uri);
+            return GetVideoData(uri);
+        }
+
+        private YoutubeVideoData GetVideoDataFromQuery(string query)
+        {
+            _logger.LogDebug($"Getting yt metadata for search query: \"{query}\"");
+            return GetVideoData($"ytsearch1:\"{query}\"");
+        }
+
+        private YoutubeVideoData GetVideoData(string endQuery)
+        {   
             using (var youtubeProcess = Process.Start(new ProcessStartInfo
             {
                 FileName = "yt-dlp",
-                Arguments = args,
+                Arguments = $"--print-json --skip-download -f 251/250/249 {endQuery}",
                 UseShellExecute = false,
                 RedirectStandardOutput = true
             }))

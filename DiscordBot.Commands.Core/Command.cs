@@ -39,7 +39,7 @@ namespace DiscordBot.Commands.Core
                 .WithName(Name)
                 .WithDescription(Description);
             foreach (var option in Options)
-                builder.AddOption(option.Name, option.Type, option.Description);
+                builder.AddOption(option.Name, option.Type, option.Description, option.IsRequired);
             return CustomBuildAction(builder).Build();
         }
 

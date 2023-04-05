@@ -137,6 +137,8 @@ namespace DiscordBot.Core.Voice
                     _logger.LogDebug("Finished reading stream.");
                     StreamsCleanup();
                 }
+                else
+                    _logger.LogDebug("Paused reading stream.");
             }
         }
 

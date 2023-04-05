@@ -9,7 +9,7 @@ namespace DiscordBot.Commands.Core
     {
         ulong? GuildId { get; }
         string Name { get; }
-        IReadOnlyCollection<CommandOption> Options { get; }
+        IReadOnlyCollection<ICommandOption> Options { get; }
         string Description { get; }
 
         SlashCommandProperties Build();
@@ -21,7 +21,7 @@ namespace DiscordBot.Commands.Core
         public ulong? GuildId { get; }
         public string Description { get; }
         public string Name { get; }
-        public IReadOnlyCollection<CommandOption> Options { get; }
+        public IReadOnlyCollection<ICommandOption> Options { get; }
 
         protected Command()
         {

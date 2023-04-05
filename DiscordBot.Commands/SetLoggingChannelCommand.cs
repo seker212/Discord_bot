@@ -31,19 +31,15 @@ namespace DiscordBot.Commands
                 if(targetChannel is SocketTextChannel textChannel)
                 {
                     _logger.LogDebug("Set logger channel to {ch} in guild {id}", textChannel, guildId);
-
                     _channelDataProvider.SetChannel(guildId.Value, textChannel.Id);
-
                     await command.RespondAsync("Channel set");
                 } 
                 else
-                {
                     await command.RespondAsync("Given channel should be a text channel");
-                }
-            } catch (Exception ex)
+            } 
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Setting log channel threw an exception");
-
                 await command.RespondAsync("Error occured when handling command");
             }
         }

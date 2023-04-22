@@ -38,6 +38,7 @@ namespace DiscordBot.Commands
                 if (targetChannel is SocketVoiceChannel voiceChannel)
                 {
                     var videoData = command.GetOptionValue("url") is not null ? GetVideoDataFromUri(command.GetOptionValue("url") as string) : GetVideoDataFromQuery(command.GetOptionValue("query") as string);
+                    command.ModifyOriginalResponseAsync(m => { m.Embed = BuildEmbed(videoData); m.Content = null; });
                     _logger.LogDebug("Connecting to channel {vc}", voiceChannel.Name);
                     var audioClient = await _audioClientManager.JoinChannelAsync(voiceChannel);
                     try
@@ -62,7 +63,6 @@ namespace DiscordBot.Commands
                     {
                         _logger.LogDebug("Leaving channel");
                         await _audioClientManager.LeaveChannelAsync(voiceChannel);
-                        await command.ModifyOriginalResponseAsync(m => m.Content = $"Finished playing \"{videoData.Title}\"");
                     }
                 }
             });
@@ -112,6 +112,31 @@ namespace DiscordBot.Commands
                 RedirectStandardOutput = true
             }))
             return JsonConvert.DeserializeObject<YoutubeVideoData>(youtubeProcess.StandardOutput.ReadToEnd())!;
+        }
+
+        private Embed BuildEmbed(YoutubeVideoData videoData)
+        {
+            var builder = new EmbedBuilder()
+            {
+                Title = "Now playing",
+                ThumbnailUrl = videoData.ThumbnailUrl,
+                Url = videoData.YoutubeUrl,
+                Description = $"Title: *** {videoData.Title} *** \nTime: {ConvertVideoDuratiuon(videoData.Duration)}"
+            };
+            return builder.Build();
+        }
+
+        private string ConvertVideoDuratiuon(string videoDuratiuon)
+        {
+            if (videoDuratiuon.Contains(':'))
+                return videoDuratiuon;
+            else if (videoDuratiuon.Length == 2)
+                return $"0:{videoDuratiuon}";
+            else if (videoDuratiuon.Length == 1)
+                return $"0:0{videoDuratiuon}";
+            else
+                _logger.LogWarning("Cannot handle video duration format. Input string: {VideoDuration}", videoDuratiuon);
+            return videoDuratiuon;
         }
     }
 }

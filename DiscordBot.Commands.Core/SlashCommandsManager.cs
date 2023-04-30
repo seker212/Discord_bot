@@ -34,7 +34,7 @@ namespace DiscordBot.Commands.Core
         {
             return Task.Run(() =>
             {
-                var serverCommands = GetRegisteredCommands();
+                var serverCommands = GetRegisteredCommandsAsync();
 
                 var removalTasks = serverCommands
                     .Where(serverCmd => !_commands.Any(x => _commandComparer.CommandEquals(x, serverCmd)))
@@ -43,23 +43,23 @@ namespace DiscordBot.Commands.Core
             });
         }
 
-        private IEnumerable<SocketApplicationCommand> GetRegisteredCommands()
+        private IEnumerable<SocketApplicationCommand> GetRegisteredCommandsAsync()
         {
             var serverCommands = new ConcurrentBag<SocketApplicationCommand>();
-            
-            Task GetAddCommandsTask(Func<Task<IReadOnlyCollection<SocketApplicationCommand>>> commandsGetter)
-            => new(async () =>
+
+            Func<Task> GetAddCommandsFunc(Func<Task<IReadOnlyCollection<SocketApplicationCommand>>> commandsGetter)
+            => async () =>
             {
                 var commandsCollection = await commandsGetter();
                 foreach (var command in commandsCollection)
                     serverCommands.Add(command);
-            });
+            };
 
-            var requestTasks = _client.Guilds.Select(guild => GetAddCommandsTask(() => guild.GetApplicationCommandsAsync()))
-                    .Append(GetAddCommandsTask(() => _client.GetGlobalApplicationCommandsAsync()));
-            
-            MultipleTaskRunner.RunTasksAsync(requestTasks);
-            
+            var requestTasks = _client.Guilds.Select(guild => GetAddCommandsFunc(async () => await guild.GetApplicationCommandsAsync()))
+                    .Append(GetAddCommandsFunc(async () => await _client.GetGlobalApplicationCommandsAsync()))
+                    .Select(f => f())
+                    .ToArray();
+            Task.WaitAll(requestTasks);
             return serverCommands;
         }
 

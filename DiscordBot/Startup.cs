@@ -61,7 +61,11 @@ namespace DiscordBot
 
             var actionList = new List<Action>()
             {
-                () => Task.WaitAll(slashCommandsManager.RemoveUnknownCommandsAsync(), slashCommandsManager.RegisterCommandsAsync())
+                async () => 
+                { 
+                    await slashCommandsManager.RemoveUnknownCommandsAsync();
+                    await slashCommandsManager.RegisterCommandsAsync();
+                }
             };
 
             return actionList.Select(x => new Task(x));

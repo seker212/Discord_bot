@@ -13,10 +13,10 @@ using System.Runtime.CompilerServices;
 namespace DiscordBot.Commands
 {
     [Name("yt")]
-    [Description("yt play")]
-    [Option("url", "Link to YouTube video", ApplicationCommandOptionType.String, false)]
-    [Option("query", "Youtube search phrase", ApplicationCommandOptionType.String, false)]
-    [Option("channel", "voice channel", ApplicationCommandOptionType.Channel)]
+    [Description("Plays audio from youtube")]
+    [Option("url", "Link to YouTube video", CommandOptionType.String, false)]
+    [Option("query", "Youtube search phrase", CommandOptionType.String, false)]
+    [Option("channel", "voice channel", CommandOptionType.GuildVoiceChannel)]
     public class YoutubeCommand : Command
     {
         private readonly IAudioClientManager _audioClientManager;

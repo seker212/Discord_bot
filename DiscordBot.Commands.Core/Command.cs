@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using DiscordBot.Commands.Core.CommandAttributes;
+using DiscordBot.Commands.Core.Helpers;
 using System.Globalization;
 
 namespace DiscordBot.Commands.Core
@@ -12,7 +13,7 @@ namespace DiscordBot.Commands.Core
         IReadOnlyCollection<ICommandOption> Options { get; }
         string Description { get; }
 
-        SlashCommandProperties Build();
+        Discord.SlashCommandBuilder CustomBuildAction(Discord.SlashCommandBuilder slashCommandBuilder);
         Task ExecuteAsync(SocketSlashCommand command);
     }
 
@@ -33,17 +34,7 @@ namespace DiscordBot.Commands.Core
             Options = attributes.Where(x => x.GetType() == typeof(OptionAttribute)).Select(x => new CommandOption((x as OptionAttribute)!)).ToList();
         }
 
-        public SlashCommandProperties Build()
-        {
-            var builder = new SlashCommandBuilder()
-                .WithName(Name)
-                .WithDescription(Description);
-            foreach (var option in Options)
-                builder.AddOption(option.Name, option.Type, option.Description, option.IsRequired);
-            return CustomBuildAction(builder).Build();
-        }
-
-        protected virtual SlashCommandBuilder CustomBuildAction(SlashCommandBuilder slashCommandBuilder)
+        public virtual Discord.SlashCommandBuilder CustomBuildAction(Discord.SlashCommandBuilder slashCommandBuilder)
             => slashCommandBuilder;
 
         public abstract Task ExecuteAsync(SocketSlashCommand command);

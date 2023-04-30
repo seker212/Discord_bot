@@ -10,8 +10,8 @@ namespace DiscordBot.Commands
 {
     [Name("sound")]
     [Description("Plays sound")]
-    [Option("soundname", "sound name", ApplicationCommandOptionType.String)]
-    [Option("channel", "voice channel", ApplicationCommandOptionType.Channel)]
+    [Option("soundname", "sound name", CommandOptionType.String)]
+    [Option("channel", "voice channel", CommandOptionType.GuildVoiceChannel)]
     public class SoundCommand : Command
     {
         private const string AUDIO_DIRECTORY_PATH = @"/app/audio";

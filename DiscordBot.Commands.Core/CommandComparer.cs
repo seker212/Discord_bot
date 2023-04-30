@@ -37,8 +37,8 @@ namespace DiscordBot.Commands.Core
         public bool CommandOptionSyntaxEquals(ICommandOption commandOption, SocketSlashCommandDataOption socketCommandOption)
         {
             var sameName = commandOption.Name.Equals(socketCommandOption.Name);
-            var sameType = commandOption.Type.Equals(socketCommandOption.Type);
-            return sameName && sameType;
+            //TODO: Type comparing
+            return sameName;
         }
 
         /// <summary>
@@ -64,10 +64,10 @@ namespace DiscordBot.Commands.Core
         public bool CommandOptionEquals(ICommandOption commandOption, SocketApplicationCommandOption socketCommandOption)
         {
             var sameName = commandOption.Name.Equals(socketCommandOption.Name);
-            var sameType = commandOption.Type.Equals(socketCommandOption.Type);
+            //TODO: Type comparing
             var sameDescription = commandOption.Description.Equals(socketCommandOption.Description);
             var sameRequirement = commandOption.IsRequired == socketCommandOption.IsRequired;
-            return sameName && sameType && sameDescription && sameRequirement;
+            return sameName && sameDescription && sameRequirement;
         }
     }
 }

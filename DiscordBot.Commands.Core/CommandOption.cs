@@ -7,7 +7,7 @@ namespace DiscordBot.Commands.Core
     {
         string Description { get; }
         string Name { get; }
-        ApplicationCommandOptionType Type { get; }
+        CommandOptionType Type { get; }
         bool IsRequired { get; }
 
         bool Equals(CommandOption? other);
@@ -18,7 +18,7 @@ namespace DiscordBot.Commands.Core
 
     public record CommandOption : ICommandOption
     {
-        public CommandOption(string name, string description, ApplicationCommandOptionType type, bool isRequired)
+        public CommandOption(string name, string description, CommandOptionType type, bool isRequired)
         {
             Name = name;
             Description = description;
@@ -30,7 +30,7 @@ namespace DiscordBot.Commands.Core
 
         public string Name { get; }
         public string Description { get; }
-        public ApplicationCommandOptionType Type { get; }
+        public CommandOptionType Type { get; }
         public bool IsRequired { get; }
     }
 }

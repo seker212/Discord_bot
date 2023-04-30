@@ -5,7 +5,7 @@ namespace DiscordBot.Commands.Core.CommandAttributes
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class OptionAttribute : Attribute
     {
-        public OptionAttribute(string name, string description, ApplicationCommandOptionType type, bool isRequired = true)
+        public OptionAttribute(string name, string description, CommandOptionType type, bool isRequired = true)
         {
             Name = name;
             Description = description;
@@ -15,7 +15,7 @@ namespace DiscordBot.Commands.Core.CommandAttributes
 
         public string Name { get; }
         public string Description { get; }
-        public ApplicationCommandOptionType Type { get; }
+        public CommandOptionType Type { get; }
         public bool IsRequired { get; }
     }
 }

@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiscordBot.Commands", "Disc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiscordBot.Core", "DiscordBot.Core\DiscordBot.Core.csproj", "{BFB8EAF5-4D9A-4610-9AA0-7CA27CE6F201}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordBot.MessageHandlers", "DiscordBot.MessageHandlers\DiscordBot.MessageHandlers.csproj", "{A9FF9F8A-B69D-4F85-BA7C-802875A329D2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiscordBot.MessageHandlers", "DiscordBot.MessageHandlers\DiscordBot.MessageHandlers.csproj", "{A9FF9F8A-B69D-4F85-BA7C-802875A329D2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiscordBot.ActivityLogging", "DiscordBot.ActivityLogging\DiscordBot.ActivityLogging.csproj", "{6F073D7A-1539-4902-8FEA-DAD8A22C8C16}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,6 +63,14 @@ Global
 		{A9FF9F8A-B69D-4F85-BA7C-802875A329D2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A9FF9F8A-B69D-4F85-BA7C-802875A329D2}.Release|x64.ActiveCfg = Release|Any CPU
 		{A9FF9F8A-B69D-4F85-BA7C-802875A329D2}.Release|x64.Build.0 = Release|Any CPU
+		{6F073D7A-1539-4902-8FEA-DAD8A22C8C16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F073D7A-1539-4902-8FEA-DAD8A22C8C16}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F073D7A-1539-4902-8FEA-DAD8A22C8C16}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6F073D7A-1539-4902-8FEA-DAD8A22C8C16}.Debug|x64.Build.0 = Debug|Any CPU
+		{6F073D7A-1539-4902-8FEA-DAD8A22C8C16}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F073D7A-1539-4902-8FEA-DAD8A22C8C16}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F073D7A-1539-4902-8FEA-DAD8A22C8C16}.Release|x64.ActiveCfg = Release|Any CPU
+		{6F073D7A-1539-4902-8FEA-DAD8A22C8C16}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

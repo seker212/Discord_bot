@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using DiscordBot.Commands.Core.CommandAttributes;
+using DiscordBot.Commands.Core.Helpers;
 using System.Globalization;
 
 namespace DiscordBot.Commands.Core
@@ -9,10 +10,10 @@ namespace DiscordBot.Commands.Core
     {
         ulong? GuildId { get; }
         string Name { get; }
-        IReadOnlyCollection<CommandOption> Options { get; }
+        IReadOnlyCollection<ICommandOption> Options { get; }
         string Description { get; }
 
-        SlashCommandProperties Build();
+        Discord.SlashCommandBuilder CustomBuildAction(Discord.SlashCommandBuilder slashCommandBuilder);
         Task ExecuteAsync(SocketSlashCommand command);
     }
 
@@ -21,7 +22,7 @@ namespace DiscordBot.Commands.Core
         public ulong? GuildId { get; }
         public string Description { get; }
         public string Name { get; }
-        public IReadOnlyCollection<CommandOption> Options { get; }
+        public IReadOnlyCollection<ICommandOption> Options { get; }
 
         protected Command()
         {
@@ -33,17 +34,7 @@ namespace DiscordBot.Commands.Core
             Options = attributes.Where(x => x.GetType() == typeof(OptionAttribute)).Select(x => new CommandOption((x as OptionAttribute)!)).ToList();
         }
 
-        public SlashCommandProperties Build()
-        {
-            var builder = new SlashCommandBuilder()
-                .WithName(Name)
-                .WithDescription(Description);
-            foreach (var option in Options)
-                builder.AddOption(option.Name, option.Type, option.Description);
-            return CustomBuildAction(builder).Build();
-        }
-
-        protected virtual SlashCommandBuilder CustomBuildAction(SlashCommandBuilder slashCommandBuilder)
+        public virtual Discord.SlashCommandBuilder CustomBuildAction(Discord.SlashCommandBuilder slashCommandBuilder)
             => slashCommandBuilder;
 
         public abstract Task ExecuteAsync(SocketSlashCommand command);

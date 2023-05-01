@@ -7,7 +7,8 @@ namespace DiscordBot.Commands.Core
     {
         string Description { get; }
         string Name { get; }
-        ApplicationCommandOptionType Type { get; }
+        CommandOptionType Type { get; }
+        bool IsRequired { get; }
 
         bool Equals(CommandOption? other);
         bool Equals(object? obj);
@@ -17,17 +18,19 @@ namespace DiscordBot.Commands.Core
 
     public record CommandOption : ICommandOption
     {
-        public CommandOption(string name, string description, ApplicationCommandOptionType type)
+        public CommandOption(string name, string description, CommandOptionType type, bool isRequired)
         {
             Name = name;
             Description = description;
             Type = type;
+            IsRequired = isRequired;
         }
 
-        public CommandOption(OptionAttribute optionAttribute) : this(optionAttribute.Name, optionAttribute.Description, optionAttribute.Type) { }
+        public CommandOption(OptionAttribute optionAttribute) : this(optionAttribute.Name, optionAttribute.Description, optionAttribute.Type, optionAttribute.IsRequired) { }
 
         public string Name { get; }
         public string Description { get; }
-        public ApplicationCommandOptionType Type { get; }
+        public CommandOptionType Type { get; }
+        public bool IsRequired { get; }
     }
 }

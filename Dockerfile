@@ -13,7 +13,8 @@ RUN apk update && \
         apk add opus-tools && \
         apk add libsodium && \
         apk add icu-dev && \
-        apk add ffmpeg
+        apk add ffmpeg && \
+        apk add yt-dlp
 COPY --from=build /app/publish .
 RUN ln -s /usr/lib/libopus.so.0.8.0 /app/libopus.so
 RUN ln -s /usr/lib/libsodium.so.23.3.0 /app/libsodium.so

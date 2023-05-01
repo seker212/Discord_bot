@@ -16,14 +16,14 @@ namespace DiscordBot.Core.Voice
         /// <summary>
         /// Returns guild's voice channel, to which the audio client is connected.
         /// </summary>
-        /// <param name="guildId">Guild'd Id</param>
+        /// <param name="guildId">Guild's Id</param>
         /// <returns>Voice channel object</returns>
         IVoiceChannel GetGuildActiveVoiceChannel(ulong guildId);
 
         /// <summary>
         /// Returns guild's active audio client object.
         /// </summary>
-        /// <param name="guildId">Guild'd Id</param>
+        /// <param name="guildId">Guild's Id</param>
         /// <returns>Audio client object</returns>
         IAudioClient GetGuildAudioClient(ulong guildId);
 
@@ -44,6 +44,20 @@ namespace DiscordBot.Core.Voice
         /// <exception cref="ArgumentNullException"><paramref name="channel"/> was <see cref="null"/>.</exception>
         /// <exception cref="ArgumentException">Given channel or it's guild doesn't have active voice channel.</exception>
         Task LeaveChannelAsync(IVoiceChannel channel);
+
+        /// <summary>
+        /// Checks if the guild already has active audio client.
+        /// </summary>
+        /// <param name="guildId">Guild's Id</param>
+        /// <returns>True if guild has registered active instance of <see cref="IAudioClient"/>.</returns>
+        bool HasActiveAudioPlayer(ulong guildId);
+
+        /// <summary>
+        /// Checks if the guild already has active audio player.
+        /// </summary>
+        /// <param name="guildId">Guild's Id</param>
+        /// <returns>True if guild has registered active instance of <see cref="IAudioPlayer"/>.</returns>
+        bool HasActiveAudioClient(ulong guildId);
     }
 
     /// <inheritdoc cref="IAudioClientManager"/>
@@ -134,6 +148,15 @@ namespace DiscordBot.Core.Voice
                 _audioPlayersCache.Add(audioClient, player);
                 return player;
             }
+        }
+
+        public bool HasActiveAudioPlayer(ulong guildId) => _audioClientsCache.ContainsKey(guildId);
+
+        public bool HasActiveAudioClient(ulong guildId)
+        {
+            if (!_audioClientsCache.ContainsKey(guildId))
+                return false;
+            return _audioPlayersCache.ContainsKey(_audioClientsCache[guildId].Client);
         }
     }
 }

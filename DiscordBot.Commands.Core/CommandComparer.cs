@@ -24,9 +24,8 @@ namespace DiscordBot.Commands.Core
         public bool CommandSyntaxEquals(ICommand command, SocketSlashCommand socketCommand)
         {
             var sameName = command.Name.Equals(socketCommand.CommandName);
-            var sameArgumentsCount = command.Options.Count == socketCommand.Data.Options.Count;
-            var sameOptions = command.Options.All(x => socketCommand.Data.Options.Any(y => CommandOptionSyntaxEquals(x, y)));
-            return sameName && sameArgumentsCount && sameOptions;
+            var sameOptions = command.Options.Where(x => x.IsRequired).All(x => socketCommand.Data.Options.Any(y => CommandOptionSyntaxEquals(x, y)));
+            return sameName && sameOptions;
         }
 
         /// <summary>
@@ -38,8 +37,8 @@ namespace DiscordBot.Commands.Core
         public bool CommandOptionSyntaxEquals(ICommandOption commandOption, SocketSlashCommandDataOption socketCommandOption)
         {
             var sameName = commandOption.Name.Equals(socketCommandOption.Name);
-            var sameType = commandOption.Type.Equals(socketCommandOption.Type);
-            return sameName && sameType;
+            //TODO: Type comparing
+            return sameName;
         }
 
         /// <summary>
@@ -65,9 +64,10 @@ namespace DiscordBot.Commands.Core
         public bool CommandOptionEquals(ICommandOption commandOption, SocketApplicationCommandOption socketCommandOption)
         {
             var sameName = commandOption.Name.Equals(socketCommandOption.Name);
-            var sameType = commandOption.Type.Equals(socketCommandOption.Type);
+            //TODO: Type comparing
             var sameDescription = commandOption.Description.Equals(socketCommandOption.Description);
-            return sameName && sameType && sameDescription;
+            var sameRequirement = commandOption.IsRequired == socketCommandOption.IsRequired;
+            return sameName && sameDescription && sameRequirement;
         }
     }
 }

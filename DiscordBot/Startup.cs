@@ -13,6 +13,7 @@ using DiscordBot.ActivityLogging;
 using Serilog;
 using Serilog.Extensions.Autofac.DependencyInjection;
 using System.Reflection;
+using DiscordBot.Commands.Core.Helpers;
 
 namespace DiscordBot
 {
@@ -52,6 +53,8 @@ namespace DiscordBot
             builder.RegisterType<VoiceChannelActivityHandler>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(OofReactionHandler))!).Where(x => x.IsClass && !x.IsAbstract && x.IsAssignableTo<IMessageReceivedHandler>()).AsImplementedInterfaces().SingleInstance();
             builder.RegisterSerilog(loggerConfiguration);
+            builder.RegisterType<Commands.Core.Helpers.SlashCommandBuilder>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<CommandOptionConverter>().AsImplementedInterfaces().SingleInstance();
             return builder.Build();
         }
 
@@ -61,7 +64,11 @@ namespace DiscordBot
 
             var actionList = new List<Action>()
             {
-                () => Task.WaitAll(slashCommandsManager.RemoveUnknownCommandsAsync(), slashCommandsManager.RegisterCommandsAsync())
+                async () => 
+                { 
+                    await slashCommandsManager.RemoveUnknownCommandsAsync();
+                    await slashCommandsManager.RegisterCommandsAsync();
+                }
             };
 
             return actionList.Select(x => new Task(x));

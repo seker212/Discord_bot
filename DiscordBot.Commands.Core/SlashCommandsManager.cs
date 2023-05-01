@@ -1,4 +1,5 @@
 ﻿using Discord.WebSocket;
+using DiscordBot.Commands.Core.Helpers;
 using DiscordBot.Core.Helpers;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
@@ -21,45 +22,48 @@ namespace DiscordBot.Commands.Core
         private readonly IEnumerable<ICommand> _commands;
         private readonly ICommandComparer _commandComparer;
         private readonly ILogger<SlashCommandsManager> _logger;
+        private readonly ISlashCommandBuilder _commandBuilder;
 
-        public SlashCommandsManager(DiscordSocketClient client, IEnumerable<ICommand> commands, ILogger<SlashCommandsManager> logger, ICommandComparer commandComparer)
+        public SlashCommandsManager(DiscordSocketClient client, IEnumerable<ICommand> commands, ILogger<SlashCommandsManager> logger, ICommandComparer commandComparer, ISlashCommandBuilder commandBuilder)
         {
             _client = client;
             _commands = commands;
             _logger = logger;
             _commandComparer = commandComparer;
+            _commandBuilder = commandBuilder;
         }
 
         public Task RemoveUnknownCommandsAsync()
         {
             return Task.Run(() =>
             {
-                var serverCommands = GetRegisteredCommands();
+                var serverCommands = GetRegisteredCommandsAsync();
 
                 var removalTasks = serverCommands
                     .Where(serverCmd => !_commands.Any(x => _commandComparer.CommandEquals(x, serverCmd)))
-                    .Select(serverCmd => new Task(async () => await RemoveServerCommandAsync(serverCmd)));
-                MultipleTaskRunner.RunTasksAsync(removalTasks);
+                    .Select(serverCmd => RemoveServerCommandAsync(serverCmd))
+                    .ToArray();
+                Task.WaitAll(removalTasks);
             });
         }
 
-        private IEnumerable<SocketApplicationCommand> GetRegisteredCommands()
+        private IEnumerable<SocketApplicationCommand> GetRegisteredCommandsAsync()
         {
             var serverCommands = new ConcurrentBag<SocketApplicationCommand>();
-            
-            Task GetAddCommandsTask(Func<Task<IReadOnlyCollection<SocketApplicationCommand>>> commandsGetter)
-            => new(async () =>
+
+            Func<Task> GetAddCommandsFunc(Func<Task<IReadOnlyCollection<SocketApplicationCommand>>> commandsGetter)
+            => async () =>
             {
                 var commandsCollection = await commandsGetter();
                 foreach (var command in commandsCollection)
                     serverCommands.Add(command);
-            });
+            };
 
-            var requestTasks = _client.Guilds.Select(guild => GetAddCommandsTask(() => guild.GetApplicationCommandsAsync()))
-                    .Append(GetAddCommandsTask(() => _client.GetGlobalApplicationCommandsAsync()));
-            
-            MultipleTaskRunner.RunTasksAsync(requestTasks);
-            
+            var requestTasks = _client.Guilds.Select(guild => GetAddCommandsFunc(async () => await guild.GetApplicationCommandsAsync()))
+                    .Append(GetAddCommandsFunc(async () => await _client.GetGlobalApplicationCommandsAsync()))
+                    .Select(f => f())
+                    .ToArray();
+            Task.WaitAll(requestTasks);
             return serverCommands;
         }
 
@@ -89,14 +93,14 @@ namespace DiscordBot.Commands.Core
                 {
                     var guild = _client.GetGuild(command.GuildId.Value);
                     _logger.LogDebug("Registering guild slash command {CommandName} for guild {GuildName}", command.Name, guild.Name);
-                    await guild.CreateApplicationCommandAsync(command.Build());
+                    await guild.CreateApplicationCommandAsync(_commandBuilder.Build(command));
                     _logger.LogDebug("Registered guild slash command {CommandName} for guild {GuildName}", command.Name, guild.Name);
                 });
             else
                 return Task.Run(async () =>
                 {
                     _logger.LogDebug("Registering global slash command {CommandName}", command.Name);
-                    await _client.CreateGlobalApplicationCommandAsync(command.Build());
+                    await _client.CreateGlobalApplicationCommandAsync(_commandBuilder.Build(command));
                     _logger.LogDebug("Registered global slash command {CommandName}", command.Name);
                 });
         }

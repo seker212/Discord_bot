@@ -22,4 +22,4 @@ six==1.16.0
 typing_extensions==4.1.1
 urllib3==1.26.5
 yarl==1.7.2
--e git+https://github.com/ytdl-patched/youtube-dl@2023.03.20.43044#egg=youtube-dl
+-e git+https://github.com/ytdl-patched/youtube-dl@2023.06.20.40298#egg=youtube-dl

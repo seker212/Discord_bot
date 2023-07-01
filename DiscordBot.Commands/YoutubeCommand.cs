@@ -7,9 +7,7 @@ using DiscordBot.Commands.Helpers.Models;
 using DiscordBot.Core.Voice;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 
 namespace DiscordBot.Commands
 {
@@ -22,11 +20,13 @@ namespace DiscordBot.Commands
     {
         private readonly IAudioClientManager _audioClientManager;
         private readonly ILogger<YoutubeCommand> _logger;
+        private Dictionary<ulong, Queue<YoutubeVideoData>> _videoQueues;
 
         public YoutubeCommand(IAudioClientManager audioClientManager, ILogger<YoutubeCommand> logger)
         {
             _audioClientManager = audioClientManager;
             _logger = logger;
+            _videoQueues = new();
         }
 
         public override Task ExecuteAsync(SocketSlashCommand command)
@@ -39,17 +39,42 @@ namespace DiscordBot.Commands
                 if (targetChannel is SocketVoiceChannel voiceChannel)
                 {
                     var videoData = command.GetOptionValue("url") is not null ? GetVideoDataFromUri(command.GetOptionValue("url") as string) : GetVideoDataFromQuery(command.GetOptionValue("query") as string);
-                    command.ModifyOriginalResponseAsync(m => { m.Embed = BuildEmbed(videoData); m.Content = null; });
-                    _logger.LogDebug("Connecting to channel {vc}", voiceChannel.Name);
-                    var audioClient = await _audioClientManager.JoinChannelAsync(voiceChannel);
-                    try
+
+                    if (!_videoQueues.ContainsKey(command.GuildId.Value))
+                        _videoQueues.Add(command.GuildId.Value, new());
+                    var queue = _videoQueues[command.GuildId.Value];
+                    queue.Enqueue(videoData);
+                    if (queue.Count > 1)
                     {
-                        await PlayAudio(videoData, audioClient);
+                        command.ModifyOriginalResponseAsync(m => { m.Embed = BuildEmbed(videoData, $"Added to queue on {queue.Count - 1} position"); m.Content = null; });
                     }
-                    finally
+                    else
                     {
-                        _logger.LogDebug("Leaving channel");
-                        await _audioClientManager.LeaveChannelAsync(voiceChannel);
+                        command.ModifyOriginalResponseAsync(m => { m.Embed = BuildEmbed(videoData, "Now playing"); m.Content = null; });
+                        var skipMsg = true;
+                        _logger.LogDebug("Connecting to channel {vc}", voiceChannel.Name);
+                        var audioClient = await _audioClientManager.JoinChannelAsync(voiceChannel);
+                        try
+                        {
+                            while (queue.Count > 0)
+                            {
+                                var playingVideoData = queue.Peek();
+                                if (!skipMsg)
+                                    command.Channel.SendMessageAsync(embed: BuildEmbed(playingVideoData, "Now playing"));
+                                else
+                                    skipMsg = false;
+                                await PlayAudio(playingVideoData, audioClient);
+                                queue.Dequeue();
+                            }
+
+                        }
+                        finally
+                        {
+                            _logger.LogDebug("Leaving channel");
+                            await _audioClientManager.LeaveChannelAsync(voiceChannel);
+                            _logger.LogDebug("Clearing video queue for guild");
+                            queue.Clear();
+                        }
                     }
                 }
             });
@@ -120,11 +145,11 @@ namespace DiscordBot.Commands
             return JsonConvert.DeserializeObject<YoutubeVideoData>(youtubeProcess.StandardOutput.ReadToEnd())!;
         }
 
-        private Embed BuildEmbed(YoutubeVideoData videoData)
+        private Embed BuildEmbed(YoutubeVideoData videoData, string title)
         {
             var builder = new EmbedBuilder()
             {
-                Title = "Now playing",
+                Title = title,
                 ThumbnailUrl = videoData.ThumbnailUrl,
                 Url = videoData.YoutubeUrl,
                 Description = $"Title: *** {videoData.Title} *** \nTime: {ConvertVideoDuratiuon(videoData.Duration)}"

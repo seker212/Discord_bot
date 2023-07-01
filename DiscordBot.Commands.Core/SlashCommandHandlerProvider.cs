@@ -1,6 +1,8 @@
-﻿using Discord.WebSocket;
+﻿using Discord;
+using Discord.WebSocket;
 using DiscordBot.Core.Providers;
 using Microsoft.Extensions.Logging;
+using System.Reflection;
 
 namespace DiscordBot.Commands.Core
 {
@@ -22,7 +24,7 @@ namespace DiscordBot.Commands.Core
         {
             return Task.Run(async () => 
             {
-                using (_logger.BeginScope(new Dictionary<string, object>() { { "CommandCallID", commandInput.Id }, { "GuildId", commandInput.GuildId }, { "CommandName", commandInput.CommandName }, { "CommandArguments", commandInput.Data.Options.ToDictionary(x => x.Name, x => x.Value) } }))
+                using (_logger.BeginScope(new Dictionary<string, object?>() { { "CommandCallID", commandInput.Id }, { "GuildId", commandInput.GuildId }, { "CommandName", commandInput.CommandName }, { "CommandArguments", commandInput.Data.Options.ToDictionary(x => x.Name, x => x.Value) } }))
                 {
                     _logger.LogDebug("Recieved slash command");
                     ICommand command = null!;
@@ -33,7 +35,19 @@ namespace DiscordBot.Commands.Core
                         await commandInput.RespondAsync($"Command with name {commandInput.CommandName} was not found");
                     }
                     try { 
-                        if (command is not null) 
+                        if (commandInput.GuildId is not null && command.RequiredGuildPermission.HasValue)
+                        {
+                            var guildUser = commandInput.User as IGuildUser;
+                            if (guildUser!.GuildPermissions.Has(command.RequiredGuildPermission.Value))
+                                await command.ExecuteAsync(commandInput);
+                            else
+                            {
+                                _logger.LogWarning("User {Username} tried to invoke command {CommandName} without guild permission {GuildPermission}", guildUser.DisplayName, command.Name, command.RequiredGuildPermission.Value);
+                                await commandInput.FollowupAsync($"You don't have permission to use this command.");
+                            }
+
+                        }
+                        else
                             await command.ExecuteAsync(commandInput); 
                     }
                     catch (Exception ex)

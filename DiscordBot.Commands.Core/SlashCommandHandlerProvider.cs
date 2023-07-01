@@ -43,7 +43,7 @@ namespace DiscordBot.Commands.Core
                             else
                             {
                                 _logger.LogWarning("User {Username} tried to invoke command {CommandName} without guild permission {GuildPermission}", guildUser.DisplayName, command.Name, command.RequiredGuildPermission.Value);
-                                await commandInput.FollowupAsync($"You don't have permission to use this command.");
+                                await commandInput.RespondAsync($"You don't have permission to use this command.");
                             }
 
                         }

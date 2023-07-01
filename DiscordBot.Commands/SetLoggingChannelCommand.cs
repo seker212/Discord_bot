@@ -10,6 +10,7 @@ namespace DiscordBot.Commands
     [Name("setloggingchannel")]
     [Description("Set channel for displaying logs")]
     [Option("channel", "text channel", CommandOptionType.GuildTextChannel)]
+    [RequiredPermission(GuildPermission.ManageGuild)]
     public class SetLoggingChannelCommand : Command
     {
         private readonly ILogger<SetLoggingChannelCommand> _logger;

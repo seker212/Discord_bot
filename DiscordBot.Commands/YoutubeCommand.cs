@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Discord.Audio;
 using Discord.WebSocket;
 using DiscordBot.Commands.Core;
 using DiscordBot.Commands.Core.CommandAttributes;
@@ -43,21 +44,7 @@ namespace DiscordBot.Commands
                     var audioClient = await _audioClientManager.JoinChannelAsync(voiceChannel);
                     try
                     {
-                        _logger.LogDebug("Getting audio player for channel {voiceChannelName}", voiceChannel.Name);
-                        var player = _audioClientManager.GetAudioPlayer(audioClient);
-                        _logger.LogDebug("Starting yt process");
-                        using (var ffmpegProcess = Process.Start(new ProcessStartInfo
-                        {
-                            FileName = "ffmpeg",
-                            Arguments = $"-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5 -hide_banner -loglevel panic -i \"{videoData.DownloadUrl}\" -ac 2 -f s16le -ar 48000 pipe:1",
-                            UseShellExecute = false,
-                            RedirectStandardOutput = true
-                        }))
-                        {
-                            _logger.LogDebug("Playing stream");
-                            await player.PlayAsync(ffmpegProcess.StandardOutput.BaseStream);
-                            await Task.Delay(10); //Deleay channel leaving after sound to not instantly hear the leaving sound
-                        }
+                        await PlayAudio(videoData, audioClient);
                     }
                     finally
                     {
@@ -67,6 +54,25 @@ namespace DiscordBot.Commands
                 }
             });
             return Task.CompletedTask;
+        }
+
+        private async Task PlayAudio(YoutubeVideoData videoData, IAudioClient audioClient)
+        {
+            _logger.LogDebug("Getting audio player for channel");
+            var player = _audioClientManager.GetAudioPlayer(audioClient);
+            _logger.LogDebug("Starting yt/ffmpeg process");
+            using (var ffmpegProcess = Process.Start(new ProcessStartInfo
+            {
+                FileName = "ffmpeg",
+                Arguments = $"-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5 -hide_banner -loglevel panic -i \"{videoData.DownloadUrl}\" -ac 2 -f s16le -ar 48000 pipe:1",
+                UseShellExecute = false,
+                RedirectStandardOutput = true
+            }))
+            {
+                _logger.LogDebug("Playing stream");
+                await player.PlayAsync(ffmpegProcess.StandardOutput.BaseStream);
+                await Task.Delay(10); //Deleay channel leaving after sound to not instantly hear the leaving sound
+            }
         }
     
         private async Task CheckArguments(SocketSlashCommand command)

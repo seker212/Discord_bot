@@ -2,7 +2,6 @@
 using Discord.WebSocket;
 using DiscordBot.Core.Providers;
 using Microsoft.Extensions.Logging;
-using System.Reflection;
 
 namespace DiscordBot.Commands.Core
 {
@@ -34,7 +33,8 @@ namespace DiscordBot.Commands.Core
                         _logger.LogWarning("Command with name {CommandName} was not found. GuildId: {GuildId}", commandInput.CommandName, commandInput.GuildId);
                         await commandInput.RespondAsync($"Command with name {commandInput.CommandName} was not found");
                     }
-                    try { 
+                    try 
+                    { 
                         if (commandInput.GuildId is not null && command.RequiredGuildPermission.HasValue)
                         {
                             var guildUser = commandInput.User as IGuildUser;

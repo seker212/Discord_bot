@@ -12,6 +12,7 @@ namespace DiscordBot.Commands.Core
         string Name { get; }
         IReadOnlyCollection<ICommandOption> Options { get; }
         string Description { get; }
+        GuildPermission? RequiredGuildPermission { get; }
 
         Discord.SlashCommandBuilder CustomBuildAction(Discord.SlashCommandBuilder slashCommandBuilder);
         Task ExecuteAsync(SocketSlashCommand command);
@@ -23,6 +24,7 @@ namespace DiscordBot.Commands.Core
         public string Description { get; }
         public string Name { get; }
         public IReadOnlyCollection<ICommandOption> Options { get; }
+        public GuildPermission? RequiredGuildPermission { get; }
 
         protected Command()
         {
@@ -32,6 +34,8 @@ namespace DiscordBot.Commands.Core
             var guildIdAttribute = attributes.SingleOrDefault(x => x.GetType() == typeof(GuildIdAttribute)) as GuildIdAttribute;
             GuildId = guildIdAttribute is null ? null : guildIdAttribute.Id;
             Options = attributes.Where(x => x.GetType() == typeof(OptionAttribute)).Select(x => new CommandOption((x as OptionAttribute)!)).ToList();
+            var requiredGuildPermissionAttribute = attributes.SingleOrDefault(x => x.GetType() == typeof(RequiredPermissionAttribute)) as RequiredPermissionAttribute;
+            RequiredGuildPermission = requiredGuildPermissionAttribute?.GuildPermission;
         }
 
         public virtual Discord.SlashCommandBuilder CustomBuildAction(Discord.SlashCommandBuilder slashCommandBuilder)

@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:7.0-alpine as build
 WORKDIR /src
 COPY . .
-RUN dotnet build DiscordBot/DiscordBot.csproj -c Release -o /app/publish
+RUN dotnet publish DiscordBot/DiscordBot.csproj -c Release -o /app/publish -p:DebugType=None -p:DebugSymbols=false
 
 FROM mcr.microsoft.com/dotnet/runtime:6.0-alpine
 WORKDIR /app
@@ -19,4 +19,6 @@ COPY --from=build /app/publish .
 RUN ln -s /usr/lib/libopus.so.0.8.0 /app/libopus.so
 RUN ln -s /usr/lib/libsodium.so.23.3.0 /app/libsodium.so
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+ENV DATABASE_PATH=/app/data/data.db
+ENV AUDIO_PATH=/app/audio
 ENTRYPOINT [ "dotnet", "DiscordBot.dll" ]

@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "DiscordBot": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DATABASE_PATH": "../../../../data/data.db",
+        "AUDIO_PATH": "../../../../audio/"
+      }
+    }
+  }
+}

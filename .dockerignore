@@ -1,6 +1,7 @@
 # Docker build files
 Dockerfile
 .dockerignore
+docker-compose*
 
 # Git
 .git
@@ -25,6 +26,12 @@ test/
 # Visual Studio Code
 .vscode/
 
+# Visual Studio
+.vs/
+
+# Github
+.github/
+
 # particular files
 README.md
 timer.py
@@ -32,3 +39,6 @@ token*
 *.log
 settings.json
 poker/
+data/
+audio/
+precompiled-bin/

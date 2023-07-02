@@ -1,7 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using DiscordBot.Core.Interfaces;
-using DiscordBot.Core.Providers;
 using Microsoft.Extensions.Logging;
 
 namespace DiscordBot.ActivityLogging
@@ -9,21 +8,21 @@ namespace DiscordBot.ActivityLogging
     public class VoiceChannelActivityHandler : IVoiceChannelActivityHandler
     {
         private readonly ILogger<VoiceChannelActivityHandler> _logger;
-        private readonly IChannelDataProvider _channelDataProvider;
+        private readonly IConfigProvider _configProvider;
         private readonly IDiscordClient _client;
 
-        public VoiceChannelActivityHandler(ILogger<VoiceChannelActivityHandler> logger, IChannelDataProvider channelDataProvider, IDiscordClient client)
+        public VoiceChannelActivityHandler(ILogger<VoiceChannelActivityHandler> logger, IConfigProvider configProvider, IDiscordClient client)
         {
             _logger = logger;
-            _channelDataProvider = channelDataProvider;
+            _configProvider = configProvider;
             _client = client;
         }
 
-        private async Task<SocketTextChannel> GetTextChannel(SocketVoiceChannel beforeVoiceChannel, SocketVoiceChannel afterVoiceChannel)
+        private async Task<SocketTextChannel?> GetTextChannel(SocketVoiceChannel beforeVoiceChannel, SocketVoiceChannel afterVoiceChannel)
         {
             ulong guildId = beforeVoiceChannel == null ? afterVoiceChannel.Guild.Id : beforeVoiceChannel.Guild.Id;
-            var textChannelId = _channelDataProvider.GetChannel(guildId);
-            return textChannelId.HasValue ? await _client.GetChannelAsync(textChannelId.Value) as SocketTextChannel : null;
+            var textChannelId = _configProvider.GetParameter(guildId, "LoggingChannelId");
+            return textChannelId is null ? null : await _client.GetChannelAsync(Convert.ToUInt64(textChannelId)) as SocketTextChannel;
         }
 
         private async Task SendLogsToChannel(String mention, SocketTextChannel textChannel, String action)

@@ -413,3 +413,4 @@ settings.json
 /.vscode
 tmp/
 docker-compose.*
+data/

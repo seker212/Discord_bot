@@ -6,6 +6,11 @@ namespace DiscordBot.Core.Helpers
     {
         private readonly Dictionary<ulong, Dictionary<string, string?>> _parametersCache;
 
+        public CacheConfigProvider()
+        {
+            _parametersCache = new();
+        }
+
         public CacheConfigProvider(Dictionary<ulong, Dictionary<string, string?>> parametersCache)
         {
             _parametersCache = parametersCache;

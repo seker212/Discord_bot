@@ -1,3 +1,4 @@
+using Discord;
 using Discord.WebSocket;
 using DiscordBot.Commands.Core;
 using DiscordBot.Commands.Core.CommandAttributes;

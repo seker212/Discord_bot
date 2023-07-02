@@ -60,14 +60,13 @@ namespace DiscordBot
             builder.RegisterType<MessageReceivedHandlerProvider>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<OofReactionHandler>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<CommandComparer>().AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<LoggingChannelDataProvider>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<VoiceChannelActivityProvider>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<VoiceChannelActivityHandler>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(OofReactionHandler))!).Where(x => x.IsClass && !x.IsAbstract && x.IsAssignableTo<IMessageReceivedHandler>()).AsImplementedInterfaces().SingleInstance();
             builder.RegisterSerilog(loggerConfiguration);
             builder.RegisterType<Commands.Core.Helpers.SlashCommandBuilder>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<CommandOptionConverter>().AsImplementedInterfaces().SingleInstance();
-            builder.RegisterDecorator<LoggingChannelDataProviderDecorator, ILoggingChannelDataProvider>();
+            builder.RegisterType<DatabaseCacheConfigProvider>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<ConfigRepository>().AsImplementedInterfaces().SingleInstance();
             builder.Register(_ => GetSqliteConnection(databasePath)).As<IDbConnection>().SingleInstance();
             builder.RegisterType<SqliteCompiler>().As<Compiler>().SingleInstance();

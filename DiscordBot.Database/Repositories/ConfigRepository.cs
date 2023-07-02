@@ -7,7 +7,7 @@ namespace DiscordBot.Database.Repositories
     public interface IConfigRepository
     {
         Task<Config> Get(ulong? guildId, string key);
-        Task<IEnumerable<Config>> GetAllWithKey(string key);
+        Task<IEnumerable<Config>> GetAll();
         Task<int> InsertOrUpdate(ulong? guildId, string key, string value);
     }
 
@@ -30,8 +30,8 @@ namespace DiscordBot.Database.Repositories
                 return await _queryFactory.Query().From(TABLE_NAME).Where(new { record.Id }).UpdateAsync(new { ParameterValue = value });
         }
 
-        public async Task<IEnumerable<Config>> GetAllWithKey(string key)
-            => await _queryFactory.Query().From(TABLE_NAME).Where(new { ParameterName = key }).GetAsync<Config>();
+        public async Task<IEnumerable<Config>> GetAll()
+            => await _queryFactory.Query().From(TABLE_NAME).GetAsync<Config>();
 
         public async Task<Config> Get(ulong? guildId, string key)
             => await BuildGetQuery(guildId, key).FirstOrDefaultAsync<Config>();

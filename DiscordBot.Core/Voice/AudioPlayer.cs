@@ -158,6 +158,7 @@ namespace DiscordBot.Core.Voice
                 hasDisposedStream = true;
             }
             _buffer = new byte[_bufferSize];
+            Status = AudioPlayingStatus.NotPlaying;
             if (hasDisposedStream)
                 _logger.LogDebug("Disposed of audio streams.");
         }

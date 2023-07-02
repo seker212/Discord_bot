@@ -14,7 +14,7 @@ namespace DiscordBot.Commands
     [Option("channel", "voice channel", CommandOptionType.GuildVoiceChannel)]
     public class SoundCommand : Command
     {
-        private const string AUDIO_DIRECTORY_PATH = @"/app/audio";
+        private readonly string _audioDirectoryPath;
         private readonly IAudioClientManager _audioClientManager;
         private readonly ILogger<SoundCommand> _logger;
 
@@ -22,6 +22,7 @@ namespace DiscordBot.Commands
         {
             _audioClientManager = audioClientManager;
             _logger = logger;
+            _audioDirectoryPath = Environment.GetEnvironmentVariable("AUDIO_PATH")!;
         }
 
         public override Task ExecuteAsync(SocketSlashCommand command)
@@ -32,7 +33,7 @@ namespace DiscordBot.Commands
                 try
                 {
                     var soundName = command.Data.Options.Single(x => x.Name == "soundname").Value as string;
-                    var audioFile = new FileInfo(Path.Combine(AUDIO_DIRECTORY_PATH, $"{soundName}.mp3"));
+                    var audioFile = new FileInfo(Path.Combine(_audioDirectoryPath, $"{soundName}.mp3"));
                     _logger.LogDebug("Searching audio file in {dir} directory", audioFile.Directory?.FullName);
                     if (!audioFile.Exists)
                     {

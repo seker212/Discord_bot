@@ -27,7 +27,7 @@ namespace DiscordBot
     {
         public IContainer GetAutofacContainer()
         {
-            var databasePath = "/app/data/data.db";
+            var databasePath = Environment.GetEnvironmentVariable("DATABASE_PATH");
             var databaseFileInfo = new FileInfo(databasePath);
             if (!databaseFileInfo.Exists)
             {

@@ -14,6 +14,12 @@ using Serilog;
 using Serilog.Extensions.Autofac.DependencyInjection;
 using System.Reflection;
 using DiscordBot.Commands.Core.Helpers;
+using DiscordBot.Database;
+using Microsoft.Data.Sqlite;
+using DiscordBot.Database.Repositories;
+using SqlKata.Execution;
+using System.Data;
+using SqlKata.Compilers;
 
 namespace DiscordBot
 {
@@ -21,9 +27,15 @@ namespace DiscordBot
     {
         public IContainer GetAutofacContainer()
         {
+            var databasePath = "data/data.db";
+            
+
             var loggerConfiguration = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}");
+
+
+
 
             var builder = new ContainerBuilder();
             builder.Register(_ => new DiscordSocketConfig { MessageCacheSize = 100, GatewayIntents = GatewayIntents.All }).AsSelf().SingleInstance();
@@ -55,6 +67,11 @@ namespace DiscordBot
             builder.RegisterSerilog(loggerConfiguration);
             builder.RegisterType<Commands.Core.Helpers.SlashCommandBuilder>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<CommandOptionConverter>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterDecorator<LoggingChannelDataProviderDecorator, ILoggingChannelDataProvider>();
+            builder.RegisterType<ConfigRepository>().AsImplementedInterfaces().SingleInstance();
+            builder.Register(_ => GetSqliteConnection(databasePath)).As<IDbConnection>().SingleInstance();
+            builder.RegisterType<SqliteCompiler>().As<Compiler>().SingleInstance();
+            builder.RegisterType<QueryFactory>().AsSelf().SingleInstance();
             return builder.Build();
         }
 
@@ -72,6 +89,16 @@ namespace DiscordBot
             };
 
             return actionList.Select(x => new Task(x));
+        }
+
+        private IDbConnection GetSqliteConnection(string databasePath)
+        {
+            var dbStringBuilder = new SqliteConnectionStringBuilder()
+            {
+                DataSource = databasePath,
+                Mode = SqliteOpenMode.ReadWrite
+            };
+            return new SqliteConnection(dbStringBuilder.ConnectionString);
         }
     }
 }

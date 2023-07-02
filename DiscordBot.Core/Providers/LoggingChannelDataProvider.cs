@@ -1,16 +1,16 @@
 namespace DiscordBot.Core.Providers
 {
-    public interface IChannelDataProvider
+    public interface ILoggingChannelDataProvider
     {
         ulong? GetChannel(ulong guildId);
         void SetChannel(ulong guildId, ulong channelId);
     }
 
-    public class ChannelDataProvider : IChannelDataProvider
+    public class LoggingChannelDataProvider : ILoggingChannelDataProvider
     {
-        private readonly Dictionary<ulong, ulong> _channelDict;
+        protected readonly Dictionary<ulong, ulong> _channelDict;
 
-        public ChannelDataProvider()
+        public LoggingChannelDataProvider()
         {
             _channelDict = new Dictionary<ulong, ulong>();
         }

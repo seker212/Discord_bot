@@ -9,10 +9,10 @@ namespace DiscordBot.ActivityLogging
     public class VoiceChannelActivityHandler : IVoiceChannelActivityHandler
     {
         private readonly ILogger<VoiceChannelActivityHandler> _logger;
-        private readonly IChannelDataProvider _channelDataProvider;
+        private readonly ILoggingChannelDataProvider _channelDataProvider;
         private readonly IDiscordClient _client;
 
-        public VoiceChannelActivityHandler(ILogger<VoiceChannelActivityHandler> logger, IChannelDataProvider channelDataProvider, IDiscordClient client)
+        public VoiceChannelActivityHandler(ILogger<VoiceChannelActivityHandler> logger, ILoggingChannelDataProvider channelDataProvider, IDiscordClient client)
         {
             _logger = logger;
             _channelDataProvider = channelDataProvider;

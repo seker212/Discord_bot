@@ -48,7 +48,7 @@ namespace DiscordBot
             builder.RegisterType<MessageReceivedHandlerProvider>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<OofReactionHandler>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<CommandComparer>().AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<ChannelDataProvider>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<LoggingChannelDataProvider>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<VoiceChannelActivityProvider>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<VoiceChannelActivityHandler>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(OofReactionHandler))!).Where(x => x.IsClass && !x.IsAbstract && x.IsAssignableTo<IMessageReceivedHandler>()).AsImplementedInterfaces().SingleInstance();

@@ -13,9 +13,9 @@ namespace DiscordBot.Commands
     public class SetLoggingChannelCommand : Command
     {
         private readonly ILogger<SetLoggingChannelCommand> _logger;
-        private IChannelDataProvider _channelDataProvider;
+        private ILoggingChannelDataProvider _channelDataProvider;
 
-        public SetLoggingChannelCommand(ILogger<SetLoggingChannelCommand> logger, IChannelDataProvider channelDataProvider)
+        public SetLoggingChannelCommand(ILogger<SetLoggingChannelCommand> logger, ILoggingChannelDataProvider channelDataProvider)
         {
             _logger = logger;
             _channelDataProvider = channelDataProvider;

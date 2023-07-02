@@ -1,8 +1,7 @@
-using Discord;
 using Discord.WebSocket;
 using DiscordBot.Commands.Core;
 using DiscordBot.Commands.Core.CommandAttributes;
-using DiscordBot.Core.Providers;
+using DiscordBot.Core.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace DiscordBot.Commands
@@ -13,12 +12,12 @@ namespace DiscordBot.Commands
     public class SetLoggingChannelCommand : Command
     {
         private readonly ILogger<SetLoggingChannelCommand> _logger;
-        private ILoggingChannelDataProvider _channelDataProvider;
+        private IConfigProvider _configProvider;
 
-        public SetLoggingChannelCommand(ILogger<SetLoggingChannelCommand> logger, ILoggingChannelDataProvider channelDataProvider)
+        public SetLoggingChannelCommand(ILogger<SetLoggingChannelCommand> logger, IConfigProvider configProvider)
         {
             _logger = logger;
-            _channelDataProvider = channelDataProvider;
+            _configProvider = configProvider;
         }
 
         public override async Task ExecuteAsync(SocketSlashCommand command)
@@ -26,12 +25,12 @@ namespace DiscordBot.Commands
             try 
             {
                 var guildId = command.GuildId;
-                var targetChannel = command.Data.Options.Single(x => x.Name == "channel").Value as SocketChannel;
+                var targetChannel = command.GetRequiredOptionValue("channel") as SocketChannel;
 
                 if(targetChannel is SocketTextChannel textChannel)
                 {
                     _logger.LogDebug("Set logger channel to {ch} in guild {id}", textChannel, guildId);
-                    _channelDataProvider.SetChannel(guildId.Value, textChannel.Id);
+                    _configProvider.SetParameter(guildId.Value, "LoggingChannelId", textChannel.Id.ToString());
                     await command.RespondAsync("Channel set");
                 } 
                 else

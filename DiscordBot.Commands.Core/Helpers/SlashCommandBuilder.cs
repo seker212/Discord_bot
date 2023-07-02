@@ -20,7 +20,8 @@ namespace DiscordBot.Commands.Core.Helpers
         {
             var builder = new Discord.SlashCommandBuilder()
                 .WithName(command.Name)
-                .WithDescription(command.Description);
+                .WithDescription(command.Description)
+                .WithDefaultMemberPermissions(command.RequiredGuildPermission);
             foreach (var option in command.Options)
             {
                 ChannelType? channelType = option.Type switch

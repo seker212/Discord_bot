@@ -1,5 +1,4 @@
-﻿using Discord;
-using Discord.WebSocket;
+﻿using Discord.WebSocket;
 using DiscordBot.Core.Providers;
 using Microsoft.Extensions.Logging;
 
@@ -23,7 +22,7 @@ namespace DiscordBot.Commands.Core
         {
             return Task.Run(async () => 
             {
-                using (_logger.BeginScope(new Dictionary<string, object?>() { { "CommandCallID", commandInput.Id }, { "GuildId", commandInput.GuildId }, { "CommandName", commandInput.CommandName }, { "CommandArguments", commandInput.Data.Options.ToDictionary(x => x.Name, x => x.Value) } }))
+                using (_logger.BeginScope(new Dictionary<string, object>() { { "CommandCallID", commandInput.Id }, { "GuildId", commandInput.GuildId }, { "CommandName", commandInput.CommandName }, { "CommandArguments", commandInput.Data.Options.ToDictionary(x => x.Name, x => x.Value) } }))
                 {
                     _logger.LogDebug("Recieved slash command");
                     ICommand command = null!;
@@ -33,21 +32,8 @@ namespace DiscordBot.Commands.Core
                         _logger.LogWarning("Command with name {CommandName} was not found. GuildId: {GuildId}", commandInput.CommandName, commandInput.GuildId);
                         await commandInput.RespondAsync($"Command with name {commandInput.CommandName} was not found");
                     }
-                    try 
-                    { 
-                        if (commandInput.GuildId is not null && command.RequiredGuildPermission.HasValue)
-                        {
-                            var guildUser = commandInput.User as IGuildUser;
-                            if (guildUser!.GuildPermissions.Has(command.RequiredGuildPermission.Value))
-                                await command.ExecuteAsync(commandInput);
-                            else
-                            {
-                                _logger.LogWarning("User {Username} tried to invoke command {CommandName} without guild permission {GuildPermission}", guildUser.DisplayName, command.Name, command.RequiredGuildPermission.Value);
-                                await commandInput.RespondAsync($"You don't have permission to use this command.");
-                            }
-
-                        }
-                        else
+                    try { 
+                        if (command is not null) 
                             await command.ExecuteAsync(commandInput); 
                     }
                     catch (Exception ex)

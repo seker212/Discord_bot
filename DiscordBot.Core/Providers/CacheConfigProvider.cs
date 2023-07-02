@@ -1,6 +1,6 @@
 ﻿using DiscordBot.Core.Interfaces;
 
-namespace DiscordBot.Core.Helpers
+namespace DiscordBot.Core.Providers
 {
     public class CacheConfigProvider : IConfigProvider
     {

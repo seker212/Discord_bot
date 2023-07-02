@@ -27,15 +27,18 @@ namespace DiscordBot
     {
         public IContainer GetAutofacContainer()
         {
-            var databasePath = "data/data.db";
-            
+            var databasePath = "/app/data/data.db";
+            var databaseFileInfo = new FileInfo(databasePath);
+            if (!databaseFileInfo.Exists)
+            {
+                if (!databaseFileInfo.Directory.Exists)
+                    databaseFileInfo.Directory.Create();
+                File.Move("data-template.db", databasePath, false);
+            }
 
             var loggerConfiguration = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}");
-
-
-
 
             var builder = new ContainerBuilder();
             builder.Register(_ => new DiscordSocketConfig { MessageCacheSize = 100, GatewayIntents = GatewayIntents.All }).AsSelf().SingleInstance();

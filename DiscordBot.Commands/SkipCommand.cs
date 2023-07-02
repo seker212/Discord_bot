@@ -6,14 +6,14 @@ using Microsoft.Extensions.Logging;
 
 namespace DiscordBot.Commands
 {
-    [Name("stop")]
-    [Description("Ends playing")]
-    public class StopCommand : Command
+    [Name("skip")]
+    [Description("Skips currently played yt track")]
+    public class SkipCommand : Command
     {
         private readonly IAudioClientManager _audioClientManager;
-        private readonly ILogger<StopCommand> _logger;
+        private readonly ILogger<SkipCommand> _logger;
 
-        public StopCommand(IAudioClientManager audioClientManager, ILogger<StopCommand> logger)
+        public SkipCommand(IAudioClientManager audioClientManager, ILogger<SkipCommand> logger)
         {
             _audioClientManager = audioClientManager;
             _logger = logger;
@@ -28,7 +28,7 @@ namespace DiscordBot.Commands
             }
             if (_audioClientManager.HasActiveAudioPlayer(command.GuildId.Value))
             {
-                await command.RespondAsync("Stopping playing.");
+                await command.RespondAsync("Skipping track.");
                 var audioClient = _audioClientManager.GetGuildAudioClient(command.GuildId.Value);
                 var audioPlayer = _audioClientManager.GetAudioPlayer(audioClient);
                 if (audioPlayer.Status != AudioPlayingStatus.NotPlaying)

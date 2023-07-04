@@ -1,0 +1,31 @@
+name: Build and test merge 2.0
+
+on:
+  pull_request:
+    branches: [ "master-2.0" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout target
+      uses: actions/checkout@v3
+      with:
+        ref: '${{ github.base_ref }}'
+    - name: Fetch head
+      run: git fetch origin ${{ github.head_ref }}
+    - name: Merge head
+      run: git merge --no-ff origin/${{ github.head_ref }}
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+    # Uncomment the lines below once tests are introfuced to solution 
+    # - name: Test
+    #   run: dotnet test --no-build --verbosity normal

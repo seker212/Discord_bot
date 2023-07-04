@@ -27,9 +27,9 @@ jobs:
       with:
         dotnet-version: 6.0.x
     - name: Restore dependencies
-      run: dotnet restore ./ConsoleApp1
+      run: dotnet restore
     - name: Build
-      run: dotnet build ./ConsoleApp1 --no-restore
+      run: dotnet build --no-restore
     # Uncomment the lines below once tests are introduced to the solution 
     # - name: Test
     #   run: dotnet test --no-build --verbosity normal

@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using DiscordBot.Core.Helpers;
 using DiscordBot.Core.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -10,12 +11,14 @@ namespace DiscordBot.ActivityLogging
         private readonly ILogger<VoiceChannelActivityHandler> _logger;
         private readonly IConfigProvider _configProvider;
         private readonly IDiscordClient _client;
+        private readonly ITimezoneHelper _timeZoneHelper;
 
-        public VoiceChannelActivityHandler(ILogger<VoiceChannelActivityHandler> logger, IConfigProvider configProvider, IDiscordClient client)
+        public VoiceChannelActivityHandler(ILogger<VoiceChannelActivityHandler> logger, IConfigProvider configProvider, IDiscordClient client, ITimezoneHelper timeZoneHelper)
         {
             _logger = logger;
             _configProvider = configProvider;
             _client = client;
+            _timeZoneHelper = timeZoneHelper;
         }
 
         private async Task<SocketTextChannel?> GetTextChannel(SocketVoiceChannel beforeVoiceChannel, SocketVoiceChannel afterVoiceChannel)
@@ -27,12 +30,13 @@ namespace DiscordBot.ActivityLogging
 
         private async Task SendLogsToChannel(String mention, SocketTextChannel textChannel, String action)
         {
-            //TODO datetime and timezone handling, issue #141
+            var timezone = _configProvider.GetParameter(textChannel.Guild.Id, "TimeZoneValue");
+            var time = _timeZoneHelper.GetCurrentTimeZoneTime(_timeZoneHelper.ConvertTimeZoneFromString(timezone));
 
             var embed = new EmbedBuilder()
             {
                 Title = "Voice status change",
-                Description = "<datetime> " + mention + " " +  action,
+                Description = $"[ {time} ]" + mention + " " + action,
             };
 
             embed.WithCurrentTimestamp();

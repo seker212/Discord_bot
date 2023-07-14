@@ -75,6 +75,7 @@ namespace DiscordBot
             builder.Register(_ => GetSqliteConnection(databasePath)).As<IDbConnection>().SingleInstance();
             builder.RegisterType<SqliteCompiler>().As<Compiler>().SingleInstance();
             builder.RegisterType<QueryFactory>().AsSelf().SingleInstance();
+            builder.RegisterType<TimeZoneHelper>().AsImplementedInterfaces().SingleInstance();
             return builder.Build();
         }
 

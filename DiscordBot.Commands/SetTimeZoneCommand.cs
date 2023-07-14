@@ -29,10 +29,10 @@ namespace DiscordBot.Commands
         {
             try
             {
-                var guildId = command.GuildId;
+                var guildId = command.GuildId!;
                 var option = command.Data.Options.Single(x => x.Name == "timezone").Value as string;
 
-                var timezone = _timeZoneHelper.ConvertTimeZoneFromString(option);
+                var timezone = _timeZoneHelper.ConvertTimeZoneFromString(option!);
 
                 if (timezone != null)
                 {

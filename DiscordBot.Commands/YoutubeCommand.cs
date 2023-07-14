@@ -46,11 +46,11 @@ namespace DiscordBot.Commands
                     queue.Enqueue(videoData);
                     if (queue.Count > 1)
                     {
-                        command.ModifyOriginalResponseAsync(m => { m.Embed = BuildEmbed(videoData, $"Added to queue on {queue.Count - 1} position"); m.Content = null; });
+                        await command.ModifyOriginalResponseAsync(m => { m.Embed = BuildEmbed(videoData, $"Added to queue on {queue.Count - 1} position"); m.Content = null; });
                     }
                     else
                     {
-                        command.ModifyOriginalResponseAsync(m => { m.Embed = BuildEmbed(videoData, "Now playing"); m.Content = null; });
+                        await command.ModifyOriginalResponseAsync(m => { m.Embed = BuildEmbed(videoData, "Now playing"); m.Content = null; });
                         var skipMsg = true;
                         _logger.LogDebug("Connecting to channel {vc}", voiceChannel.Name);
                         var audioClient = await _audioClientManager.JoinChannelAsync(voiceChannel);
@@ -60,7 +60,7 @@ namespace DiscordBot.Commands
                             {
                                 var playingVideoData = queue.Peek();
                                 if (!skipMsg)
-                                    command.Channel.SendMessageAsync(embed: BuildEmbed(playingVideoData, "Now playing"));
+                                    await command.Channel.SendMessageAsync(embed: BuildEmbed(playingVideoData, "Now playing"));
                                 else
                                     skipMsg = false;
                                 await PlayAudio(playingVideoData, audioClient);

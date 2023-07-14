@@ -31,7 +31,7 @@ namespace DiscordBot.ActivityLogging
         private async Task SendLogsToChannel(String mention, SocketTextChannel textChannel, String action)
         {
             var timezone = _configProvider.GetParameter(textChannel.Guild.Id, "TimeZoneValue");
-            var time = _timeZoneHelper.GetCurrentTimeZoneTime(_timeZoneHelper.ConvertTimeZoneFromString(timezone));
+            var time = _timeZoneHelper.GetCurrentTimeZoneTime(_timeZoneHelper.ConvertTimeZoneFromString(timezone!)!);
 
             var embed = new EmbedBuilder()
             {

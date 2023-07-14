@@ -26,7 +26,7 @@ namespace DiscordBot.Commands
         {
             try 
             {
-                var guildId = command.GuildId;
+                var guildId = command.GuildId!;
                 var targetChannel = command.GetRequiredOptionValue("channel") as SocketChannel;
 
                 if(targetChannel is SocketTextChannel textChannel)

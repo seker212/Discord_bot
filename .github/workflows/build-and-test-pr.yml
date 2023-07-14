@@ -18,10 +18,12 @@ jobs:
       run: |
           git config --local user.email "mock@mail.com"
           git config --local user.name "Github Actions"
+    - name: Add remote
+      run: git remote add incoming ${{ github.event.pull_request.head.repo.clone_url }}
     - name: Fetch head
-      run: git fetch --unshallow origin ${{ github.head_ref }}
+      run: git fetch --unshallow incoming ${{ github.head_ref }}
     - name: Merge head
-      run: git merge --no-ff origin/${{ github.head_ref }}
+      run: git merge --no-ff incoming/${{ github.head_ref }}
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:

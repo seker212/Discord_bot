@@ -26,23 +26,16 @@ namespace DiscordBot.Commands.SoundCommands
             {
                 var name = command.GetRequiredOptionValue("name");
 
-                if(GetSoundNames().Contains(name))
-                {
-                    var file = new FileInfo(AudioDirectoryPath + name + ".mp3");
+                var file = new FileInfo(AudioDirectoryPath + name + ".mp3");
                     
-                    if(file.Exists)
-                    {
-                        file.Delete();
-                        await command.ModifyOriginalResponseAsync(m => m.Content = "File " + name + ".mp3 removed");
-                    }
-                    else
-                    {
-                        await command.ModifyOriginalResponseAsync(m => m.Content = "There is no such file to be removed");
-                    }
+                if(file.Exists)
+                {
+                    file.Delete();
+                    await command.ModifyOriginalResponseAsync(m => m.Content = "File " + name + ".mp3 removed");
                 }
                 else
                 {
-                    await command.ModifyOriginalResponseAsync(m => m.Content = "There is no such file to remove");
+                    await command.ModifyOriginalResponseAsync(m => m.Content = "There is no such file to be removed");
                 }
             }
             catch (Exception ex)

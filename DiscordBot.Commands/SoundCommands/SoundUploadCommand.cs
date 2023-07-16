@@ -40,7 +40,7 @@ namespace DiscordBot.Commands.SoundCommands
                             message = "File " + attachment.Filename + " was replaced";
                         }
 
-                        using (var file = new FileStream(AudioDirectoryPath + "/" + attachment.Filename, fileMode))
+                        using (var file = new FileStream(AudioDirectoryPath + Path.DirectorySeparatorChar + attachment.Filename, fileMode))
                         {
                             await response.Content.CopyToAsync(file);
                             await command.ModifyOriginalResponseAsync(m => {

@@ -20,7 +20,7 @@ namespace DiscordBot.Commands.SoundCommands
 
         public override async Task ExecuteAsync(SocketSlashCommand command)
         {
-            command.DeferAsync().Wait();
+            await command.DeferAsync();
 
             try
             {

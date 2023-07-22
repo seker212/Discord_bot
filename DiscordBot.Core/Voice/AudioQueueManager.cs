@@ -11,6 +11,13 @@ namespace DiscordBot.Core.Voice
         private readonly IDictionary<ulong, Task> _playingTaskCache;
         private readonly ILogger<AudioQueueManager> _logger;
 
+        public AudioQueueManager(IAudioClientManager audioClientManager, ILogger<AudioQueueManager> logger)
+        {
+            _guildsQueues = new Dictionary<ulong, Queue<AudioQueueEntry>>();
+            _audioClientManager = audioClientManager;
+            _playingTaskCache = new Dictionary<ulong, Task>();
+            _logger = logger;
+        }
 
         public int Add(ulong guildId, AudioQueueEntry audioQueueEntry)
         {
@@ -30,14 +37,22 @@ namespace DiscordBot.Core.Voice
             return _guildsQueues[guildId].Count;
         }
 
-        public void Skip(ulong guildId)
+        public async Task Skip(ulong guildId)
         {
-            throw new NotImplementedException();
+            if (_audioClientManager.HasActiveAudioPlayer(guildId))
+            {
+                var audioClient = _audioClientManager.GetGuildAudioClient(guildId);
+                var audioPlayer = _audioClientManager.GetAudioPlayer(audioClient);
+                if (audioPlayer.Status != AudioPlayingStatus.NotPlaying)
+                    await audioPlayer.StopAsync();
+            }
         }
 
-        public void Stop(ulong guildId)
+        public async Task Stop(ulong guildId)
         {
-            throw new NotImplementedException();
+            if (_guildsQueues.ContainsKey(guildId))
+                _guildsQueues[guildId].Clear();
+            await Skip(guildId);
         }
 
         public async Task PlayQueueAsync(ulong guildId)

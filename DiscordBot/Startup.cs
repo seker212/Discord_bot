@@ -9,6 +9,7 @@ using DiscordBot.Core.Interfaces;
 using DiscordBot.Core.Providers;
 using DiscordBot.Core.Voice;
 using DiscordBot.MessageHandlers;
+using DiscordBot.MessageHandlers.Helpers;
 using DiscordBot.ActivityLogging;
 using Serilog;
 using Serilog.Extensions.Autofac.DependencyInjection;
@@ -76,6 +77,7 @@ namespace DiscordBot
             builder.RegisterType<SqliteCompiler>().As<Compiler>().SingleInstance();
             builder.RegisterType<QueryFactory>().AsSelf().SingleInstance();
             builder.RegisterType<TimeZoneHelper>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<RegexResponsesHelper>().AsImplementedInterfaces().SingleInstance();
             return builder.Build();
         }
 

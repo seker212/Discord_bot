@@ -8,8 +8,8 @@ namespace DiscordBot.Core.Voice
     {
         int Add(ulong guildId, AudioQueueEntry audioQueueEntry);
         int GetQueueCount(ulong guildId);
-        Task Skip(ulong guildId);
-        Task Stop(ulong guildId);
+        Task SkipAsync(ulong guildId);
+        Task StopAsync(ulong guildId);
     }
 
     public class AudioQueueManager : IAudioQueueManager
@@ -45,7 +45,7 @@ namespace DiscordBot.Core.Voice
             return _guildsQueues[guildId].Count;
         }
 
-        public async Task Skip(ulong guildId)
+        public async Task SkipAsync(ulong guildId)
         {
             if (_audioClientManager.HasActiveAudioPlayer(guildId))
             {
@@ -56,14 +56,14 @@ namespace DiscordBot.Core.Voice
             }
         }
 
-        public async Task Stop(ulong guildId)
+        public async Task StopAsync(ulong guildId)
         {
             if (_guildsQueues.ContainsKey(guildId))
             {
                 _logger.LogDebug("Clearing audio queue");
                 _guildsQueues[guildId].Clear();
             }
-            await Skip(guildId);
+            await SkipAsync(guildId);
         }
 
         public int GetQueueCount(ulong guildId) => _guildsQueues.ContainsKey(guildId) ? _guildsQueues[guildId].Count : 0;

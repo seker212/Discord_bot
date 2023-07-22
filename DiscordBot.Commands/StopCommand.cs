@@ -31,7 +31,7 @@ namespace DiscordBot.Commands
             if (_audioClientManager.HasActiveAudioPlayer(command.GuildId.Value))
             {
                 await command.RespondAsync("Stopping player and cleaning queue.");
-                await _audioQueueManager.Stop(command.GuildId.Value);
+                await _audioQueueManager.StopAsync(command.GuildId.Value);
             }
             else
                 await command.RespondAsync("Guild has no active audio player.");

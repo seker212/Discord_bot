@@ -31,7 +31,7 @@ namespace DiscordBot.Commands
             if (_audioClientManager.HasActiveAudioPlayer(command.GuildId.Value))
             {
                 await command.RespondAsync("Skipping track.");
-                await _audioQueueManager.Skip(command.GuildId.Value);
+                await _audioQueueManager.SkipAsync(command.GuildId.Value);
             }
             else
                 await command.RespondAsync("Guild has no active audio player.");

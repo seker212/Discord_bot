@@ -1,5 +1,4 @@
 ﻿using Discord;
-using Discord.Audio;
 using Discord.WebSocket;
 using DiscordBot.Commands.Core;
 using DiscordBot.Commands.Core.CommandAttributes;
@@ -32,23 +31,20 @@ namespace DiscordBot.Commands
             CheckArguments(command);
             await command.DeferAsync();
 
-            var targetChannel = command.GetRequiredOptionValue("channel") as SocketChannel;
-            if (targetChannel is SocketVoiceChannel voiceChannel)
-            {
-                var videoData = command.GetOptionValue("url") is not null ? GetVideoDataFromUri(command.GetOptionValue("url") as string) : GetVideoDataFromQuery(command.GetOptionValue("query") as string);
-                var queueCount = _audioQueueManager.GetQueueCount(command.GuildId.Value);
+            var targetChannel = command.GetRequiredOptionValue<IVoiceChannel>("channel");
+            var videoData = command.GetOptionValue("url") is not null ? GetVideoDataFromUri(command.GetOptionValue<string>("url")!) : GetVideoDataFromQuery(command.GetOptionValue<string>("query")!);
+            var queueCount = _audioQueueManager.GetQueueCount(command.GuildId.Value);
 
-                var queueEntry = new AudioQueueEntry(
-                    voiceChannel,
-                    new Lazy<AudioStreamElements>(() => CreateAudioStream(videoData)),
-                    () => SendNowPlaying(videoData, command, queueCount == 0),
-                    () => _logger.LogDebug("Finished playing"),
-                    new Dictionary<string, object?>() { { "CommandCallID", command.Id } }
-                    );
-                var queuePosition = _audioQueueManager.Add(command.GuildId.Value, queueEntry); 
-                if (queueCount > 0)
-                    await command.ModifyOriginalResponseAsync(m => { m.Embed = BuildEmbed(videoData, $"Added to queue on {queuePosition - 1} position"); m.Content = null; });
-            }
+            var queueEntry = new AudioQueueEntry(
+                targetChannel,
+                new Lazy<AudioStreamElements>(() => CreateAudioStream(videoData)),
+                () => SendNowPlaying(videoData, command, queueCount == 0),
+                () => _logger.LogDebug("Finished playing"),
+                new Dictionary<string, object?>() { { "CommandCallID", command.Id } }
+                );
+            var queuePosition = _audioQueueManager.Add(command.GuildId.Value, queueEntry); 
+            if (queueCount > 0)
+                await command.ModifyOriginalResponseAsync(m => { m.Embed = BuildEmbed(videoData, $"Added to queue on {queuePosition - 1} position"); m.Content = null; });
         }
 
         private void SendNowPlaying(YoutubeVideoData videoData, SocketSlashCommand command, bool isResponse)

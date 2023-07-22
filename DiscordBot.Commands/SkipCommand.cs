@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 namespace DiscordBot.Commands
 {
     [Name("skip")]
-    [Description("Skips currently played yt track")]
+    [Description("Skips currently played track")]
     public class SkipCommand : Command
     {
         private readonly IAudioClientManager _audioClientManager;

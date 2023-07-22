@@ -7,6 +7,7 @@ namespace DiscordBot.Core.Voice
     public interface IAudioQueueManager
     {
         int Add(ulong guildId, AudioQueueEntry audioQueueEntry);
+        int GetQueueCount(ulong guildId);
         Task Skip(ulong guildId);
         Task Stop(ulong guildId);
     }
@@ -35,7 +36,7 @@ namespace DiscordBot.Core.Voice
 
             if (_playingTaskCache.ContainsKey(guildId))
             {
-                if (!_playingTaskCache[guildId].IsCompleted)
+                if (_playingTaskCache[guildId].IsCompleted)
                     _playingTaskCache[guildId] = PlayQueueAsync(guildId);
             }
             else
@@ -62,6 +63,8 @@ namespace DiscordBot.Core.Voice
             await Skip(guildId);
         }
 
+        public int GetQueueCount(ulong guildId) => _guildsQueues.ContainsKey(guildId) ? _guildsQueues[guildId].Count : 0;
+
         private async Task PlayQueueAsync(ulong guildId)
         {
             using (_logger.BeginScope(new Dictionary<string, object?>() { { "GuildId", guildId } }))
@@ -69,7 +72,7 @@ namespace DiscordBot.Core.Voice
                 while (_guildsQueues[guildId].Any())
                 {
                     _logger.LogDebug("Starting playing queue for the guild");
-                    var currentEntry = _guildsQueues[guildId].Dequeue();
+                    var currentEntry = _guildsQueues[guildId].Peek();
                     IAudioClient? audioClient = null;
 
                     using (_logger.BeginScope(currentEntry.LogProperties))
@@ -78,7 +81,8 @@ namespace DiscordBot.Core.Voice
                             if (_audioClientManager.GetGuildActiveVoiceChannel(guildId) != currentEntry.Channel) //TODO: Check if IVoiceChannel is equalable based on id
                             {
                                 _logger.LogDebug("Leaving previous channel");
-                                await _audioClientManager.LeaveChannelAsync(currentEntry.Channel);
+                                await _audioClientManager.LeaveChannelAsync(_audioClientManager.GetGuildActiveVoiceChannel(guildId));
+                                audioClient = null;
                             }
                             else
                                 audioClient = _audioClientManager.GetGuildAudioClient(guildId);
@@ -91,13 +95,21 @@ namespace DiscordBot.Core.Voice
                         var player = _audioClientManager.GetAudioPlayer(audioClient);
                         if (currentEntry.BeforePlaying is not null)
                             currentEntry.BeforePlaying.Invoke();
-                        await player.PlayAsync(currentEntry.AudioStreamElements.Value.Stream);
+                        try 
+                        { 
+                            await player.PlayAsync(currentEntry.AudioStreamElements.Value.Stream); 
+                        }
+                        finally 
+                        {
+                            _logger.LogDebug("Disposong current AudioStreamElements");
+                            currentEntry.AudioStreamElements.Value.Dispose(); 
+                        }
                         if (currentEntry.OnFinish is not null)
                             currentEntry.OnFinish.Invoke();
-                        currentEntry.AudioStreamElements.Value.Dispose();
                     }
+                    _guildsQueues[guildId].Dequeue();
                 }
-                _logger.LogDebug("Leaving previous channel");
+                _logger.LogDebug("Leaving channel");
                 await _audioClientManager.LeaveChannelAsync(_audioClientManager.GetGuildActiveVoiceChannel(guildId));
                 _logger.LogDebug("Finished playing queue for the guild");
             }

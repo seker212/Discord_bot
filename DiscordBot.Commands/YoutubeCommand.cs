@@ -18,89 +18,60 @@ namespace DiscordBot.Commands
     [Option("channel", "voice channel", CommandOptionType.GuildVoiceChannel)]
     public class YoutubeCommand : Command
     {
-        private readonly IAudioClientManager _audioClientManager;
+        private readonly IAudioQueueManager _audioQueueManager;
         private readonly ILogger<YoutubeCommand> _logger;
-        private Dictionary<ulong, Queue<YoutubeVideoData>> _videoQueues;
 
-        public YoutubeCommand(IAudioClientManager audioClientManager, ILogger<YoutubeCommand> logger)
+        public YoutubeCommand(IAudioQueueManager audioQueueManager, ILogger<YoutubeCommand> logger)
         {
-            _audioClientManager = audioClientManager;
+            _audioQueueManager = audioQueueManager;
             _logger = logger;
-            _videoQueues = new();
         }
 
-        public override Task ExecuteAsync(SocketSlashCommand command)
+        public override async Task ExecuteAsync(SocketSlashCommand command)
         {
-            CheckArguments(command).Wait();
-            command.DeferAsync().Wait();
-            Task.Run(async () =>
+            CheckArguments(command);
+            await command.DeferAsync();
+
+            var targetChannel = command.GetRequiredOptionValue("channel") as SocketChannel;
+            if (targetChannel is SocketVoiceChannel voiceChannel)
             {
-                var targetChannel = command.GetRequiredOptionValue("channel") as SocketChannel;
-                if (targetChannel is SocketVoiceChannel voiceChannel)
-                {
-                    var videoData = command.GetOptionValue("url") is not null ? GetVideoDataFromUri(command.GetOptionValue("url") as string) : GetVideoDataFromQuery(command.GetOptionValue("query") as string);
+                var videoData = command.GetOptionValue("url") is not null ? GetVideoDataFromUri(command.GetOptionValue("url") as string) : GetVideoDataFromQuery(command.GetOptionValue("query") as string);
+                var queueCount = _audioQueueManager.GetQueueCount(command.GuildId.Value);
 
-                    if (!_videoQueues.ContainsKey(command.GuildId.Value))
-                        _videoQueues.Add(command.GuildId.Value, new());
-                    var queue = _videoQueues[command.GuildId.Value];
-                    queue.Enqueue(videoData);
-                    if (queue.Count > 1)
-                    {
-                        command.ModifyOriginalResponseAsync(m => { m.Embed = BuildEmbed(videoData, $"Added to queue on {queue.Count - 1} position"); m.Content = null; });
-                    }
-                    else
-                    {
-                        command.ModifyOriginalResponseAsync(m => { m.Embed = BuildEmbed(videoData, "Now playing"); m.Content = null; });
-                        var skipMsg = true;
-                        _logger.LogDebug("Connecting to channel {vc}", voiceChannel.Name);
-                        var audioClient = await _audioClientManager.JoinChannelAsync(voiceChannel);
-                        try
-                        {
-                            while (queue.Count > 0)
-                            {
-                                var playingVideoData = queue.Peek();
-                                if (!skipMsg)
-                                    command.Channel.SendMessageAsync(embed: BuildEmbed(playingVideoData, "Now playing"));
-                                else
-                                    skipMsg = false;
-                                await PlayAudio(playingVideoData, audioClient);
-                                queue.Dequeue();
-                            }
-
-                        }
-                        finally
-                        {
-                            _logger.LogDebug("Leaving channel");
-                            await _audioClientManager.LeaveChannelAsync(voiceChannel);
-                            _logger.LogDebug("Clearing video queue for guild");
-                            queue.Clear();
-                        }
-                    }
-                }
-            });
-            return Task.CompletedTask;
+                var queueEntry = new AudioQueueEntry(
+                    voiceChannel,
+                    new Lazy<AudioStreamElements>(() => CreateAudioStream(videoData)),
+                    () => SendNowPlaying(videoData, command, queueCount == 0),
+                    () => _logger.LogDebug("Finished playing"),
+                    new Dictionary<string, object?>() { { "CommandCallID", command.Id } }
+                    );
+                var queuePosition = _audioQueueManager.Add(command.GuildId.Value, queueEntry); 
+                if (queueCount > 0)
+                    await command.ModifyOriginalResponseAsync(m => { m.Embed = BuildEmbed(videoData, $"Added to queue on {queuePosition - 1} position"); m.Content = null; });
+            }
         }
 
-        private async Task PlayAudio(YoutubeVideoData videoData, IAudioClient audioClient)
+        private void SendNowPlaying(YoutubeVideoData videoData, SocketSlashCommand command, bool isResponse)
         {
-            _logger.LogDebug("Getting audio player for channel");
-            var player = _audioClientManager.GetAudioPlayer(audioClient);
-            _logger.LogDebug("Starting yt/ffmpeg process");
-            using (var ffmpegProcess = Process.Start(new ProcessStartInfo
+            if (isResponse)
+                command.ModifyOriginalResponseAsync(m => { m.Embed = BuildEmbed(videoData, "Now playing"); m.Content = null; });
+            else
+                command.Channel.SendMessageAsync(embed: BuildEmbed(videoData, "Now playing"));
+        }
+
+        private AudioStreamElements CreateAudioStream(YoutubeVideoData videoData)
+        {
+            var ffmpegProcess = Process.Start(new ProcessStartInfo
             {
                 FileName = "ffmpeg",
                 Arguments = $"-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5 -hide_banner -loglevel panic -i \"{videoData.DownloadUrl}\" -ac 2 -f s16le -ar 48000 pipe:1",
                 UseShellExecute = false,
                 RedirectStandardOutput = true
-            }))
-            {
-                _logger.LogDebug("Playing stream");
-                await player.PlayAsync(ffmpegProcess.StandardOutput.BaseStream);
-                await Task.Delay(10); //Deleay channel leaving after sound to not instantly hear the leaving sound
-            }
+            });
+            return new AudioStreamElements(ffmpegProcess.StandardOutput.BaseStream, new[] { ffmpegProcess });
         }
     
-        private async Task CheckArguments(SocketSlashCommand command)
+        private void CheckArguments(SocketSlashCommand command)
         {
             var uri = command.GetOptionValue("url");
             var query = command.GetOptionValue("query");

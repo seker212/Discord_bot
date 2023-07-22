@@ -12,11 +12,13 @@ namespace DiscordBot.Commands
     {
         private readonly IAudioClientManager _audioClientManager;
         private readonly ILogger<SkipCommand> _logger;
+        private readonly IAudioQueueManager _audioQueueManager;
 
-        public SkipCommand(IAudioClientManager audioClientManager, ILogger<SkipCommand> logger)
+        public SkipCommand(IAudioClientManager audioClientManager, ILogger<SkipCommand> logger, IAudioQueueManager audioQueueManager)
         {
             _audioClientManager = audioClientManager;
             _logger = logger;
+            _audioQueueManager = audioQueueManager;
         }
 
         public override async Task ExecuteAsync(SocketSlashCommand command)
@@ -29,10 +31,7 @@ namespace DiscordBot.Commands
             if (_audioClientManager.HasActiveAudioPlayer(command.GuildId.Value))
             {
                 await command.RespondAsync("Skipping track.");
-                var audioClient = _audioClientManager.GetGuildAudioClient(command.GuildId.Value);
-                var audioPlayer = _audioClientManager.GetAudioPlayer(audioClient);
-                if (audioPlayer.Status != AudioPlayingStatus.NotPlaying)
-                    await audioPlayer.StopAsync();
+                await _audioQueueManager.Skip(command.GuildId.Value);
             }
             else
                 await command.RespondAsync("Guild has no active audio player.");

@@ -76,6 +76,7 @@ namespace DiscordBot
             builder.RegisterType<SqliteCompiler>().As<Compiler>().SingleInstance();
             builder.RegisterType<QueryFactory>().AsSelf().SingleInstance();
             builder.RegisterType<TimeZoneHelper>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<AudioQueueManager>().AsImplementedInterfaces().SingleInstance();
             return builder.Build();
         }
 

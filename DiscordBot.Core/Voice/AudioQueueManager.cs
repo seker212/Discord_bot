@@ -4,7 +4,14 @@ using Microsoft.Extensions.Logging;
 
 namespace DiscordBot.Core.Voice
 {
-    public class AudioQueueManager
+    public interface IAudioQueueManager
+    {
+        int Add(ulong guildId, AudioQueueEntry audioQueueEntry);
+        Task Skip(ulong guildId);
+        Task Stop(ulong guildId);
+    }
+
+    public class AudioQueueManager : IAudioQueueManager
     {
         private readonly IDictionary<ulong, Queue<AudioQueueEntry>> _guildsQueues;
         private readonly IAudioClientManager _audioClientManager;
@@ -25,7 +32,7 @@ namespace DiscordBot.Core.Voice
                 _guildsQueues[guildId].Enqueue(audioQueueEntry);
             else
                 _guildsQueues.Add(guildId, new Queue<AudioQueueEntry>(new[] { audioQueueEntry }));
-            
+
             if (_playingTaskCache.ContainsKey(guildId))
             {
                 if (!_playingTaskCache[guildId].IsCompleted)
@@ -55,7 +62,7 @@ namespace DiscordBot.Core.Voice
             await Skip(guildId);
         }
 
-        public async Task PlayQueueAsync(ulong guildId)
+        private async Task PlayQueueAsync(ulong guildId)
         {
             using (_logger.BeginScope(new Dictionary<string, object?>() { { "GuildId", guildId } }))
             {

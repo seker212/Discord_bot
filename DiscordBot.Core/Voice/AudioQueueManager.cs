@@ -59,7 +59,10 @@ namespace DiscordBot.Core.Voice
         public async Task Stop(ulong guildId)
         {
             if (_guildsQueues.ContainsKey(guildId))
+            {
+                _logger.LogDebug("Clearing audio queue");
                 _guildsQueues[guildId].Clear();
+            }
             await Skip(guildId);
         }
 
@@ -69,16 +72,16 @@ namespace DiscordBot.Core.Voice
         {
             using (_logger.BeginScope(new Dictionary<string, object?>() { { "GuildId", guildId } }))
             {
+                _logger.LogDebug("Starting playing queue for the guild");
                 while (_guildsQueues[guildId].Any())
                 {
-                    _logger.LogDebug("Starting playing queue for the guild");
                     var currentEntry = _guildsQueues[guildId].Peek();
                     IAudioClient? audioClient = null;
 
                     using (_logger.BeginScope(currentEntry.LogProperties))
                     {
                         if (_audioClientManager.HasActiveAudioClient(guildId))
-                            if (_audioClientManager.GetGuildActiveVoiceChannel(guildId) != currentEntry.Channel) //TODO: Check if IVoiceChannel is equalable based on id
+                            if (_audioClientManager.GetGuildActiveVoiceChannel(guildId) != currentEntry.Channel)
                             {
                                 _logger.LogDebug("Leaving previous channel");
                                 await _audioClientManager.LeaveChannelAsync(_audioClientManager.GetGuildActiveVoiceChannel(guildId));
@@ -107,7 +110,10 @@ namespace DiscordBot.Core.Voice
                         if (currentEntry.OnFinish is not null)
                             currentEntry.OnFinish.Invoke();
                     }
-                    _guildsQueues[guildId].Dequeue();
+                    _logger.LogDebug("Removig played track from queue");
+                    if (_guildsQueues[guildId].Count > 0)
+                        _guildsQueues[guildId].Dequeue();
+                    _logger.LogDebug("Tracks left in queue: {queueCount}", _guildsQueues[guildId].Count);
                 }
                 _logger.LogDebug("Leaving channel");
                 await _audioClientManager.LeaveChannelAsync(_audioClientManager.GetGuildActiveVoiceChannel(guildId));

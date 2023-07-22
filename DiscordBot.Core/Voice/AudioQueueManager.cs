@@ -91,9 +91,10 @@ namespace DiscordBot.Core.Voice
                         var player = _audioClientManager.GetAudioPlayer(audioClient);
                         if (currentEntry.BeforePlaying is not null)
                             currentEntry.BeforePlaying.Invoke();
-                        await player.PlayAsync(currentEntry.AudioStream.Value);
+                        await player.PlayAsync(currentEntry.AudioStreamElements.Value.Stream);
                         if (currentEntry.OnFinish is not null)
                             currentEntry.OnFinish.Invoke();
+                        currentEntry.AudioStreamElements.Value.Dispose();
                     }
                 }
                 _logger.LogDebug("Leaving previous channel");

@@ -5,7 +5,7 @@ services:
     build: 
       context: .
     environment:
-      - TOKEN=ODIzNjEyMDM5NzI5NjQzNTMy.YFjWfA.95izYP_cY86t961XHsYJXUykzrY
+      - TOKEN=0
       - SEQ_URL=http://seq:5341
     volumes: 
       - ./audio:/app/audio

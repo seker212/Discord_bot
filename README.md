@@ -1,24 +1,18 @@
 # Discord bot
 
-# !!! Currently developing version 2.0 with rewritting code to C# !!!
+[![Docker image build](https://github.com/seker212/Discord_bot/actions/workflows/container-image-update.yml/badge.svg?branch=master-2.0)](https://github.com/seker212/Discord_bot/actions/workflows/container-image-update.yml)
 
-[![Chi-chan bot Container](https://github.com/seker212/Discord_bot/actions/workflows/Chi-chan_Container.yml/badge.svg?branch=master&event=push)](https://github.com/seker212/Discord_bot/actions/workflows/Chi-chan_Container.yml)
-
-## Running locally
-
-Clone this repo with checkout to branch `master-2.0`. Run the `DiscordBot` project. :bangbang: Before running remember to add to the main direcotry file `token.txt` with discord bot token.
-
-## Running in docker
+## Quick start - Running in docker
 
 ### Using docker compose
 
-Container can be run using provided docker compose file provided example provided in `docker-compose-template.yaml`, or from the example below.
+Container can be run using provided docker compose file provided example provided in [docker-compose-template.yaml](https://github.com/seker212/Discord_bot/blob/master-2.0/docker-compose-template.yaml). Just create a copy of the file named `docker-compose.yaml` and swap the `TOKEN` value from `0` to your bot token. If you don't have one yet, just follow the [official discord documentation](https://discord.com/developers/docs/getting-started#step-1-creating-an-app).
 
+You can also use the simplified version from below:
 ```yaml
-
 version: "3.9"
 services:
-  Chi-chan:
+  DiscordBot:
     image: seker212/discord_bot:2.0
     environment:
       # Set this a discord token generated on discord page
@@ -46,8 +40,19 @@ Pulling and running container could be done using command below, simply place th
 docker run --rm -d -e "TOKEN=<discord app client secret here>" --name <name> -v <PWD>/audio:/app/audio seker212/discord_bot:2.0
 ```
 
-## Running in local enviroment
+## Running locally
 
-### How to clone and install
+### Requirements
 
-### How to run
+Most dependencies will be resolved by default by restoring nuget pakcages. For playing audio on voice channels [ffmpeg](https://www.ffmpeg.org/download.html) needs to be downloaded and added to PATH. For YouTube player the [yt-dlp](https://github.com/yt-dlp/yt-dlp/releases) is also needed to be added.
+
+For the IDE this project is developed using Visual Studio, but it's just a suggestion.
+The project has also a support for Seq server, which can be run locally. We recomend using docker image for creating local server.
+
+### Setup and run
+
+Clone this repo with checkout to branch `master-2.0`. The default launch settings can be adjusted by changing [launchSettings.json](https://github.com/seker212/Discord_bot/blob/master-2.0/DiscordBot/Properties/launchSettings.json).
+
+:bangbang: Before running add to the main direcotry file `token.txt` with discord bot token.
+
+After all the setup the `DiscordBot` project should be runnable. 

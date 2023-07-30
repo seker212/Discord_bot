@@ -414,3 +414,4 @@ settings.json
 tmp/
 docker-compose.*
 data/
+seq/

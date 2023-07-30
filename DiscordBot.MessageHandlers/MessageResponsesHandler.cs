@@ -9,15 +9,19 @@ namespace DiscordBot.MessageHandlers
 {
     public class MessageResponsesHandler : IMessageReceivedHandler
     {
+        private static Random random = new Random();
+
         private readonly IDiscordClient _client;
         private readonly ILogger<MessageResponsesHandler> _logger;
         private readonly IRegexResponseHelper _regexResponseHelper;
+        private readonly IRandomResponseProvider _randomResponseProvider;
 
-        public MessageResponsesHandler(ILogger<MessageResponsesHandler> logger, IDiscordClient client, IRegexResponseHelper regexResponseHelper)
+        public MessageResponsesHandler(ILogger<MessageResponsesHandler> logger, IDiscordClient client, IRegexResponseHelper regexResponseHelper, IRandomResponseProvider randomResponseProvider)
         {
             _logger = logger;
             _client = client;
             _regexResponseHelper = regexResponseHelper;
+            _randomResponseProvider = randomResponseProvider;
         }
 
         private bool IsApplicable(SocketMessage socketMessage)
@@ -49,10 +53,17 @@ namespace DiscordBot.MessageHandlers
             {
                 _logger.LogDebug("Sending random response");
 
-                var randomResponse = "Here add random response";
+                var randomResponse = getRandomResponse(socketChannel.Guild.Id);
 
                 await socketChannel.SendMessageAsync(randomResponse + " " + mention);
             }
+        }
+
+        private string getRandomResponse(ulong guildId)
+        {
+            var values = _randomResponseProvider.GetAll(guildId);
+            var index = random.Next(values.Count);
+            return values[index];
         }
 
         public Task Execute(SocketMessage socketMessage)

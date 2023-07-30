@@ -71,11 +71,17 @@ namespace DiscordBot
             builder.RegisterSerilog(loggerConfiguration);
             builder.RegisterType<Commands.Core.Helpers.SlashCommandBuilder>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<CommandOptionConverter>().AsImplementedInterfaces().SingleInstance();
+            
             builder.RegisterType<DatabaseCacheConfigProvider>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<DatabaseCacheRandomResponseProvider>().AsImplementedInterfaces().SingleInstance();
+            
             builder.RegisterType<ConfigRepository>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<RandomResponsesRepository>().AsImplementedInterfaces().SingleInstance();
+
             builder.Register(_ => GetSqliteConnection(databasePath)).As<IDbConnection>().SingleInstance();
             builder.RegisterType<SqliteCompiler>().As<Compiler>().SingleInstance();
             builder.RegisterType<QueryFactory>().AsSelf().SingleInstance();
+            
             builder.RegisterType<TimeZoneHelper>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<RegexResponsesHelper>().AsImplementedInterfaces().SingleInstance();
             return builder.Build();

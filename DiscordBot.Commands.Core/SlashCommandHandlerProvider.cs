@@ -1,5 +1,5 @@
 ﻿using Discord.WebSocket;
-using DiscordBot.Core.Providers;
+using DiscordBot.Core.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace DiscordBot.Commands.Core

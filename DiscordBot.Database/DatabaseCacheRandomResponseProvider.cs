@@ -37,7 +37,7 @@ namespace DiscordBot.Database
             }
         }
 
-        public List<string> GetAll(ulong? guildId)
+        public IEnumerable<string>? GetAll(ulong? guildId)
             => _cacheResponseProvider.GetAll(guildId);
     }
 }

@@ -12,10 +12,12 @@ namespace DiscordBot.MessageHandlers
 
         private const string SELF_PATTERN = @"@anyone";
         private readonly ILogger<AnyoneMentionHandler> _logger;
+        private readonly IRandomFactProvider _randomFactProvider;
 
-        public AnyoneMentionHandler(ILogger<AnyoneMentionHandler> logger)
+        public AnyoneMentionHandler(ILogger<AnyoneMentionHandler> logger, IRandomFactProvider randomFactProvider)
         {
             _logger = logger;
+            _randomFactProvider = randomFactProvider;
         }
 
         private bool IsApplicable(SocketMessage socketMessage)
@@ -31,9 +33,20 @@ namespace DiscordBot.MessageHandlers
             var index = random.Next(users.Count);
             var mention = users.ElementAt(index).Mention;
 
-            var response = "<tu random fact>";
+            var response = getRandomFact(socketChannel.Guild.Id);
 
             await socketChannel.SendMessageAsync(mention + " " + response);
+        }
+        private string getRandomFact(ulong guildId)
+        {
+            var values = _randomFactProvider.GetAll(guildId);
+
+            if (values is null)
+                return "Nothing";
+
+            var valuesList = values.ToList();
+            var index = random.Next(valuesList.Count);
+            return valuesList[index];
         }
 
         public Task Execute(SocketMessage socketMessage)

@@ -62,8 +62,12 @@ namespace DiscordBot.MessageHandlers
         private string getRandomResponse(ulong guildId)
         {
             var values = _randomResponseProvider.GetAll(guildId);
-            var index = random.Next(values.Count);
-            return values[index];
+            if (values is null)
+                return "Nothing";
+
+            var valuesList = values.ToList();
+            var index = random.Next(valuesList.Count);
+            return valuesList[index];
         }
 
         public Task Execute(SocketMessage socketMessage)

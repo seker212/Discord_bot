@@ -10,12 +10,12 @@ namespace DiscordBot.Database.Repositories
         Task<int> Insert(ulong? guildId, string randomResponse);
     }
 
-    public class RandomResponsesRepository : IRandomResponseRepository
+    public class RandomResponseRepository : IRandomResponseRepository
     {
         private const string TABLE_NAME = "RandomResponse";
         private readonly QueryFactory _queryFactory;
 
-        public RandomResponsesRepository(QueryFactory queryFactory)
+        public RandomResponseRepository(QueryFactory queryFactory)
         {
             _queryFactory = queryFactory;
         }

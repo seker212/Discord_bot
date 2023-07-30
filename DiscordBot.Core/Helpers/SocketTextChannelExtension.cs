@@ -3,6 +3,9 @@ using Discord.WebSocket;
 
 namespace DiscordBot.Core.Helpers
 {
+    /// <summary>
+    /// Extensions for <see cref="SocketTextChannel"/> class.
+    /// </summary>
     public static class SocketTextChannelExtension
     {
         /// <summary>

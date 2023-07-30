@@ -46,7 +46,7 @@ namespace DiscordBot.Commands
                         var stream = response.Content.ReadAsStream();
                         using (var streamReader = new StreamReader(stream))
                         {
-                            var text = streamReader.ReadToEnd().Split("\r\n").ToList();
+                            var text = streamReader.ReadToEnd().Split("\r\n").AsEnumerable();
                             _randomResponseProvider.AddAll(guildId, text);
                         }
 

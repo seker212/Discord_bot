@@ -24,19 +24,6 @@ Before trying to run you need to aquire token from [Discord](https://discord.com
 
 Project supports use of [`Seq`](https://datalust.co/seq) server which can be run locally or remotly for storing logs.
 
-### Local run <a id="tc12"></a>
-
-Running locally is not advised as it is recommended to use of Visual Studio and installation of .Net 6. For debbuging it is prefered method.
-
-Before running [`ffmpeg`](https://www.ffmpeg.org/download.html) should be added to PATH (available from cli) if any sound or play command will be run. Additionally [`yt-dlp`](https://github.com/yt-dlp/yt-dlp/releases) should be added if YouTube player will be used.
-
-1. Clone this repo with checkout to branch `master-2.0`.
-2. Open `DiscordBot.sln` with Visual studio
-3. Place `token.txt` file in main folder with token aqured earlier.
-4. Run the `DiscordBot` project
-
-If there are some issues with packages try reimporting NuGet.
-
 ### Docker run <a id="tc13"></a>
 
 Here steps for use of deployable version of DiscordBot. Default Docker Hub image could be found [here](https://hub.docker.com/r/seker212/discord_bot)
@@ -52,7 +39,7 @@ Enviroment variables:
 | Name |Value|Required | Purpose  |
 |----------|:-------------:|:----:|----|
 | TOKEN |  string (long chain) | X |  Discord bot token can't be run without it. |
-| SEQ_URL |  string (url) | X | Seq application url, local or remote |
+| SEQ_URL |  string (url) |  | Seq application url, local or remote |
 | ACCEPT_EULA |  Y or N (single char) |  | `Seq server` container acceptance of eula if run with DiscordBot together|
 
 Volumes:
@@ -89,6 +76,19 @@ services:
       - ./audio:/app/audio
 
 ```
+
+### Local run <a id="tc12"></a>
+
+Running locally is not advised as it is recommended to use of Visual Studio and installation of .Net 6. For debbuging it is prefered method.
+
+Before running [`ffmpeg`](https://www.ffmpeg.org/download.html) should be added to PATH (available from cli) if any sound or play command will be run. Additionally [`yt-dlp`](https://github.com/yt-dlp/yt-dlp/releases) should be added if YouTube player will be used.
+
+1. Clone this repo with checkout to branch `master-2.0`.
+2. Open `DiscordBot.sln` with Visual studio
+3. Place `token.txt` file in main folder with token aqured earlier.
+4. Run the `DiscordBot` project
+
+If there are some issues with packages try reimporting NuGet.
 
 ## Debug and development <a id="tc2"></a>
 

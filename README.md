@@ -110,5 +110,5 @@ python start_bot.py
 Token can be also a enviroment variable or passed directly in command
 
 ```bash
-python start_bot.py <discord token here>
+python start_bot.py <discord token here> 
 ```

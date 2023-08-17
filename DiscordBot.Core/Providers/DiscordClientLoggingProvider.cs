@@ -10,6 +10,11 @@ namespace DiscordBot.Core.Providers
     /// </summary>
     public interface IDiscordClientLoggingProvider
     {
+        /// <summary>
+        /// Logs log message from Discord.Net library.
+        /// </summary>
+        /// <param name="logMessage">Log message.</param>
+        /// <returns>Task of logging the message.</returns>
         Task LogDiscordClientEvent(LogMessage logMessage);
     }
 
@@ -19,6 +24,11 @@ namespace DiscordBot.Core.Providers
         private readonly ILogger<DiscordSocketClient> _clientLogger;
         private readonly IDiscordLoggingHelper _discordLoggingHelper;
 
+        /// <summary>
+        /// Creates new <see cref="DiscordClientLoggingProvider"/>.
+        /// </summary>
+        /// <param name="clientLogger">Logger that the discord log messages will be logged with.</param>
+        /// <param name="discordLoggingHelper">Helper with implementation of converting <see cref="LogMessage"/> to log entry.</param>
         public DiscordClientLoggingProvider(ILogger<DiscordSocketClient> clientLogger, IDiscordLoggingHelper discordLoggingHelper)
         {
             _clientLogger = clientLogger;

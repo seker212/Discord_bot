@@ -1,4 +1,5 @@
 ﻿using Discord.WebSocket;
+using DiscordBot.Core.Interfaces;
 using DiscordBot.Core.Providers;
 using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;

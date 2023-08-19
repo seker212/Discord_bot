@@ -6,6 +6,9 @@ using System.Text.RegularExpressions;
 
 namespace DiscordBot.MessageHandlers
 {
+    /// <summary>
+    /// Class for handling `@self` in text messages and responding to it
+    /// </summary>
     public class SelfMentionHandler : IMessageReceivedHandler
     {
         private const string SELF_PATTERN = @"@self";

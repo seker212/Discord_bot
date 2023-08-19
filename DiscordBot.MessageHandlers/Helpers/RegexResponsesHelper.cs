@@ -9,6 +9,9 @@ namespace DiscordBot.MessageHandlers.Helpers
         string GetResponse(string text);
     }
 
+    /// <summary>
+    /// Helper for storing and comparing regexes and providing with their response
+    /// </summary>
     public class RegexResponsesHelper : IRegexResponseHelper
     {
         private readonly ConcurrentDictionary<string, string> regexResponses;
@@ -17,13 +20,13 @@ namespace DiscordBot.MessageHandlers.Helpers
         {
             regexResponses = new ConcurrentDictionary<string, string>();
 
-            AddRegexResponse(@"((dzie([ń|n]) dobry)|(cze([s|ś][c|ć]))) .*", "Dzień dobry! ");
-            AddRegexResponse(@"dobranoc .*", "Dobranoc! ");
-            AddRegexResponse(@"wypierdalaj .*", "Sam wypierdalaj ");
-            AddRegexResponse(@"spierdalaj .*", "O ty chuju ");
+            AddOrUpdateRegexResponse(@"((dzie([ń|n]) dobry)|(cze([s|ś][c|ć]))) .*", "Dzień dobry! ");
+            AddOrUpdateRegexResponse(@"dobranoc .*", "Dobranoc! ");
+            AddOrUpdateRegexResponse(@"wypierdalaj .*", "Sam wypierdalaj ");
+            AddOrUpdateRegexResponse(@"spierdalaj .*", "O ty chuju ");
         }
 
-        private void AddRegexResponse(string key, string value)
+        private void AddOrUpdateRegexResponse(string key, string value)
         {
             regexResponses.AddOrUpdate(key, k => value, (k, v) => value);
         }

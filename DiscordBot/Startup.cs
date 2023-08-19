@@ -78,12 +78,12 @@ namespace DiscordBot
             builder.RegisterType<CommandOptionConverter>().AsImplementedInterfaces().SingleInstance();
             
             builder.RegisterType<DatabaseCacheConfigProvider>().AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<DatabaseCacheRandomResponseProvider>().AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<DatabaseCacheRandomFactProvider>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<DatabaseCacheResponseProvider>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<DatabaseCacheFactProvider>().AsImplementedInterfaces().SingleInstance();
             
             builder.RegisterType<ConfigRepository>().AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<RandomResponseRepository>().AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<RandomFactRepository>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<ResponseRepository>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<FactRepository>().AsImplementedInterfaces().SingleInstance();
 
             builder.Register(_ => GetSqliteConnection(databasePath)).As<IDbConnection>().SingleInstance();
             builder.RegisterType<SqliteCompiler>().As<Compiler>().SingleInstance();

@@ -7,6 +7,9 @@ using Microsoft.Extensions.Logging;
 
 namespace DiscordBot.Commands
 {
+    /// <summary>
+    /// Class for handling adding "random" responses used later by mentioning bot in text channel
+    /// </summary>
     [Name("addresponse")]
     [Description("Adds new random response, single from text or all from attached txt file")]
     [Option("text", "Add single random resonse", CommandOptionType.String, false)]
@@ -15,12 +18,12 @@ namespace DiscordBot.Commands
     public class AddResponseCommand : Command
     {
         private readonly ILogger<AddResponseCommand> _logger;
-        private IRandomResponseProvider _randomResponseProvider;
+        private IResponseProvider _responseProvider;
 
-        public AddResponseCommand(ILogger<AddResponseCommand> logger, IRandomResponseProvider randomResponseProvider)
+        public AddResponseCommand(ILogger<AddResponseCommand> logger, IResponseProvider responseProvider)
         {
             _logger = logger;
-            _randomResponseProvider = randomResponseProvider;
+            _responseProvider = responseProvider;
         }
 
         public override async Task ExecuteAsync(SocketSlashCommand command)
@@ -28,12 +31,12 @@ namespace DiscordBot.Commands
             try
             {
                 var guildId = command.GuildId;
-                var optionText = command.GetOptionValue("text") as string;
-                var optionFile = command.GetOptionValue("file") as Attachment;
+                var optionText = command.GetOptionValue<string>("text");
+                var optionFile = command.GetOptionValue<Attachment>("file");
                 
-                if (string.IsNullOrWhiteSpace(optionText))
+                if (!string.IsNullOrWhiteSpace(optionText))
                 {
-                    _randomResponseProvider.Add(guildId, optionText);
+                    _responseProvider.Add(guildId, optionText);
                     
                     await command.RespondAsync("Added new random response");
                 }
@@ -47,7 +50,7 @@ namespace DiscordBot.Commands
                         using (var streamReader = new StreamReader(stream))
                         {
                             var text = streamReader.ReadToEnd().Split("\r\n").AsEnumerable();
-                            _randomResponseProvider.AddAll(guildId, text);
+                            _responseProvider.AddAll(guildId, text);
                         }
 
                         await command.RespondAsync("Added new random responses from give file");

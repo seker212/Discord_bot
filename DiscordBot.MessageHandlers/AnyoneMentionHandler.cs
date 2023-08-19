@@ -6,15 +6,18 @@ using System.Text.RegularExpressions;
 
 namespace DiscordBot.MessageHandlers
 {
+    /// <summary>
+    /// Class handling @anyone in text messages, responding with random fact
+    /// </summary>
     public class AnyoneMentionHandler : IMessageReceivedHandler
     {
         private static Random random = new Random();
 
         private const string SELF_PATTERN = @"@anyone";
         private readonly ILogger<AnyoneMentionHandler> _logger;
-        private readonly IRandomFactProvider _randomFactProvider;
+        private readonly IFactProvider _randomFactProvider;
 
-        public AnyoneMentionHandler(ILogger<AnyoneMentionHandler> logger, IRandomFactProvider randomFactProvider)
+        public AnyoneMentionHandler(ILogger<AnyoneMentionHandler> logger, IFactProvider randomFactProvider)
         {
             _logger = logger;
             _randomFactProvider = randomFactProvider;

@@ -7,6 +7,13 @@ using System.Text.RegularExpressions;
 
 namespace DiscordBot.MessageHandlers
 {
+    /// <summary>
+    /// Class for handling different messages that mentions bot
+    /// e.g 
+    /// - welcome message
+    /// - giving random response
+    /// - adding question mark emoji
+    /// </summary>
     public class MessageResponsesHandler : IMessageReceivedHandler
     {
         private static Random random = new Random();
@@ -14,9 +21,9 @@ namespace DiscordBot.MessageHandlers
         private readonly IDiscordClient _client;
         private readonly ILogger<MessageResponsesHandler> _logger;
         private readonly IRegexResponseHelper _regexResponseHelper;
-        private readonly IRandomResponseProvider _randomResponseProvider;
+        private readonly IResponseProvider _randomResponseProvider;
 
-        public MessageResponsesHandler(ILogger<MessageResponsesHandler> logger, IDiscordClient client, IRegexResponseHelper regexResponseHelper, IRandomResponseProvider randomResponseProvider)
+        public MessageResponsesHandler(ILogger<MessageResponsesHandler> logger, IDiscordClient client, IRegexResponseHelper regexResponseHelper, IResponseProvider randomResponseProvider)
         {
             _logger = logger;
             _client = client;
@@ -53,13 +60,13 @@ namespace DiscordBot.MessageHandlers
             {
                 _logger.LogDebug("Sending random response");
 
-                var randomResponse = getRandomResponse(socketChannel.Guild.Id);
+                var randomResponse = GetRandomResponse(socketChannel.Guild.Id);
 
                 await socketChannel.SendMessageAsync(randomResponse + " " + mention);
             }
         }
 
-        private string getRandomResponse(ulong guildId)
+        private string GetRandomResponse(ulong guildId)
         {
             var values = _randomResponseProvider.GetAll(guildId);
             if (values is null)

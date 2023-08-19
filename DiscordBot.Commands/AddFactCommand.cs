@@ -7,6 +7,9 @@ using Microsoft.Extensions.Logging;
 
 namespace DiscordBot.Commands
 {
+    /// <summary>
+    /// Class for handling adding "random" facts used later by typing on text channel @anyone 
+    /// </summary>
     [Name("addfact")]
     [Description("Adds new random fact, single from text or all from attached txt file")]
     [Option("text", "Add single random fact", CommandOptionType.String, false)]
@@ -15,12 +18,12 @@ namespace DiscordBot.Commands
     public class AddFactCommand : Command
     {
         private readonly ILogger<AddResponseCommand> _logger;
-        private IRandomFactProvider _randomFactProvider;
+        private IFactProvider _factProvider;
 
-        public AddFactCommand(ILogger<AddResponseCommand> logger, IRandomFactProvider randomFactProvider)
+        public AddFactCommand(ILogger<AddResponseCommand> logger, IFactProvider factProvider)
         {
             _logger = logger;
-            _randomFactProvider = randomFactProvider;
+            _factProvider = factProvider;
         }
 
         public override async Task ExecuteAsync(SocketSlashCommand command)
@@ -28,12 +31,12 @@ namespace DiscordBot.Commands
             try
             {
                 var guildId = command.GuildId;
-                var optionText = command.GetOptionValue("text") as string;
-                var optionFile = command.GetOptionValue("file") as Attachment;
+                var optionText = command.GetOptionValue<string>("text");
+                var optionFile = command.GetOptionValue<Attachment>("file");
 
-                if (string.IsNullOrWhiteSpace(optionText))
+                if (!string.IsNullOrWhiteSpace(optionText))
                 {
-                    _randomFactProvider.Add(guildId, optionText);
+                    _factProvider.Add(guildId, optionText);
 
                     await command.RespondAsync("Added new random fact");
                 }
@@ -47,7 +50,7 @@ namespace DiscordBot.Commands
                         using (var streamReader = new StreamReader(stream))
                         {
                             var text = streamReader.ReadToEnd().Split("\r\n").AsEnumerable();
-                            _randomFactProvider.AddAll(guildId, text);
+                            _factProvider.AddAll(guildId, text);
                         }
 
                         await command.RespondAsync("Added new random facts from give file");

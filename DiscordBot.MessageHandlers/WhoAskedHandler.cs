@@ -8,9 +8,10 @@ namespace DiscordBot.MessageHandlers
 {
     /// <summary>
     /// Class handling regex for `kto pytał` text and sending response.
-    /// 
-    /// Seperate from RegexResponsesHelpes as in 1.0 this worked on its own sometimes allowing to two responses for one message to be send.
     /// </summary>
+    /// <remarks>
+    /// Seperate from RegexResponsesHelpes as in 1.0 this worked on its own sometimes allowing to two responses for one message to be send.
+    /// </remarks>
     public class WhoAskedHandler : IMessageReceivedHandler
     {
         private const string PATTERN = @"^.*[K|k][T|t][O|o] [P|p][Y|y][T|t][A|a][L|l|Ł|ł].*$";

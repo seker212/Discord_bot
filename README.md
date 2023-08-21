@@ -26,11 +26,11 @@ Project supports use of [`Seq`](https://datalust.co/seq) server which can be run
 
 ### Docker run <a id="tc13"></a>
 
-Here steps for use of deployable version of DiscordBot. Default Docker Hub image can be found [here](https://hub.docker.com/r/seker212/discord_bot)
+Here are the steps to use a deployable version of DiscordBot. Default Docker Hub image can be found [here](https://hub.docker.com/r/seker212/discord_bot)
 
 #### Enviroment informations <a id="tc131"></a>
 
-Running in docker requires setting important evnviromental variables as well as some volumes for files that should be accessible after shutdown of container.
+Running in docker requires setting important environmental variables as well as some volumes for files that should be accessible after shutdown of container.
 
 Variables marked with `Seq server` are referenced to different image for running Seq toghether with DiscordBot more details [here](https://datalust.co/seq)
 
@@ -53,7 +53,7 @@ Volumes:
 
 #### Using docker cli  <a id="tc132"></a>
 
-Pulling and running container could be done using command below, simply place the TOKEN and name, and set the volume path in PWD.
+Pulling and running container can be done using command below, simply place the TOKEN and name, and set the volume path in PWD.
 
 ```bash
 docker run --rm -d -e "TOKEN=<discord app client secret here>" --name <name> -v <PWD>/audio:/app/audio seker212/discord_bot:2.0
@@ -85,8 +85,10 @@ For managing project Visual Studio is recommended but any editor will do with su
 
 Before running the project, [`ffmpeg`](https://www.ffmpeg.org/download.html) should be added to PATH (available from cli) if any music/sound related commands will be run. Additionally [`yt-dlp`](https://github.com/yt-dlp/yt-dlp/releases) also needs to be added for commands connected to YouTube servicer will be used.
 
+Steps:
+
 1. Clone this repo with checkout to branch `master-2.0`.
-2. Open `DiscordBot.sln` with Visual studio
+2. Open `DiscordBot.sln` with Visual studio (or editor of your choice)
 3. Place `token.txt` file in main folder with token aqured earlier.
 4. Run the `DiscordBot` project
 

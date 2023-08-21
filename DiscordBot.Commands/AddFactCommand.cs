@@ -9,11 +9,12 @@ namespace DiscordBot.Commands
 {
     /// <summary>
     /// Class for handling adding "random" facts used later by typing on text channel @anyone 
+    /// File attached to command should be in CRLF format, not LF as it will be spliced based on new lines.
     /// </summary>
     [Name("addfact")]
     [Description("Adds new random fact, single from text or all from attached txt file")]
     [Option("text", "Add single random fact", CommandOptionType.String, false)]
-    [Option("file", "Add from file all random fact (each in new line)", CommandOptionType.Attachment, false)]
+    [Option("file", "Add from file all random fact (each in new line), file line ending CRLF", CommandOptionType.Attachment, false)]
     [RequiredPermission(GuildPermission.ManageGuild)]
     public class AddFactCommand : Command
     {
@@ -28,6 +29,8 @@ namespace DiscordBot.Commands
 
         public override async Task ExecuteAsync(SocketSlashCommand command)
         {
+            await command.DeferAsync();
+
             try
             {
                 var guildId = command.GuildId;
@@ -38,7 +41,7 @@ namespace DiscordBot.Commands
                 {
                     _factProvider.Add(guildId, optionText);
 
-                    await command.RespondAsync("Added new random fact");
+                    await command.ModifyOriginalResponseAsync(m => m.Content = "Added new random fact");
                 }
                 else if (optionFile is not null)
                 {
@@ -53,18 +56,18 @@ namespace DiscordBot.Commands
                             _factProvider.AddAll(guildId, text);
                         }
 
-                        await command.RespondAsync("Added new random facts from give file");
+                        await command.ModifyOriginalResponseAsync(m => m.Content = "Added new random facts from give file");
                     }
                 }
                 else
                 {
-                    await command.RespondAsync("Nothing was provided as fact to be added");
+                    await command.ModifyOriginalResponseAsync(m => m.Content = "Nothing was provided as fact to be added");
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Adding new random fact threw an exception");
-                await command.RespondAsync("Error occured when handling command");
+                await command.ModifyOriginalResponseAsync(m => m.Content = "Error occured when handling command");
             }
         }
     }

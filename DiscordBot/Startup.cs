@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Discord;
 using Discord.WebSocket;
 using DiscordBot.Commands;
@@ -9,6 +9,7 @@ using DiscordBot.Core.Interfaces;
 using DiscordBot.Core.Providers;
 using DiscordBot.Core.Voice;
 using DiscordBot.MessageHandlers;
+using DiscordBot.MessageHandlers.Helpers;
 using DiscordBot.ActivityLogging;
 using Serilog;
 using Serilog.Extensions.Autofac.DependencyInjection;
@@ -75,13 +76,23 @@ namespace DiscordBot
             builder.RegisterSerilog(loggerConfiguration);
             builder.RegisterType<Commands.Core.Helpers.SlashCommandBuilder>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<CommandOptionConverter>().AsImplementedInterfaces().SingleInstance();
+            
             builder.RegisterType<DatabaseCacheConfigProvider>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<DatabaseCacheResponseProvider>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<DatabaseCacheFactProvider>().AsImplementedInterfaces().SingleInstance();
+            
             builder.RegisterType<ConfigRepository>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<ResponseRepository>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<FactRepository>().AsImplementedInterfaces().SingleInstance();
+
             builder.Register(_ => GetSqliteConnection(databasePath)).As<IDbConnection>().SingleInstance();
             builder.RegisterType<SqliteCompiler>().As<Compiler>().SingleInstance();
             builder.RegisterType<QueryFactory>().AsSelf().SingleInstance();
+            
             builder.RegisterType<TimeZoneHelper>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<RegexResponsesHelper>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<AudioQueueManager>().AsImplementedInterfaces().SingleInstance();
+
             return builder.Build();
         }
 

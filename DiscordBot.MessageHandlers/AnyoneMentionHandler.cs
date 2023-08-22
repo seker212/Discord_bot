@@ -11,7 +11,7 @@ namespace DiscordBot.MessageHandlers
     /// </summary>
     public class AnyoneMentionHandler : IMessageReceivedHandler
     {
-        private static Random random = new Random();
+        private static Random _random = new Random();
 
         private const string SELF_PATTERN = @"@anyone";
         private readonly ILogger<AnyoneMentionHandler> _logger;
@@ -33,7 +33,7 @@ namespace DiscordBot.MessageHandlers
             var socketChannel = (socketMessage.Channel as SocketTextChannel)!;
 
             var users = socketChannel.Users;
-            var index = random.Next(users.Count);
+            var index = _random.Next(users.Count);
             var mention = users.ElementAt(index).Mention;
 
             var response = GetRandomFact(socketChannel.Guild.Id);

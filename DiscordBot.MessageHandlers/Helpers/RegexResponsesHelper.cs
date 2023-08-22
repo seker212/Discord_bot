@@ -5,7 +5,17 @@ namespace DiscordBot.MessageHandlers.Helpers
 {
     public interface IRegexResponseHelper
     {
+        /// <summary>
+        /// Method for veryfying if given text have appropriate response
+        /// </summary>
+        /// <param name="text">Text to be checked</param>
+        /// <returns>True if there is response to given text, false otherwise</returns>
         bool IsMatch(string text);
+        /// <summary>
+        /// Method for obtaining response to given text
+        /// </summary>
+        /// <param name="text">Text to be checked</param>
+        /// <returns>Response to given text</returns>
         string GetResponse(string text);
     }
 

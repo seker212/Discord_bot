@@ -36,11 +36,11 @@ namespace DiscordBot.MessageHandlers
             var index = random.Next(users.Count);
             var mention = users.ElementAt(index).Mention;
 
-            var response = getRandomFact(socketChannel.Guild.Id);
+            var response = GetRandomFact(socketChannel.Guild.Id);
 
             await socketChannel.SendMessageAsync(mention + " " + response);
         }
-        private string getRandomFact(ulong guildId)
+        private string GetRandomFact(ulong guildId)
         {
             var values = _randomFactProvider.GetAll(guildId);
 

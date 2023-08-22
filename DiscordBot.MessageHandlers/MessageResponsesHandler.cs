@@ -9,14 +9,16 @@ namespace DiscordBot.MessageHandlers
 {
     /// <summary>
     /// Class for handling different messages that mentions bot
-    /// e.g 
-    /// - welcome message
-    /// - giving random response
-    /// - adding question mark emoji
     /// </summary>
+    /// <remarks>
+    /// What is handled:
+    /// - welcome/goodbye messages
+    /// - giving random response
+    /// - adding question mark emoji for text with question mark
+    /// </remarks>
     public class MessageResponsesHandler : IMessageReceivedHandler
     {
-        private static Random random = new Random();
+        private static Random _random = new Random();
 
         private readonly IDiscordClient _client;
         private readonly ILogger<MessageResponsesHandler> _logger;
@@ -73,7 +75,7 @@ namespace DiscordBot.MessageHandlers
                 return "Nothing";
 
             var valuesList = values.ToList();
-            var index = random.Next(valuesList.Count);
+            var index = _random.Next(valuesList.Count);
             return valuesList[index];
         }
 

@@ -48,7 +48,7 @@ namespace DiscordBot.MessageHandlers
                 return "Nothing";
 
             var valuesList = values.ToList();
-            var index = random.Next(valuesList.Count);
+            var index = _random.Next(valuesList.Count);
             return valuesList[index];
         }
 

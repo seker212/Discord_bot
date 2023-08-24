@@ -69,7 +69,7 @@ namespace DiscordBot.Commands.SoundCommands
 
                 if (text != string.Empty)
                 {
-                    embed.AddField(letter.ToString(), text);
+                    embed.AddField(letter.ToString(), text, true);
                 }
             }
 

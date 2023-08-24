@@ -6,19 +6,19 @@ using Microsoft.Extensions.Logging;
 
 namespace DiscordBot.Commands
 {
-    [Name("skip")]
-    [Description("Skips currently played track")]
-    public class SkipCommand : Command
+    [Name("stop")]
+    [Description("Stops playing and clears the queue")]
+    public class StopCommand : Command
     {
-        private readonly IAudioClientManager _audioClientManager;
-        private readonly ILogger<SkipCommand> _logger;
+        private readonly ILogger<StopCommand> _logger;
         private readonly IAudioQueueManager _audioQueueManager;
+        private readonly IAudioClientManager _audioClientManager;
 
-        public SkipCommand(IAudioClientManager audioClientManager, ILogger<SkipCommand> logger, IAudioQueueManager audioQueueManager)
+        public StopCommand(ILogger<StopCommand> logger, IAudioQueueManager audioQueueManager, IAudioClientManager audioClientManager)
         {
-            _audioClientManager = audioClientManager;
             _logger = logger;
             _audioQueueManager = audioQueueManager;
+            _audioClientManager = audioClientManager;
         }
 
         public override async Task ExecuteAsync(SocketSlashCommand command)
@@ -30,8 +30,8 @@ namespace DiscordBot.Commands
             }
             if (_audioClientManager.HasActiveAudioPlayer(command.GuildId.Value))
             {
-                await command.RespondAsync("Skipping track.");
-                await _audioQueueManager.SkipAsync(command.GuildId.Value);
+                await command.RespondAsync("Stopping player and cleaning queue.");
+                await _audioQueueManager.StopAsync(command.GuildId.Value);
             }
             else
                 await command.RespondAsync("Guild has no active audio player.");

@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Discord;
 using Discord.WebSocket;
 using DiscordBot.Commands;
@@ -9,6 +9,7 @@ using DiscordBot.Core.Interfaces;
 using DiscordBot.Core.Providers;
 using DiscordBot.Core.Voice;
 using DiscordBot.MessageHandlers;
+using DiscordBot.MessageHandlers.Helpers;
 using DiscordBot.ActivityLogging;
 using Serilog;
 using Serilog.Extensions.Autofac.DependencyInjection;
@@ -20,6 +21,7 @@ using DiscordBot.Database.Repositories;
 using SqlKata.Execution;
 using System.Data;
 using SqlKata.Compilers;
+using Microsoft.Extensions.Logging;
 
 namespace DiscordBot
 {
@@ -41,6 +43,10 @@ namespace DiscordBot
                 .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}")
                 .WriteTo.SQLite(databasePath);
 
+            var seqUrl = Environment.GetEnvironmentVariable("SEQ_URL");
+            if (seqUrl is not null)
+                loggerConfiguration.WriteTo.Seq(seqUrl, apiKey: Environment.GetEnvironmentVariable("SEQ_KEY"));
+
             var builder = new ContainerBuilder();
             builder.Register(_ => new DiscordSocketConfig { MessageCacheSize = 100, GatewayIntents = GatewayIntents.All }).AsSelf().SingleInstance();
             builder.RegisterType<BotTokenProvider>().AsImplementedInterfaces().SingleInstance();
@@ -60,7 +66,7 @@ namespace DiscordBot
             builder.RegisterType<StartupTaskProvider>().AsImplementedInterfaces().SingleInstance()
                 .WithParameter(
                 (pi, ctx) => pi.ParameterType == typeof(IEnumerable<Task>),
-                (pi, ctx) => GetStartupTasks(ctx));
+                (pi, ctx) => GetStartupTasks(ctx.Resolve<IComponentContext>()));
             builder.RegisterType<MessageReceivedHandlerProvider>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<OofReactionHandler>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<CommandComparer>().AsImplementedInterfaces().SingleInstance();
@@ -70,12 +76,23 @@ namespace DiscordBot
             builder.RegisterSerilog(loggerConfiguration);
             builder.RegisterType<Commands.Core.Helpers.SlashCommandBuilder>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<CommandOptionConverter>().AsImplementedInterfaces().SingleInstance();
+            
             builder.RegisterType<DatabaseCacheConfigProvider>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<DatabaseCacheResponseProvider>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<DatabaseCacheFactProvider>().AsImplementedInterfaces().SingleInstance();
+            
             builder.RegisterType<ConfigRepository>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<ResponseRepository>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<FactRepository>().AsImplementedInterfaces().SingleInstance();
+
             builder.Register(_ => GetSqliteConnection(databasePath)).As<IDbConnection>().SingleInstance();
             builder.RegisterType<SqliteCompiler>().As<Compiler>().SingleInstance();
             builder.RegisterType<QueryFactory>().AsSelf().SingleInstance();
+            
             builder.RegisterType<TimeZoneHelper>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<RegexResponsesHelper>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<AudioQueueManager>().AsImplementedInterfaces().SingleInstance();
+
             return builder.Build();
         }
 
@@ -89,6 +106,7 @@ namespace DiscordBot
                 { 
                     await slashCommandsManager.RemoveUnknownCommandsAsync();
                     await slashCommandsManager.RegisterCommandsAsync();
+                    componentContext.Resolve<ILogger<Startup>>().LogInformation("Finished command registration.");
                 }
             };
 

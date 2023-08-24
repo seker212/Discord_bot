@@ -1,8 +1,8 @@
-name: Build and test merge 2.0
+name: Build and test merge v2
 
 on:
   pull_request:
-    branches: [ "master-2.0" ]
+    branches: [ "master" ]
 
 jobs:
   build:

@@ -14,6 +14,7 @@ RUN apk update && \
         apk add libsodium && \
         apk add icu-dev && \
         apk add ffmpeg && \
+        apk add tzdata && \
         apk add yt-dlp
 COPY --from=build /app/publish .
 RUN ln -s /usr/lib/libopus.so.*.*.* /app/libopus.so

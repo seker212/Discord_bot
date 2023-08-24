@@ -14,11 +14,12 @@ RUN apk update && \
         apk add libsodium && \
         apk add icu-dev && \
         apk add ffmpeg && \
+        apk add tzdata && \
         apk add yt-dlp
 COPY --from=build /app/publish .
 RUN ln -s /usr/lib/libopus.so.0.8.0 /app/libopus.so
 RUN ln -s /usr/lib/libsodium.so.23.3.0 /app/libsodium.so
-ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+\ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 ENV DATABASE_PATH=/app/data/data.db
 ENV AUDIO_PATH=/app/audio
 ENTRYPOINT [ "dotnet", "DiscordBot.dll" ]

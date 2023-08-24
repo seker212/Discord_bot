@@ -1,10 +1,21 @@
 version: "3.9"
 services:
-  Chi-chan:
-    image: seker212/discord_bot
+  DiscordBot:
+    image: seker212/discord_bot:2.0
+    build: 
+      context: .
     environment:
       - TOKEN=0
+      - SEQ_URL=http://seq:5341
     volumes: 
       - ./audio:/app/audio
-      - ./settings:/app/settings
-      - ./logs:/app/logs
+      - ./data:/app/data
+  seq:
+    image: datalust/seq
+    restart: unless-stopped
+    environment:
+      - ACCEPT_EULA=Y
+    ports:
+      - 8080:80
+    volumes:
+      - ./seq:/data

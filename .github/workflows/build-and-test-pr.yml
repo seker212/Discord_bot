@@ -1,0 +1,37 @@
+name: Build and test merge v2
+
+on:
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout target
+      uses: actions/checkout@v3
+      with:
+        ref: '${{ github.base_ref }}'
+    - name: Config git
+      run: |
+          git config --local user.email "mock@mail.com"
+          git config --local user.name "Github Actions"
+    - name: Add remote
+      run: git remote add incoming ${{ github.event.pull_request.head.repo.clone_url }}
+    - name: Fetch head
+      run: git fetch --unshallow incoming ${{ github.head_ref }}
+    - name: Merge head
+      run: git merge --no-ff incoming/${{ github.head_ref }}
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+    # Uncomment the lines below once tests are introduced to the solution 
+    # - name: Test
+    #   run: dotnet test --no-build --verbosity normal

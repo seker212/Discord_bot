@@ -81,6 +81,7 @@ namespace DiscordBot.Commands.Core
         {
             return Task.Run(() =>
             {
+                CommandListHelper.Commands = _commands.ToList();
                 var taskCache = _commands.Select(c => RegisterCommandAsync(c)).ToArray();
                 Task.WaitAll(taskCache);
             });

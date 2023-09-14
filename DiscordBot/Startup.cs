@@ -22,6 +22,7 @@ using SqlKata.Execution;
 using System.Data;
 using SqlKata.Compilers;
 using Microsoft.Extensions.Logging;
+using DiscordBot.Commands.Helpers;
 
 namespace DiscordBot
 {

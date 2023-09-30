@@ -28,7 +28,7 @@ namespace DiscordBot.Commands
         /// </summary>
         /// <param name="userPermissions">Discord guild permission</param>
         /// <returns>List of command with command that this user can use</returns>
-        private List<ICommand> GetCommands(GuildPermissions userPermissions)
+        private IEnumerable<ICommand> GetCommands(GuildPermissions userPermissions)
         {
             var commands = _commands.Value.ToList();
 
@@ -61,7 +61,7 @@ namespace DiscordBot.Commands
             var title = "Help for `/" + command + "`";
             var desription = "";
 
-            var result = commands.Find(x => x.Name == command);
+            var result = commands.SingleOrDefault(x => x.Name == command);
 
             if(result == null)
             {

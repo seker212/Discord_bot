@@ -1,6 +1,5 @@
 ﻿using Discord.WebSocket;
 using DiscordBot.Commands.Core.Helpers;
-using DiscordBot.Core.Helpers;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 
@@ -81,7 +80,6 @@ namespace DiscordBot.Commands.Core
         {
             return Task.Run(() =>
             {
-                CommandListHelper.Commands = _commands.ToList();
                 var taskCache = _commands.Select(c => RegisterCommandAsync(c)).ToArray();
                 Task.WaitAll(taskCache);
             });

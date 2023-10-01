@@ -1,6 +1,5 @@
 ﻿using Discord.WebSocket;
 using DiscordBot.Commands.Core.Helpers;
-using DiscordBot.Core.Helpers;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 

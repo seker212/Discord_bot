@@ -22,6 +22,7 @@ using SqlKata.Execution;
 using System.Data;
 using SqlKata.Compilers;
 using Microsoft.Extensions.Logging;
+using DiscordBot.Commands.Helpers;
 
 namespace DiscordBot
 {
@@ -57,7 +58,14 @@ namespace DiscordBot
                     (pi, ctx) => pi.ParameterType == typeof(DiscordSocketConfig),
                     (pi, ctx) => ctx.Resolve<DiscordSocketConfig>());
             builder.Register(_ => new ActivityProvider(ActivityType.Playing, "WEEEEEEEEEEEEEEEEEEEEEEEEE")).AsImplementedInterfaces().SingleInstance();
-            builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(OnCommand))!).Where(x => x.IsClass && !x.IsAbstract && x.IsAssignableTo<ICommand>()).AsImplementedInterfaces().SingleInstance();
+            builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(OnCommand))!).Where(x => x.IsClass && !x.IsAbstract && x.IsAssignableTo<ICommand>() && !x.IsAssignableTo<HelpCommand>()).AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<HelpCommand>().As<ICommand>().SingleInstance().WithParameter(
+                (pi, ctx) => pi.ParameterType == typeof(Lazy<IEnumerable<ICommand>>),
+                (pi, ctx) => {
+                    var container = ctx.Resolve<IComponentContext>();
+                    return new Lazy<IEnumerable<ICommand>>(() => container.Resolve<IEnumerable<ICommand>>());
+                });
+
             builder.RegisterType<SlashCommandsManager>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<SlashCommandHandlerProvider>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<DiscordLoggingHelper>().AsImplementedInterfaces().SingleInstance();

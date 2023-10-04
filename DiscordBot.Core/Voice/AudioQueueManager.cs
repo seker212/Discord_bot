@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Audio;
 using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
 
 namespace DiscordBot.Core.Voice
 {
@@ -21,9 +22,9 @@ namespace DiscordBot.Core.Voice
 
         public AudioQueueManager(IAudioClientManager audioClientManager, ILogger<AudioQueueManager> logger)
         {
-            _guildsQueues = new Dictionary<ulong, Queue<AudioQueueEntry>>();
+            _guildsQueues = new ConcurrentDictionary<ulong, Queue<AudioQueueEntry>>();
             _audioClientManager = audioClientManager;
-            _playingTaskCache = new Dictionary<ulong, Task>();
+            _playingTaskCache = new ConcurrentDictionary<ulong, Task>();
             _logger = logger;
         }
 

@@ -73,6 +73,7 @@ namespace DiscordBot
             builder.RegisterType<AudioStreamHelper>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<YoutubeSearchHelper>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<VoiceChannelResolver>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<VoiceMessagesSenderHelper>().AsImplementedInterfaces().SingleInstance();
             
             builder.RegisterType<DiscordClientLoggingProvider>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<StartupTaskProvider>().AsImplementedInterfaces().SingleInstance()

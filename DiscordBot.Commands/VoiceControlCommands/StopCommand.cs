@@ -4,7 +4,7 @@ using DiscordBot.Commands.Core.CommandAttributes;
 using DiscordBot.Core.Voice;
 using Microsoft.Extensions.Logging;
 
-namespace DiscordBot.Commands
+namespace DiscordBot.Commands.VoiceControlCommands
 {
     [Name("stop")]
     [Description("Stops playing and clears the queue")]

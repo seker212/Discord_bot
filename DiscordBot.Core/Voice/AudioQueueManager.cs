@@ -9,6 +9,7 @@ namespace DiscordBot.Core.Voice
     {
         int Add(ulong guildId, AudioQueueEntry audioQueueEntry);
         int GetQueueCount(ulong guildId);
+        Queue<AudioQueueEntry>? GetQueue(ulong guildId);
         Task SkipAsync(ulong guildId);
         Task StopAsync(ulong guildId);
     }
@@ -45,6 +46,8 @@ namespace DiscordBot.Core.Voice
 
             return _guildsQueues[guildId].Count;
         }
+
+        public Queue<AudioQueueEntry>? GetQueue(ulong guildId) => _guildsQueues.ContainsKey(guildId) ? _guildsQueues[guildId] : null;
 
         public async Task SkipAsync(ulong guildId)
         {

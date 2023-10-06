@@ -11,7 +11,7 @@ namespace DiscordBot.Commands.Helpers
     public interface IVoiceChannelResolver
     {
         /// <summary>
-        /// Method for obtaining voice channel based on command parameter and usert status.
+        /// Method for obtaining voice channel based on command parameter and user status.
         /// </summary>
         /// <param name="command">Command that was executed</param>
         /// <param name="optionName">Name of option where voice channel was passed</param>

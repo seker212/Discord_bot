@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Audio;
 using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
 
 namespace DiscordBot.Core.Voice
 {
@@ -8,6 +9,7 @@ namespace DiscordBot.Core.Voice
     {
         int Add(ulong guildId, AudioQueueEntry audioQueueEntry);
         int GetQueueCount(ulong guildId);
+        Queue<AudioQueueEntry>? GetQueue(ulong guildId);
         Task SkipAsync(ulong guildId);
         Task StopAsync(ulong guildId);
     }
@@ -21,9 +23,9 @@ namespace DiscordBot.Core.Voice
 
         public AudioQueueManager(IAudioClientManager audioClientManager, ILogger<AudioQueueManager> logger)
         {
-            _guildsQueues = new Dictionary<ulong, Queue<AudioQueueEntry>>();
+            _guildsQueues = new ConcurrentDictionary<ulong, Queue<AudioQueueEntry>>();
             _audioClientManager = audioClientManager;
-            _playingTaskCache = new Dictionary<ulong, Task>();
+            _playingTaskCache = new ConcurrentDictionary<ulong, Task>();
             _logger = logger;
         }
 
@@ -44,6 +46,8 @@ namespace DiscordBot.Core.Voice
 
             return _guildsQueues[guildId].Count;
         }
+
+        public Queue<AudioQueueEntry>? GetQueue(ulong guildId) => _guildsQueues.ContainsKey(guildId) ? _guildsQueues[guildId] : null;
 
         public async Task SkipAsync(ulong guildId)
         {

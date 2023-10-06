@@ -16,8 +16,9 @@ namespace DiscordBot.Core
         private readonly IDiscordClientLoggingProvider _discordClientLoggingProvider;
         private readonly IMessageReceivedHandlerProvider _messageReceivedHandlerProvider;
         private readonly IVoiceChannelActivityProvider _voiceChannelActivityProvider;
+        private readonly ITextChannelActivityProvider _textChannelActivityProvider;
 
-        public BotClientRunner(DiscordSocketClient client, ITokenProvider tokenProvider, IActivityProvider activityProvider, IStartupTaskProvider startupTaskProvider, IDiscordClientLoggingProvider discordClientLoggingProvider, ISlashCommandHandlerProvider slashCommandHandlerProvider, ILogger<BotClientRunner> logger, IMessageReceivedHandlerProvider messageReceivedHandlerProvider, IVoiceChannelActivityProvider voiceChannelActivityProvider)
+        public BotClientRunner(DiscordSocketClient client, ITokenProvider tokenProvider, IActivityProvider activityProvider, IStartupTaskProvider startupTaskProvider, IDiscordClientLoggingProvider discordClientLoggingProvider, ISlashCommandHandlerProvider slashCommandHandlerProvider, ILogger<BotClientRunner> logger, IMessageReceivedHandlerProvider messageReceivedHandlerProvider, IVoiceChannelActivityProvider voiceChannelActivityProvider, ITextChannelActivityProvider textChannelActivityProvider)
         {
             _client = client;
             _tokenProvider = tokenProvider;
@@ -28,6 +29,7 @@ namespace DiscordBot.Core
             _discordClientLoggingProvider = discordClientLoggingProvider;
             _messageReceivedHandlerProvider = messageReceivedHandlerProvider;
             _voiceChannelActivityProvider = voiceChannelActivityProvider;
+            _textChannelActivityProvider = textChannelActivityProvider;
         }
 
         public async Task Run()
@@ -38,6 +40,7 @@ namespace DiscordBot.Core
             _client.Log += _discordClientLoggingProvider.LogDiscordClientEvent;
             _client.MessageReceived += _messageReceivedHandlerProvider.OnMessageReceived;
             _client.UserVoiceStateUpdated += _voiceChannelActivityProvider.OnUserVoiceStateUpdate;
+            _client.MessageDeleted += _textChannelActivityProvider.OnMessageDeleted;
             _logger.LogDebug("Client's events registered");
             _logger.LogDebug("Setting bot's activity...");
             await _client.SetGameAsync(_activityProvider.ActivityName, _activityProvider.TwitchStreamUrl, _activityProvider.ActivityType);

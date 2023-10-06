@@ -9,7 +9,7 @@ namespace DiscordBot.Commands.VoiceControlCommands
 {
     [Name("yt")]
     [Description("Plays audio from youtube")]
-    [Option("text", "Link to YouTube video or query (text) to search for video", CommandOptionType.String, true)]
+    [Option("video", "Link to YouTube video or query (text) to search for video", CommandOptionType.String, true)]
     [Option("channel", "voice channel", CommandOptionType.GuildVoiceChannel, false)]
     public class YoutubeCommand : Command
     {
@@ -34,14 +34,14 @@ namespace DiscordBot.Commands.VoiceControlCommands
         {
             await command.DeferAsync();
 
-            var targetChannel = _voiceChannelResolver.GetVoiceChannel(command);
+            var targetChannel = _voiceChannelResolver.GetVoiceChannel(command, "channel");
 
             if (targetChannel == null)
             {
                 return;
             }
 
-            var urlOrQuery = command.GetOptionValue<string>("text")!;
+            var urlOrQuery = command.GetOptionValue<string>("video")!;
             var videoData = _youtubeSearchHelper.GetYoutubeVideoData(urlOrQuery);
             var queueCount = _audioQueueManager.GetQueueCount(command.GuildId.Value);
 

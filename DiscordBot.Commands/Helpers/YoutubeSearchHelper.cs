@@ -6,11 +6,20 @@ using System.Diagnostics;
 
 namespace DiscordBot.Commands.Helpers
 {
+    /// <summary>
+    /// Helper for geting youtube video data
+    /// </summary>
     public interface IYoutubeSearchHelper
     {
+        /// <summary>
+        /// Method for getting youtube video data, checking if it is direct url or query.
+        /// </summary>
+        /// <param name="urlOrQuery">Text containg url to video or query</param>
+        /// <returns>Youtube object containing information about video</returns>
         YoutubeVideoData GetYoutubeVideoData(string urlOrQuery);
     }
 
+    /// <inheritdoc cref="IYoutubeSearchHelper"/>
     public class YoutubeSearchHelper : IYoutubeSearchHelper
     {
         private const string HTTP = "http://";
@@ -36,6 +45,12 @@ namespace DiscordBot.Commands.Helpers
             }
         }
 
+        /// <summary>
+        /// Method for resolving url to youtube video.
+        /// </summary>
+        /// <param name="uri">Correct uri to video</param>
+        /// <returns>Youtube object containing information about video</returns>
+        /// <exception cref="ArgumentException">Thrown if invalid uri was provided</exception>
         private YoutubeVideoData GetVideoDataFromUri(string uri)
         {
             if (!Uri.IsWellFormedUriString(uri, UriKind.Absolute))
@@ -47,12 +62,24 @@ namespace DiscordBot.Commands.Helpers
             return GetVideoData(uri);
         }
 
+        /// <summary>
+        /// Method for resolving query to youtube video.
+        /// </summary>
+        /// <param name="query">Text query that will be used in youtube search</param>
+        /// Youtube object containing information about video
+        /// <returns></returns>
         private YoutubeVideoData GetVideoDataFromQuery(string query)
         {
             _logger.LogDebug($"Getting yt metadata for search query: \"{query}\"");
             return GetVideoData($"ytsearch1:\"{query}\"");
         }
 
+        /// <summary>
+        /// Method for resolving url or text (endQuery) using yt-dlp .
+        /// </summary>
+        /// <param name="endQuery">Formatted yt-dlp query</param>
+        /// Youtube object containing information about video
+        /// <returns></returns>
         private YoutubeVideoData GetVideoData(string endQuery)
         {
             using (var youtubeProcess = Process.Start(new ProcessStartInfo

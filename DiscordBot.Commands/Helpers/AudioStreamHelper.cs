@@ -4,12 +4,26 @@ using System.Diagnostics;
 
 namespace DiscordBot.Commands.Helpers
 {
+    /// <summary>
+    /// Helper with ffmpeg stream creation.
+    /// </summary>
     public interface IAudioStreamHelper
     {
+        /// <summary>
+        /// Creates ffmpeg stream based on file in local system.
+        /// </summary>
+        /// <param name="audioFile">File that should be used to create stream</param>
+        /// <returns>Created stream</returns>
         AudioStreamElements CreateAudioStream(FileInfo audioFile);
+        /// <summary>
+        /// Creates ffmpeg stream based on youtube provided data
+        /// </summary>
+        /// <param name="videoData">Youtube object containing information about stream</param>
+        /// <returns>Created stream.</returns>
         AudioStreamElements CreateAudioStream(YoutubeVideoData videoData);
     }
 
+    /// <inheritdoc cref="IAudioStreamHelper"/>
     public class AudioStreamHelper : IAudioStreamHelper
     {
         private const string FFMPEG = "ffmpeg";
@@ -35,7 +49,7 @@ namespace DiscordBot.Commands.Helpers
             var ffmpegProcess = Process.Start(new ProcessStartInfo
             {
                 FileName = FFMPEG,
-                Arguments = $"-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5 {LOG_LEVEL} -i \"{videoData.DownloadUrl}\"{AUDIO_PARAMS}",
+                Arguments = $"-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5 {LOG_LEVEL} -i \"{videoData.DownloadUrl}\" {AUDIO_PARAMS}",
                 UseShellExecute = false,
                 RedirectStandardOutput = true
             });

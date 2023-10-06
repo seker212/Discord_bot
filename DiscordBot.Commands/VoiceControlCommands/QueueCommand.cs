@@ -7,6 +7,10 @@ using Microsoft.Extensions.Logging;
 
 namespace DiscordBot.Commands.VoiceControlCommands
 {
+    /// <summary>
+    /// Class for handling queue command.
+    /// Queue command print contents of audio queue, sounds or videos that will be played.
+    /// </summary>
     [Name("queue")]
     [Description("Prints content of queue")]
     public class QueueCommand : Command
@@ -22,22 +26,24 @@ namespace DiscordBot.Commands.VoiceControlCommands
 
         public override async Task ExecuteAsync(SocketSlashCommand command)
         {
-            await command.DeferAsync();
-
             var guildId = command.GuildId.Value;
             var queue = _audioQueueManager.GetQueue(guildId);
 
             if(queue is null || queue.Count == 0)
             {
-                await command.ModifyOriginalResponseAsync(m => { m.Embed = GetEmptyQueueEmbed(); });
+                await command.RespondAsync(embed: GetEmptyQueueEmbed());
             }
             else
             {
-                await command.ModifyOriginalResponseAsync(m => { m.Embed = GetQueueEmbed(queue); });
+                await command.RespondAsync(embed: GetQueueEmbed(queue));
             }
         }
 
-        private Embed GetEmptyQueueEmbed ()
+        /// <summary>
+        /// Method for getting formatted embed where queue is empty.
+        /// </summary>
+        /// <returns>Built embed</returns>
+        private Embed GetEmptyQueueEmbed()
         {
             var builder = new EmbedBuilder()
             {
@@ -47,6 +53,11 @@ namespace DiscordBot.Commands.VoiceControlCommands
             return builder.Build();
         }
 
+        /// <summary>
+        /// Method for getting formatted embed with all queued element printed in order with numbers.
+        /// </summary>
+        /// <param name="queue">Queue of audio element that will be used in embed</param>
+        /// <returns>Built embed</returns>
         private Embed GetQueueEmbed(Queue<AudioQueueEntry> queue)
         {
             var builder = new EmbedBuilder()

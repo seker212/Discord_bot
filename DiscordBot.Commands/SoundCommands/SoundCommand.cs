@@ -50,7 +50,7 @@ namespace DiscordBot.Commands.SoundCommands
                 }
                 else
                 {
-                    var targetChannel = _voiceChannelResolver.GetVoiceChannel(command);
+                    var targetChannel = _voiceChannelResolver.GetVoiceChannel(command, "channel");
                     var queueCount = _audioQueueManager.GetQueueCount(command.GuildId.Value);
 
                     if(targetChannel == null)

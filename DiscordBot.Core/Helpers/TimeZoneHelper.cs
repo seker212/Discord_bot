@@ -22,7 +22,7 @@
                 var zone = TimeZoneInfo.FindSystemTimeZoneById(timeZone);
                 return zone;
             }
-            catch (TimeZoneNotFoundException)
+            catch (Exception ex) when (ex is TimeZoneNotFoundException || ex is ArgumentNullException)
             {
                 return null;
             }

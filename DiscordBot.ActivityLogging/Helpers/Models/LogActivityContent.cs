@@ -2,6 +2,9 @@
 
 namespace DiscordBot.ActivityLogging.Helpers.Models
 {
+    /// <summary>
+    /// Class for transfering information about activity logs.
+    /// </summary>
     public record LogActivityContent
     {
         public LogActivityContent(LogActivityType logActivityType, ulong guildId, string? mention, string? voiceAction) : this(logActivityType, guildId, mention, voiceAction, null)
@@ -9,6 +12,14 @@ namespace DiscordBot.ActivityLogging.Helpers.Models
 
         }
 
+        /// <summary>
+        /// Default all parameters constructor.
+        /// </summary>
+        /// <param name="logActivityType">Type of activity</param>
+        /// <param name="guildId">Discord guild id associated with action</param>
+        /// <param name="mention">Mention of user associated with action</param>
+        /// <param name="voiceAction">Text information about voice action that will be logged</param>
+        /// <param name="textAction">Text information about text/message action that will be logged</param>
         public LogActivityContent(LogActivityType logActivityType, ulong guildId, string? mention, string? voiceAction, string? textAction)
         {
             LogActivityType = logActivityType;
@@ -18,10 +29,10 @@ namespace DiscordBot.ActivityLogging.Helpers.Models
             TextAction = textAction;
         }
 
-        public LogActivityType LogActivityType { get; set; }
-        public ulong GuildId { get; set; }
-        public string? Mention { get; set; }
-        public string? VoiceAction { get; set; }
-        public string? TextAction { get; set; }
+        public LogActivityType LogActivityType { get; }
+        public ulong GuildId { get; }
+        public string? Mention { get; }
+        public string? VoiceAction { get; }
+        public string? TextAction { get; }
     }
 }

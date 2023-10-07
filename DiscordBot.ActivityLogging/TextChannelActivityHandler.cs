@@ -1,5 +1,4 @@
-﻿using Discord.WebSocket;
-using Discord;
+﻿using Discord;
 using DiscordBot.ActivityLogging.Helpers;
 using DiscordBot.Core.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -8,6 +7,7 @@ using DiscordBot.ActivityLogging.Enums;
 
 namespace DiscordBot.ActivityLogging
 {
+    /// <inheritdoc cref="ITextChannelActivityHandler"/>
     public class TextChannelActivityHandler : ITextChannelActivityHandler
     {
         private const LogActivityType messageRemoved = LogActivityType.TextChannelActivityMessageRemoved;

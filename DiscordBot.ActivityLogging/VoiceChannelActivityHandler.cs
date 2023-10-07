@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace DiscordBot.ActivityLogging
 {
+    /// <inheritdoc cref="IVoiceChannelActivityHandler"/>
     public class VoiceChannelActivityHandler : IVoiceChannelActivityHandler
     {
         private const LogActivityType activityType = LogActivityType.VoiceChannelActivity;

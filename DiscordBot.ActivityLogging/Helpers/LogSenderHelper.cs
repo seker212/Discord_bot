@@ -17,7 +17,7 @@ namespace DiscordBot.ActivityLogging.Helpers
         /// Method that send activity logs on disord channel based on provided content
         /// </summary>
         /// <param name="content">Activity object that will be logged</param>
-        /// <returns>Task for discord SendMessageAsync()</returns>
+        /// <returns>Task for discord <see cref="IMessageChannel.SendMessageAsync">SendMessageAsync()</see></returns>
         Task SendLogsToChannel(LogActivityContent content);
     }
 
@@ -59,7 +59,7 @@ namespace DiscordBot.ActivityLogging.Helpers
         /// <param name="mention">User mention associated with message</param>
         /// <param name="action">What text activity was done in text form</param>
         /// <param name="title">Title of log message</param>
-        /// <returns>Task for discord SendMessageAsync()</returns>
+        /// <returns>Task for discord <see cref="IMessageChannel.SendMessageAsync">SendMessageAsync()</see></returns>
         private async Task SendTextChannelActivity(SocketTextChannel textChannel, string mention, string action, string title)
         {
             var time = GetTime(textChannel.Guild.Id);
@@ -73,7 +73,7 @@ namespace DiscordBot.ActivityLogging.Helpers
         /// <param name="textChannel">Discord text channel that message will be send</param>
         /// <param name="mention">User mention associated with message</param>
         /// <param name="action">What text activity was done in text form</param>
-        /// <returns>Task for discord SendMessageAsync()</returns>
+        /// <returns>Task for discord <see cref="IMessageChannel.SendMessageAsync">SendMessageAsync()</see></returns>
         private async Task SendVoiceChannelActivity(SocketTextChannel textChannel, string mention, string action)
         {
             var embed = BuildEmbed("Voice status change", $"[ {GetTime(textChannel.Guild.Id)} ]" + mention + " " + action);
@@ -110,7 +110,7 @@ namespace DiscordBot.ActivityLogging.Helpers
         /// </summary>
         /// <param name="title"></param>
         /// <param name="description"></param>
-        /// <returns></returns>
+        /// <returns>Discord built embed</returns>
         private Embed BuildEmbed(string title, string description)
         {
             var embed = new EmbedBuilder()

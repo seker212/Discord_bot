@@ -17,6 +17,9 @@
         /// <returns>Returns TimeZoneInfo or null if timezone was incorrect</returns>
         public TimeZoneInfo? ConvertTimeZoneFromString(string timeZone)
         {
+            if (timeZone == null)
+                return null;
+
             try
             {
                 var zone = TimeZoneInfo.FindSystemTimeZoneById(timeZone);

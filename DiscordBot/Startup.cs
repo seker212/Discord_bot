@@ -23,6 +23,7 @@ using System.Data;
 using SqlKata.Compilers;
 using Microsoft.Extensions.Logging;
 using DiscordBot.Commands.Helpers;
+using DiscordBot.ActivityLogging.Helpers;
 
 namespace DiscordBot
 {
@@ -49,7 +50,7 @@ namespace DiscordBot
                 loggerConfiguration.WriteTo.Seq(seqUrl, apiKey: Environment.GetEnvironmentVariable("SEQ_KEY"));
 
             var builder = new ContainerBuilder();
-            builder.Register(_ => new DiscordSocketConfig { MessageCacheSize = 100, GatewayIntents = GatewayIntents.All }).AsSelf().SingleInstance();
+            builder.Register(_ => new DiscordSocketConfig { MessageCacheSize = 1000, GatewayIntents = GatewayIntents.All }).AsSelf().SingleInstance();
             builder.RegisterType<BotTokenProvider>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<BotClientRunner>().AsSelf().SingleInstance();
             builder.RegisterType<DiscordSocketClient>()
@@ -83,8 +84,13 @@ namespace DiscordBot
             builder.RegisterType<MessageReceivedHandlerProvider>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<OofReactionHandler>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<CommandComparer>().AsImplementedInterfaces().SingleInstance();
+
+            builder.RegisterType<LogSenderHelper>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<VoiceChannelActivityProvider>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<VoiceChannelActivityHandler>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<TextChannelActivityProvider>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<TextChannelActivityHandler>().AsImplementedInterfaces().SingleInstance();
+
             builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(OofReactionHandler))!).Where(x => x.IsClass && !x.IsAbstract && x.IsAssignableTo<IMessageReceivedHandler>()).AsImplementedInterfaces().SingleInstance();
             builder.RegisterSerilog(loggerConfiguration);
             builder.RegisterType<Commands.Core.Helpers.SlashCommandBuilder>().AsImplementedInterfaces().SingleInstance();

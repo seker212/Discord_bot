@@ -17,8 +17,9 @@ namespace DiscordBot.Core
         private readonly IMessageReceivedHandlerProvider _messageReceivedHandlerProvider;
         private readonly IVoiceChannelActivityProvider _voiceChannelActivityProvider;
         private readonly ITextChannelActivityProvider _textChannelActivityProvider;
+        private readonly IUserPresenceActivityProvider _userPresenceActivityProvider;
 
-        public BotClientRunner(DiscordSocketClient client, ITokenProvider tokenProvider, IActivityProvider activityProvider, IStartupTaskProvider startupTaskProvider, IDiscordClientLoggingProvider discordClientLoggingProvider, ISlashCommandHandlerProvider slashCommandHandlerProvider, ILogger<BotClientRunner> logger, IMessageReceivedHandlerProvider messageReceivedHandlerProvider, IVoiceChannelActivityProvider voiceChannelActivityProvider, ITextChannelActivityProvider textChannelActivityProvider)
+        public BotClientRunner(DiscordSocketClient client, ITokenProvider tokenProvider, IActivityProvider activityProvider, IStartupTaskProvider startupTaskProvider, IDiscordClientLoggingProvider discordClientLoggingProvider, ISlashCommandHandlerProvider slashCommandHandlerProvider, ILogger<BotClientRunner> logger, IMessageReceivedHandlerProvider messageReceivedHandlerProvider, IVoiceChannelActivityProvider voiceChannelActivityProvider, ITextChannelActivityProvider textChannelActivityProvider, IUserPresenceActivityProvider userPresenceActivityProvider)
         {
             _client = client;
             _tokenProvider = tokenProvider;
@@ -30,6 +31,7 @@ namespace DiscordBot.Core
             _messageReceivedHandlerProvider = messageReceivedHandlerProvider;
             _voiceChannelActivityProvider = voiceChannelActivityProvider;
             _textChannelActivityProvider = textChannelActivityProvider;
+            _userPresenceActivityProvider = userPresenceActivityProvider;
         }
 
         public async Task Run()
@@ -38,10 +40,15 @@ namespace DiscordBot.Core
             _client.Ready += _startupTaskProvider.OnReady;
             _client.SlashCommandExecuted += _slashCommandHandlerProvider.SlashCommandHandlerAsync;
             _client.Log += _discordClientLoggingProvider.LogDiscordClientEvent;
+            
+            //Handlers
             _client.MessageReceived += _messageReceivedHandlerProvider.OnMessageReceived;
             _client.UserVoiceStateUpdated += _voiceChannelActivityProvider.OnUserVoiceStateUpdate;
             _client.MessageDeleted += _textChannelActivityProvider.OnMessageDeleted;
+            _client.VoiceChannelStatusUpdated += _voiceChannelActivityProvider.OnVoiceChannelStatusUpdated;
+            _client.PresenceUpdated += _userPresenceActivityProvider.OnPresenceUpdated;
             _logger.LogDebug("Client's events registered");
+            
             _logger.LogDebug("Setting bot's activity...");
             await _client.SetGameAsync(_activityProvider.ActivityName, _activityProvider.TwitchStreamUrl, _activityProvider.ActivityType);
             _logger.LogDebug("Bot's activity set");

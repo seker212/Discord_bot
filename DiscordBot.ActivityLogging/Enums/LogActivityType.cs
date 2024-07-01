@@ -6,6 +6,7 @@
     public enum LogActivityType
     {
         VoiceChannelActivity,
-        TextChannelActivityMessageRemoved
+        TextChannelActivityMessageRemoved,
+        UserCustomStatusChange
     }
 }

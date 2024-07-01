@@ -90,6 +90,10 @@ namespace DiscordBot
             builder.RegisterType<VoiceChannelActivityHandler>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<TextChannelActivityProvider>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<TextChannelActivityHandler>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<UserPresenceActivityProvider>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<UserPresenceActivityHandler>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<UserStatusHandler>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<UserCustomPresenceHandler>().AsImplementedInterfaces().SingleInstance();
 
             builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(OofReactionHandler))!).Where(x => x.IsClass && !x.IsAbstract && x.IsAssignableTo<IMessageReceivedHandler>()).AsImplementedInterfaces().SingleInstance();
             builder.RegisterSerilog(loggerConfiguration);
@@ -123,7 +127,10 @@ namespace DiscordBot
             {
                 async () => 
                 { 
-                    await slashCommandsManager.RemoveUnknownCommandsAsync();
+                    //TODO: Fix removing/updating end registering commands to not be hit with rate limit and to not remove commands that were not changed
+                    //https://github.com/seker212/Discord_bot/issues/188
+
+                    //await slashCommandsManager.RemoveUnknownCommandsAsync();
                     await slashCommandsManager.RegisterCommandsAsync();
                     componentContext.Resolve<ILogger<Startup>>().LogInformation("Finished command registration.");
                 }

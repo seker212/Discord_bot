@@ -43,16 +43,20 @@ namespace DiscordBot.ActivityLogging
                 var mention = message.Value.Author.Mention;
                 var content = message.Value.Content;
                 var attachments = message.Value.Attachments;
-                var text = $"Author: {mention} \r\nContent: {content} \r\n";
-                if(attachments.Count != 0)
-                {
-                    text += "Attachments urls: \r\n";
-                    foreach( var attachment in attachments)
-                    {
-                        text += attachment.Url;
-                        text += "\r\n";
-                    }
-                }
+                var text = $"Author: {mention} \r\n Channel: {guildChannel.Name} \r\nContent: {content} \r\n";
+
+                // TODO: Fix handling attachments as for now providing url will not work as they are removed as they are created.
+                // https://github.com/seker212/Discord_bot/issues/186
+
+                //if(attachments.Count != 0)
+                //{
+                //    text += "Attachments urls: \r\n";
+                //    foreach( var attachment in attachments)
+                //    {
+                //        text += attachment.Url;
+                //        text += "\r\n";
+                //    }
+                //}
 
                 var log = new LogActivityContent(messageRemoved, guildId, mention, null, text);
                 await _logSenderHelper.SendLogsToChannel(log);

@@ -39,6 +39,9 @@ namespace DiscordBot.ActivityLogging.Helpers
 
         public async Task SendLogsToChannel(LogActivityContent content)
         {
+            //TODO: Add disabling and enabling logging of each time using commands
+            //https://github.com/seker212/Discord_bot/issues/190
+
             var loggingChannel = await GetLoggingTextChannel(content.GuildId);
             
             switch (content.LogActivityType)
@@ -48,6 +51,9 @@ namespace DiscordBot.ActivityLogging.Helpers
                     break;
                 case LogActivityType.TextChannelActivityMessageRemoved:
                     await SendTextChannelActivity(loggingChannel, content.Mention, content.TextAction, "Message removed");
+                    break;
+                case LogActivityType.UserCustomStatusChange:
+                    await SendUserPresenceActivity(loggingChannel, content.Mention, content.VoiceAction);
                     break;
             }
         }
@@ -77,6 +83,20 @@ namespace DiscordBot.ActivityLogging.Helpers
         private async Task SendVoiceChannelActivity(SocketTextChannel textChannel, string mention, string action)
         {
             var embed = BuildEmbed("Voice status change", $"[ {GetTime(textChannel.Guild.Id)} ]" + mention + " " + action);
+
+            await textChannel.SendMessageAsync(embed: embed);
+        }
+
+        /// <summary>
+        /// Method for sending formatted information about custom presence activity.
+        /// </summary>
+        /// <param name="textChannel">Discord text channel that message will be send</param>
+        /// <param name="mention">User mention associated with message</param>
+        /// <param name="action">What activity was done in text form</param>
+        /// <returns>Task for discord <see cref="IMessageChannel.SendMessageAsync">SendMessageAsync()</see></returns>
+        private async Task SendUserPresenceActivity(SocketTextChannel textChannel, string mention, string action)
+        {
+            var embed = BuildEmbed("User status change", $"[ {GetTime(textChannel.Guild.Id)} ]" + mention + " " + action);
 
             await textChannel.SendMessageAsync(embed: embed);
         }

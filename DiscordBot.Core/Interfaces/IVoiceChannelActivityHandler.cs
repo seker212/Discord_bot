@@ -1,3 +1,4 @@
+using Discord;
 using Discord.WebSocket;
 
 namespace DiscordBot.Core.Interfaces
@@ -14,6 +15,15 @@ namespace DiscordBot.Core.Interfaces
         /// <param name="beforeVoiceState">State before action was triggered</param>
         /// <param name="afterVoiceState">State after action was triggered</param>
         /// <returns>Activity task</returns>
-        Task Execute(SocketUser socketUser, SocketVoiceState beforeVoiceState, SocketVoiceState afterVoiceState);
+        Task ExecuteVoiceUpdate(SocketUser socketUser, SocketVoiceState beforeVoiceState, SocketVoiceState afterVoiceState);
+
+        /// <summary>
+        /// Method for handling voice channel status/description change
+        /// </summary>
+        /// <param name="channel">Voice channel which description was changed</param>
+        /// <param name="beforeVoiceState">Old description of channel</param>
+        /// <param name="afterVoiceState">Newly set description of channel</param>
+        /// <returns>Activity task</returns>
+        Task ExecuteVoiceChannelStatusUpdate(Cacheable<SocketVoiceChannel, ulong> channel, string oldStatus, string newStatus);
     }
 }

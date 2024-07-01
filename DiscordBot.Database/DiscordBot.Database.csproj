@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Discord.Net" Version="3.15.2" />
     <PackageReference Include="SqlKata.Execution" Version="2.4.0" />
   </ItemGroup>
 

@@ -1,4 +1,5 @@
-﻿using Discord.WebSocket;
+﻿using Discord;
+using Discord.WebSocket;
 using DiscordBot.ActivityLogging.Enums;
 using DiscordBot.ActivityLogging.Helpers;
 using DiscordBot.ActivityLogging.Helpers.Models;
@@ -20,12 +21,13 @@ namespace DiscordBot.ActivityLogging
             _logger = logger;
         }
 
-        public Task Execute(SocketUser socketUser, SocketVoiceState beforeVoiceState, SocketVoiceState afterVoiceState)
+        public Task ExecuteVoiceUpdate(SocketUser socketUser, SocketVoiceState beforeVoiceState, SocketVoiceState afterVoiceState)
             => Task.Run(async () =>
             {
                 var userMention = socketUser.Mention;
                 ulong guildId = beforeVoiceState.VoiceChannel == null ? afterVoiceState.VoiceChannel.Guild.Id : beforeVoiceState.VoiceChannel.Guild.Id;
                 string voiceAction = "";
+                var activity = socketUser.Activities.SingleOrDefault(activity => activity.Name == UserPresenceNames.voiceStatusName);
 
                 if (afterVoiceState.VoiceChannel == null)
                     voiceAction = "left voice channel " + beforeVoiceState.VoiceChannel.Mention;
@@ -76,10 +78,46 @@ namespace DiscordBot.ActivityLogging
                         voiceAction = "hides himself in video call";
                 }
 
+                if(activity is not null)
+                {
+                    voiceAction += " with status \"" + activity.Details + "\"";
+                }
+
                 if(!string.IsNullOrEmpty(voiceAction))
                 {
                     await _logSenderHelper.SendLogsToChannel(new LogActivityContent(activityType, guildId, userMention, voiceAction));
                 }
             });
+
+        public Task ExecuteVoiceChannelStatusUpdate(Cacheable<SocketVoiceChannel, ulong> channel, string oldStatus, string newStatus)
+            => Task.Run(async () =>
+            {
+                if(!channel.HasValue)
+                {
+                    _logger.LogWarning("Cached channel had no value, but there should be. Canncelling log.");
+                    return;
+                }
+
+                var guildId = channel.Value.Guild.Id;
+                var mention = channel.Value.Mention;
+
+                var voiceAction = "channel status changed from `" + oldStatus + "` to `" + newStatus + "`";
+
+                if(string.IsNullOrEmpty(newStatus))
+                {
+                    return;
+                }
+
+                if (string.IsNullOrEmpty(oldStatus))
+                {
+                    voiceAction = " channel status set to `" + newStatus + "`";
+                }
+
+                if (!string.IsNullOrEmpty(voiceAction))
+                {
+                    await _logSenderHelper.SendLogsToChannel(new LogActivityContent(activityType, guildId, mention, voiceAction));
+                }
+            });
+
     }
 }
